@@ -171,7 +171,7 @@ export default function FormularioPsicologiaEducativa({
       };
       await fichasService.crearPsicologiaEducativa(payload);
       toast.success(
-        isEdit ? "Ficha actualizada exitosamente" : "Ficha creada exitosamente"
+        isEdit ? "Ficha de psicologia educativa actualizada exitosamente" : "Ficha de psicologia educativa creada exitosamente"
       );
       navigate("/pacientes");
     } catch (error) {

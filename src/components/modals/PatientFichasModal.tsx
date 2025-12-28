@@ -144,7 +144,7 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                               size="sm"
                               variant="outline"
                               onClick={() => handleAction("Ver", file.id)}
-                              className="p-2 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20"
+                              className="hover:bg-white hover:text-blue-600 p-2 text-dark dark:text-white-400 dark:hover:text-blue-600"
                               title="Ver"
                             >
                               <Eye size={14} />
@@ -153,28 +153,29 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                               size="sm"
                               variant="outline"
                               onClick={() => handleAction("Editar", file.id)}
-                              className="p-2 text-yellow-600 hover:bg-yellow-50 dark:text-yellow-400 dark:hover:bg-yellow-900/20"
+                              className="hover:bg-white hover:text-yellow-600 p-2 text-dark dark:text-white-400 dark:hover:text-yellow-600"
                               title="Editar"
                             >
                               <Pen size={14} />
+                            </Button>
+                            
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleAction("Exportar", file.id)}
+                              className="hover:bg-white hover:text-green-600 p-2 text-dark dark:text-white-400 dark:hover:text-green-600"
+                              title="Exportar"
+                            >
+                              <Download size={14} />
                             </Button>
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => handleAction("Eliminar", file.id)}
-                              className="p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+                              className="hover:bg-red-500 hover:text-white p-2 text-red-600 dark:text-red-400 dark:hover:text-red-400"
                               title="Eliminar"
                             >
                               <Trash size={14} />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleAction("Exportar", file.id)}
-                              className="p-2 text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800"
-                              title="Exportar"
-                            >
-                              <Download size={14} />
                             </Button>
                           </>
                         ) : (
@@ -182,7 +183,7 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                             size="sm"
                             variant="outline"
                             onClick={() => handleAction("Crear", file.id)}
-                            className="flex items-center gap-1 text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-900/20"
+                            className="hover:bg-white hover:text-green-600 p-2 text-dark dark:text-white-400 dark:hover:text-green-600"
                           >
                             <Plus size={14} />
                             Crear ficha
