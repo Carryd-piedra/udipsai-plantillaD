@@ -1,9 +1,33 @@
 import api from './api';
 
+export interface PageResponse<T> {
+  content: T[];
+  totalPages: number;
+  totalElements: number;
+  size: number;
+  number: number;
+  last: boolean;
+  first: boolean;
+}
+
+export interface PacienteParams {
+  search?: string;
+  nombresApellidos?: string;
+  cedula?: string;
+  ciudad?: string;
+  activo?: boolean;
+  jornada?: string;
+  sedeId?: number;
+  institucionEducativaId?: number;
+  page?: number;
+  size?: number;
+  sort?: string;
+}
+
 export const pacientesService = {
-  listar: async () => {
+  listar: async (params?: PacienteParams): Promise<PageResponse<any>> => {
     try {
-      const response = await api.get('/pacientes');
+      const response = await api.get('/pacientes', { params });
       return response.data;
     } catch (error) {
       console.error('Error al listar pacientes:', error);
@@ -55,20 +79,6 @@ export const pacientesService = {
     }
   },
 
-  buscar: async (search?: string, sedeId?: number | string) => {
-    try {
-      const params = new URLSearchParams();
-      if (search) params.append('search', search);
-      if (sedeId) params.append('sedeId', String(sedeId));
-
-      const response = await api.post(`/pacientes/buscar?${params.toString()}`);
-      return response.data;
-    } catch (error) {
-      console.error('Error al buscar pacientes:', error);
-      throw error;
-    }
-  },
-
   obtenerFoto: async (filename: string) => {
     try {
         const response = await api.get(`/pacientes/foto/${filename}`, {
@@ -87,16 +97,6 @@ export const pacientesService = {
       return response.data;
     } catch (error) {
       console.error('Error al eliminar paciente:', error);
-      throw error;
-    }
-  },
-
-  obtenerResumenFichas: async (id: number | string) => {
-    try {
-      const response = await api.get(`/pacientes/${id}/resumen-fichas`);
-      return response.data;
-    } catch (error) {
-      console.error('Error al obtener resumen fichas:', error);
       throw error;
     }
   },

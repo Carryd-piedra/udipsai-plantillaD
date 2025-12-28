@@ -20,12 +20,12 @@ const PageBreadcrumb: React.FC<BreadcrumbProps> = ({ pageTitle, items }) => {
   const breadcrumbItems = items || defaultItems;
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-      <h2 className="text-xl font-bold text-gray-800 dark:text-white/90">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
+      <h2 className="ml-8 text-xl font-bold text-gray-800 dark:text-white/90">
         {pageTitle}
       </h2>
       <nav aria-label="Breadcrumb">
-        <ol className="flex items-center gap-1.5">
+        <ol className="flex items-center gap-1.5 mr-8">
           {breadcrumbItems.map((item, index) => {
             const isFirst = index === 0;
 
