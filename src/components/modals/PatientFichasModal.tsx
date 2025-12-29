@@ -81,7 +81,8 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
 
   const handleAction = (action: string, fileType: string) => {
     if (action === "Crear" || action === "Editar") {
-      navigate(`/${fileType}?pacienteId=${paciente.id}`);
+      const mode = action === "Crear" ? "crear" : "editar";
+      navigate(`/${fileType}?pacienteId=${paciente.id}&mode=${mode}`);
       onClose();
       return;
     }

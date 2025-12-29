@@ -3,7 +3,7 @@ import ComponentCard from "../../common/ComponentCard";
 import { fichasService } from "../../../services/fichas";
 import { toast } from "react-toastify";
 import Button from "../../ui/button/Button";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 
 import AnamnesisForm from "./sections/PsicologiaClinica.tsx/AnamnesisForm";
 import SuenioForm from "./sections/PsicologiaClinica.tsx/SuenioForm";
@@ -653,6 +653,9 @@ export default function FormularioPsicologiaClinica({
   pacienteId,
 }: FormularioPsicologiaClinicaProps) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const mode = searchParams.get("mode");
+
   const [formData, setFormData] = useState<FichaPsicologiaClinicaState>({
     ...initialState,
     pacienteId: pacienteId ? Number(pacienteId) : 0,
@@ -661,10 +664,10 @@ export default function FormularioPsicologiaClinica({
   const [isEdit, setIsEdit] = useState(false);
 
   useEffect(() => {
-    if (pacienteId) {
+    if (pacienteId && mode === "editar") {
       fetchFicha(pacienteId);
     }
-  }, [pacienteId]);
+  }, [pacienteId, mode]);
 
   const fetchFicha = async (id: string) => {
     try {

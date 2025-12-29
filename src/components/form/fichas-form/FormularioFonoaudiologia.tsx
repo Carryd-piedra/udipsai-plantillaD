@@ -3,7 +3,7 @@ import ComponentCard from "../../common/ComponentCard";
 import { fichasService } from "../../../services/fichas";
 import { toast } from "react-toastify";
 import Button from "../../ui/button/Button";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 
 import HablaForm from "./sections/Fonoaudiologia/HablaForm";
 import AudicionForm from "./sections/Fonoaudiologia/AudicionForm";
@@ -190,6 +190,9 @@ const initialState: FonoaudiologiaState = {
 
 export default function FormularioFonoaudiologia({ pacienteId }: FormularioFonoaudiologiaProps) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const mode = searchParams.get("mode");
+
   const [formData, setFormData] = useState<FonoaudiologiaState>({
     ...initialState,
     pacienteId: pacienteId ? Number(pacienteId) : 0,
@@ -198,10 +201,10 @@ export default function FormularioFonoaudiologia({ pacienteId }: FormularioFonoa
   const [isEdit, setIsEdit] = useState(false);
 
   useEffect(() => {
-    if (pacienteId) {
+    if (pacienteId && mode === "editar") {
       fetchFicha(pacienteId);
     }
-  }, [pacienteId]);
+  }, [pacienteId, mode]);
 
   const fetchFicha = async (id: string) => {
     try {

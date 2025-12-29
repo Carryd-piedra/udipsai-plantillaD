@@ -11,7 +11,7 @@ import HistoriaPostnatalForm from "./sections/HistoriaClinica.tsx/HistoriaPostna
 import DesarrolloMotorForm from "./sections/HistoriaClinica.tsx/DesarrolloMotorForm";
 import AlimentacionForm from "./sections/HistoriaClinica.tsx/AlimentacionForm";
 import AntecedentesMedicosForm from "./sections/HistoriaClinica.tsx/AntecedentesMedicosForm";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 
 interface FormularioHistoriaClinicaProps {
   pacienteId: string | null;
@@ -153,6 +153,9 @@ export default function FormularioHistoriaClinica({
   pacienteId,
 }: FormularioHistoriaClinicaProps) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const mode = searchParams.get("mode");
+
   const [formData, setFormData] = useState<FichaMedicaState>({
     ...initialState,
     pacienteId: pacienteId ? Number(pacienteId) : 0,
@@ -162,10 +165,10 @@ export default function FormularioHistoriaClinica({
   const [isEdit, setIsEdit] = useState(false);
 
   useEffect(() => {
-    if (pacienteId) {
+    if (pacienteId && mode === "editar") {
       fetchFicha(pacienteId);
     }
-  }, [pacienteId]);
+  }, [pacienteId, mode]);
 
   const fetchFicha = async (id: string) => {
     try {

@@ -3,7 +3,7 @@ import ComponentCard from "../../common/ComponentCard";
 import { fichasService } from "../../../services/fichas";
 import { toast } from "react-toastify";
 import Button from "../../ui/button/Button";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import HistoriaEscolarForm from "./sections/PsicologiaEducativa.tsx/HistoriaEscolarForm";
 import DesarrolloForm from "./sections/PsicologiaEducativa.tsx/DesarrolloForm";
 import AdaptacionForm from "./sections/PsicologiaEducativa.tsx/AdaptacionForm";
@@ -115,6 +115,9 @@ export default function FormularioPsicologiaEducativa({
   pacienteId,
 }: FormularioPsicologiaEducativaProps) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const mode = searchParams.get("mode");
+
   const [formData, setFormData] = useState<FichaPsicologiaEducativaState>({
     ...initialState,
     pacienteId: pacienteId ? Number(pacienteId) : 0,
@@ -123,10 +126,10 @@ export default function FormularioPsicologiaEducativa({
   const [isEdit, setIsEdit] = useState(false);
 
   useEffect(() => {
-    if (pacienteId) {
+    if (pacienteId && mode === "editar") {
       fetchFicha(pacienteId);
     }
-  }, [pacienteId]);
+  }, [pacienteId, mode]);
 
   const fetchFicha = async (id: string) => {
     try {
