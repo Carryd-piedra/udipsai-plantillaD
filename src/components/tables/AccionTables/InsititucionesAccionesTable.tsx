@@ -8,6 +8,7 @@ import {
 } from "../../ui/table";
 
 import Badge from "../../ui/badge/Badge";
+import { toast } from "react-toastify";
 import { institucionesService } from "../../../services/instituciones";
 import Button from "../../ui/button/Button";
 import { InstitucionModal } from "../../modals/InstitucionModal";
@@ -18,17 +19,16 @@ import { Pencil, Trash} from "lucide-react";
 
 interface Institucion {
     id: number;
-    nombreInstitucion: string;
+    nombre: string;
     direccion: string;
-    tipoInstitucion: string;
-    institucionEstado: number;
+    tipo: string;
+    activo: boolean;
 }
 
 export default function InstitucionesTable() {
     const [instituciones, setInstituciones] = useState<Institucion[]>([]);
     const [loading, setLoading] = useState(true);
 
-    // Modal states using custom hook
     const {
         isOpen: isModalOpen,
         openModal: openInstitucionModal,
@@ -60,11 +60,10 @@ export default function InstitucionesTable() {
         fetchInstituciones();
     }, []);
 
-    const getEstadoBadge = (estado: number) => {
-        return estado === 1 ? 'success' : 'error';
+    const getEstadoBadge = (estado: boolean) => {
+        return estado ? 'success' : 'error';
     };
 
-    // Handlers
     const handleCreate = () => {
         setCurrentInstitucion(null);
         openInstitucionModal();
@@ -84,25 +83,30 @@ export default function InstitucionesTable() {
         if (institucionToDelete) {
             try {
                 await institucionesService.eliminar(institucionToDelete);
+                toast.success("Institución eliminada correctamente");
                 await fetchInstituciones();
                 closeDeleteModal();
                 setInstitucionToDelete(null);
             } catch (error) {
+                toast.error("Error al eliminar la institución");
                 console.error("Error deleting institucion:", error);
             }
         }
     };
 
-    const handleSave = async (institucion: Omit<Institucion, "id"> | Institucion) => {
+    const handleSave = async (institucion: any) => {
         try {
             if ('id' in institucion) {
                 await institucionesService.actualizar(institucion.id, institucion);
+                toast.success("Institución actualizada correctamente");
             } else {
                 await institucionesService.crear(institucion);
+                toast.success("Institución creada correctamente");
             }
             await fetchInstituciones();
             closeInstitucionModal();
         } catch (error) {
+            toast.error("Error al guardar la institución");
             console.error("Error saving institucion:", error);
         }
     };
@@ -182,20 +186,20 @@ export default function InstitucionesTable() {
                                     {institucion.id}
                                 </TableCell>
                                 <TableCell className="px-5 py-3 text-theme-xs text-gray-700 dark:text-gray-300">
-                                    {institucion.nombreInstitucion}
+                                    {institucion.nombre}
                                 </TableCell>
                                 <TableCell className="px-5 py-3 text-theme-xs text-gray-700 dark:text-gray-300">
                                     {institucion.direccion}
                                 </TableCell>
                                 <TableCell className="px-5 py-3 text-theme-xs text-gray-700 dark:text-gray-300">
-                                    {institucion.tipoInstitucion}
+                                    {institucion.tipo}
                                 </TableCell>
                                 <TableCell className="px-5 py-3 text-theme-xs text-gray-700 dark:text-gray-300">
                                     <Badge
                                         size="sm"
-                                        color={getEstadoBadge(institucion.institucionEstado)}
+                                        color={getEstadoBadge(institucion.activo)}
                                     >
-                                        {institucion.institucionEstado === 1 ? 'Activo' : 'Inactivo'}
+                                        {institucion.activo ? 'Activo' : 'Inactivo'}
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="px-5 py-3 text-theme-xs text-gray-700 dark:text-gray-300">

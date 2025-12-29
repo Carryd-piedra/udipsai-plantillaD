@@ -1,9 +1,19 @@
 import api from './api';
 
 export const seguimientosService = {
+  listar: async () => {
+    try {
+      const response = await api.get('/seguimientos');
+      return response.data;
+    } catch (error) {
+      console.error('Error al listar seguimientos:', error);
+      throw error;
+    }
+  },
+
   listarPorPaciente: async (id: number | string) => {
     try {
-      const response = await api.get(`api/seguimientos/paciente/${id}`);
+      const response = await api.get(`/seguimientos/paciente/${id}`);
       return response.data;
     } catch (error) {
       console.error('Error al obtener seguimientos del paciente:', error);
@@ -13,7 +23,7 @@ export const seguimientosService = {
 
   crear: async (request: any) => {
     try {
-      const response = await api.post('api/seguimientos', request);
+      const response = await api.post('/seguimientos', request);
       return response.data;
     } catch (error) {
       console.error('Error al crear seguimiento:', error);
@@ -23,7 +33,7 @@ export const seguimientosService = {
 
   actualizar: async (id: number | string, request: any) => {
     try {
-      const response = await api.put(`api/seguimientos/${id}`, request);
+      const response = await api.put(`/seguimientos/${id}`, request);
       return response.data;
     } catch (error) {
       console.error('Error al actualizar seguimiento:', error);
@@ -33,34 +43,10 @@ export const seguimientosService = {
 
   eliminar: async (id: number | string) => {
     try {
-      const response = await api.delete(`api/seguimientos/${id}`);
+      const response = await api.delete(`/seguimientos/${id}`);
       return response.data;
     } catch (error) {
       console.error('Error al eliminar seguimiento:', error);
-      throw error;
-    }
-  },
-
-  subirArchivo: async (id: number | string, formData: FormData) => {
-    try {
-      const response = await api.post(`api/seguimientos/${id}/documento`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error al subir archivo:', error);
-      throw error;
-    }
-  },
-
-  eliminarArchivo: async (id: number | string) => {
-    try {
-      const response = await api.delete(`api/seguimientos/documento/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error('Error al eliminar archivo:', error);
       throw error;
     }
   },

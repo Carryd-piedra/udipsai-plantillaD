@@ -7,7 +7,6 @@ import {
   LayoutGrid,
   MoreHorizontal,
   PieChart,
-  Plug,
   Building2,
   FileText,
   Link2,
@@ -41,16 +40,6 @@ const navItems: NavItem[] = [
     icon: <FileText size={20} />,
     name: "Fichas",
     path: "/fichas",
-    subItems: [
-      { name: "Historia Clínica", path: "/historia-clinica", pro: false },
-      {
-        name: "Psicología Educativa",
-        path: "/psicologia-educativa",
-        pro: false,
-      },
-      { name: "Psicología Clínica", path: "/psicologia-clinica", pro: false },
-      { name: "Fonoaudiología", path: "/fonoaudiologia", pro: false },
-    ],
   },
   {
     name: "Wais-IV",
@@ -61,6 +50,11 @@ const navItems: NavItem[] = [
     name: "Especialistas",
     icon: <Users size={20} />,
     path: "/especialistas",
+  },
+  {
+    name: "Pasantes",
+    icon: <Users size={20} />,
+    path: "/pasantes",
   },
   {
     name: "Asignaciones",
@@ -87,14 +81,6 @@ const othersItems: NavItem[] = [
       { name: "Fichas", path: "/reportes-fichas", pro: false },
       { name: "Cambios", path: "/reportes-cambios", pro: false },
       { name: "Citas", path: "/reportes-citas", pro: false },
-    ],
-  },
-  {
-    icon: <Plug size={20} />,
-    name: "Authentication",
-    subItems: [
-      { name: "Sign In", path: "/signin", pro: false },
-      { name: "Sign Up", path: "/signup", pro: false },
     ],
   },
 ];

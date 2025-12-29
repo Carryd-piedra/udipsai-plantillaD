@@ -6,22 +6,17 @@ interface Paciente {
   id: number;
   nombresApellidos: string;
   cedula: string;
-  telefono: string;
-  celular: string;
-  sede: {
-    nombre: string;
-  };
-  pacienteEstado: number;
-  // Add other fields as needed
-  fechaNacimiento?: string;
-  edad?: string;
-  ciudad?: string;
-  domicilio?: string;
-  institucionEducativa?: {
-    nombreInstitucion: string;
-  };
-  motivoConsulta?: string;
-  observaciones?: string;
+  fechaNacimiento: string;
+  fechaApertura: string;
+  activo: boolean;
+  ciudad: string;
+  domicilio: string;
+  numeroTelefono: string;
+  numeroCelular: string;
+  institucionEducativa: { id: number; nombre: string };
+  sede: { id: number; nombre: string };
+  motivoConsulta: string;
+  observaciones: string;
 }
 
 interface PatientDetailsModalProps {
@@ -29,6 +24,20 @@ interface PatientDetailsModalProps {
   onClose: () => void;
   paciente: Paciente | null;
 }
+
+const calcularEdad = (fechaNacimiento: string) => {
+  const fechaNacimientoDate = new Date(fechaNacimiento);
+  const fechaActual = new Date();
+  let edad = fechaActual.getFullYear() - fechaNacimientoDate.getFullYear();
+  const mesNacimiento = fechaNacimientoDate.getMonth();
+  const diaNacimiento = fechaNacimientoDate.getDate();
+  const mesActual = fechaActual.getMonth();
+  const diaActual = fechaActual.getDate();
+  if (mesNacimiento > mesActual || (mesNacimiento === mesActual && diaNacimiento > diaActual)) {
+    edad--;
+  }
+  return edad;
+};
 
 export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
   isOpen,
@@ -77,7 +86,7 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
               Edad
             </label>
             <p className="text-gray-900 dark:text-white">
-              {paciente.edad || "N/A"}
+              {calcularEdad(paciente.fechaNacimiento)}
             </p>
           </div>
         </div>
@@ -88,7 +97,7 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
               Teléfono / Celular
             </label>
             <p className="text-gray-900 dark:text-white">
-              {paciente.telefono} / {paciente.celular}
+              {paciente.numeroTelefono} / {paciente.numeroCelular}
             </p>
           </div>
           <div>
@@ -104,7 +113,7 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
               Sede
             </label>
             <p className="text-gray-900 dark:text-white">
-              {paciente.sede?.nombre}
+              {paciente.sede.nombre}
             </p>
           </div>
           <div>
@@ -112,7 +121,7 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
               Institución Educativa
             </label>
             <p className="text-gray-900 dark:text-white">
-              {paciente.institucionEducativa?.nombreInstitucion || "N/A"}
+              {paciente.institucionEducativa.nombre || "N/A"}
             </p>
           </div>
         </div>

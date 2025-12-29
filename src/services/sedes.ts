@@ -3,7 +3,7 @@ import api from './api';
 export const sedesService = {
   listar: async () => {
     try {
-      const response = await api.get('api/sedes/listar');
+      const response = await api.get('/sedes');
       return response.data;
     } catch (error) {
       console.error('Error al obtener sedes:', error);
@@ -13,7 +13,7 @@ export const sedesService = {
 
   crear: async (request: any) => {
     try {
-      const response = await api.post('api/sedes/insertar', request);
+      const response = await api.post('/sedes', request);
       return response.data;
     } catch (error) {
       console.error('Error al crear sede:', error);
@@ -23,7 +23,7 @@ export const sedesService = {
 
   actualizar: async (id: number | string, request: any) => {
     try {
-      const response = await api.put(`api/sedes/actualizar/${id}`, request);
+      const response = await api.put(`/sedes/${id}`, request);
       return response.data;
     } catch (error) {
       console.error('Error al actualizar sede:', error);
@@ -33,10 +33,20 @@ export const sedesService = {
 
   eliminar: async (id: number | string) => {
     try {
-      const response = await api.delete(`api/sedes/eliminar/${id}`);
+      const response = await api.delete(`/sedes/${id}`);
       return response.data;
     } catch (error) {
       console.error('Error al eliminar sede:', error);
+      throw error;
+    }
+  },
+
+  obtenerPorId: async (id: number | string) => {
+    try {
+      const response = await api.get(`/sedes/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error al obtener sede:', error);
       throw error;
     }
   },

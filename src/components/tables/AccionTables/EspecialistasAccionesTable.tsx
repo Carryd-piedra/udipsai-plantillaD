@@ -9,6 +9,7 @@ import {
 } from "../../ui/table";
 import { Pen, Trash } from "lucide-react";
 import Badge from "../../ui/badge/Badge";
+import { toast } from "react-toastify";
 import { especialistasService } from "../../../services/especialistas";
 import Button from "../../ui/button/Button";
 import { useModal } from "../../../hooks/useModal";
@@ -16,27 +17,19 @@ import { DeleteModal } from "../../ui/modal/DeleteModal";
 import { TableActionHeader } from "../../common/TableActionHeader";
 
 interface Especialista {
+  id: number;
   cedula: string;
-  especialistaEstado: boolean;
-  primerNombre: string;
-  segundoNombre: string;
-  primerApellido: string;
-  segundoApellido: string;
-  contrasena: string | null;
+  nombresApellidos: string;
+  fotoUrl: string | null;
   especialidad: {
     id: number;
     area: string;
-    permisos: any;
   };
-  esPasante: boolean;
-  especialistaAsignado: any;
-  inicioPasantia: string | null;
-  finPasantia: string | null;
   sede: {
     id: number;
     nombre: string;
-    estado: number;
   };
+  activo: boolean;
 }
 
 export default function EspecialistasAccionesTable() {
@@ -68,8 +61,8 @@ export default function EspecialistasAccionesTable() {
     fetchEspecialistas();
   }, []);
 
-  const handleEdit = (cedula: string) => {
-    navigate(`/especialistas/editar/${cedula}`);
+  const handleEdit = (id: number) => {
+    navigate(`/especialistas/editar/${id}`);
   };
 
   const handleDeleteClick = (especialista: Especialista) => {
@@ -80,11 +73,13 @@ export default function EspecialistasAccionesTable() {
   const handleConfirmDelete = async () => {
     if (selectedEspecialista) {
       try {
-        await especialistasService.eliminar(selectedEspecialista.cedula);
+        await especialistasService.eliminar(selectedEspecialista.id);
+        toast.success("Especialista eliminado correctamente");
         await fetchEspecialistas();
         closeDeleteModal();
         setSelectedEspecialista(null);
       } catch (error) {
+        toast.error("Error al eliminar especialista");
         console.error("Error al eliminar especialista:", error);
       }
     }
@@ -137,12 +132,6 @@ export default function EspecialistasAccionesTable() {
                 isHeader
                 className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
               >
-                Apellidos
-              </TableCell>
-              <TableCell
-                isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
                 Especialidad
               </TableCell>
               <TableCell
@@ -168,15 +157,12 @@ export default function EspecialistasAccionesTable() {
           {/* Table Body */}
           <TableBody>
             {especialistas.map((especialista) => (
-              <TableRow key={especialista.cedula}>
+              <TableRow key={especialista.id}>
                 <TableCell className="px-5 py-3 text-theme-xs text-gray-700 dark:text-gray-300">
                   {especialista.cedula}
                 </TableCell>
                 <TableCell className="px-5 py-3 text-theme-xs text-gray-700 dark:text-gray-300">
-                  {especialista.primerNombre} {especialista.segundoNombre}
-                </TableCell>
-                <TableCell className="px-5 py-3 text-theme-xs text-gray-700 dark:text-gray-300">
-                  {especialista.primerApellido} {especialista.segundoApellido}
+                  {especialista.nombresApellidos}
                 </TableCell>
                 <TableCell className="px-5 py-3 text-theme-xs text-gray-700 dark:text-gray-300">
                   {especialista.especialidad?.area || "N/A"}
@@ -187,9 +173,9 @@ export default function EspecialistasAccionesTable() {
                 <TableCell className="px-5 py-3 text-theme-xs text-gray-700 dark:text-gray-300">
                   <Badge
                     size="sm"
-                    color={getEstadoBadge(especialista.especialistaEstado)}
+                    color={getEstadoBadge(especialista.activo)}
                   >
-                    {especialista.especialistaEstado ? "Activo" : "Inactivo"}
+                    {especialista.activo ? "Activo" : "Inactivo"}
                   </Badge>
                 </TableCell>
                 <TableCell className="px-5 py-3 text-theme-xs text-gray-700 dark:text-gray-300">
@@ -197,7 +183,7 @@ export default function EspecialistasAccionesTable() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => handleEdit(especialista.cedula)}
+                      onClick={() => handleEdit(especialista.id)}
                       className="hover:bg-white hover:text-yellow-600 p-2 text-blue-600 dark:text-blue-400"
                       title="Editar"
                     >
@@ -225,7 +211,7 @@ export default function EspecialistasAccionesTable() {
         onClose={closeDeleteModal}
         onConfirm={handleConfirmDelete}
         title="Eliminar Especialista"
-        description={`¿Estás seguro de que deseas eliminar al especialista ${selectedEspecialista?.primerNombre} ${selectedEspecialista?.primerApellido}? Esta acción no se puede deshacer.`}
+        description={`¿Estás seguro de que deseas eliminar al especialista ${selectedEspecialista?.nombresApellidos}? Esta acción no se puede deshacer.`}
       />
     </div>
   );

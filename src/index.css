@@ -776,3 +776,8 @@ span.flatpickr-weekday,
 .simplebar-scrollbar.simplebar-visible:before {
   @apply opacity-100;
 }
+
+/* Toastify custom z-index to be above sticky header */
+.Toastify__toast-container {
+  z-index: 100000 !important;
+}

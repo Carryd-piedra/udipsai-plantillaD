@@ -10,6 +10,7 @@ import { useParams, useNavigate } from "react-router";
 import { pacientesService } from "../../../services/pacientes";
 import Button from "../../ui/button/Button";
 import { institucionesService, sedesService } from "../../../services";
+import { toast } from "react-toastify";
 
 export default function FormularioPacientes() {
   const { id } = useParams();
@@ -17,26 +18,23 @@ export default function FormularioPacientes() {
   const isEditing = !!id;
 
   const [formData, setFormData] = useState({
-    fechaApertura: new Date().toISOString(),
-    nombresApellidos: "",
-    ciudad: "",
-    fechaNacimiento: "",
-    edad: "",
     cedula: "",
+    nombresApellidos: "",
+    fechaNacimiento: new Date().toISOString().split("T")[0],
+    fotoUrl: "",
+    ciudad: "",
     domicilio: "",
-    imagen: "",
-    telefono: "",
-    celular: "",
-    institucionEducativa: 0,
-    jornada: 0,
-    proyecto: "",
+    numeroTelefono: "",
+    numeroCelular: "",
+    institucionEducativaId: 0,
+    sedeId: 0,
+    jornada: "",
     nivelEducativo: "",
     anioEducacion: "",
-    anioUniversitario: "",
-    ciclo: "",
-    carrera: "",
-    perteneceInclusion: "no",
-    tieneDiscapacidad: "no",
+    perteneceInclusion: false,
+    tieneDiscapacidad: false,
+    perteneceAProyecto: false,
+    proyecto: "",
     portadorCarnet: false,
     diagnostico: "",
     motivoConsulta: "",
@@ -44,9 +42,7 @@ export default function FormularioPacientes() {
     tipoDiscapacidad: "",
     detalleDiscapacidad: "",
     porcentajeDiscapacidad: 0,
-    perteneceAProyecto: false,
-    sede: 0,
-    fichaCompromiso: 0,
+    activo: true,
   });
 
   const [loading, setLoading] = useState(false);
@@ -60,15 +56,8 @@ export default function FormularioPacientes() {
 
           setFormData({
             ...data,
-            fechaNacimiento: data.fechaNacimiento
-              ? data.fechaNacimiento.split("T")[0]
-              : "",
-            perteneceInclusion: data.perteneceInclusion || "no",
-            tieneDiscapacidad: data.tieneDiscapacidad || "no",
-            institucionEducativa:
-              data.institucionEducativa?.id || data.institucionEducativa || 0,
-            jornada: data.jornada?.id || data.jornada || 0,
-            sede: data.sede?.id || data.sede || 0,
+            institucionEducativaId: data.institucionEducativa?.id || 0,
+            sedeId: data.sede?.id || 0,
           });
         } catch (error) {
           console.error("Error fetching patient:", error);
@@ -90,46 +79,39 @@ export default function FormularioPacientes() {
   };
 
   const handleSelectChange = (name: string, value: string | number) => {
+    console.log(name, value);
     setFormData((prev) => ({ ...prev, [name]: value }));
+    console.log(formData);
   };
 
   const handleSwitchChange = (name: string, checked: boolean) => {
-    if (name === "portadorCarnet" || name === "perteneceAProyecto") {
-      setFormData((prev) => ({ ...prev, [name]: checked }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: checked ? "si" : "no" }));
-    }
+    setFormData((prev) => ({ ...prev, [name]: checked }));
   };
 
-  const handleDateChange = (dates: Date[]) => {
-    if (dates.length > 0) {
-      const dateString = dates[0].toISOString();
-      setFormData((prev) => ({ ...prev, fechaNacimiento: dateString }));
-    }
+  const handleDateChange = (name: string, dates: Date[]) => {
+    setFormData((prev) => ({ ...prev, [name]: dates[0].toISOString() }));
   };
 
   const handleSubmit = async () => {
     try {
       setLoading(true);
+      const { fotoUrl, ...rest } = formData;
       const payload = {
-        ...formData,
-        institucionEducativa: Number(formData.institucionEducativa) || 0,
-        jornada: Number(formData.jornada) || 0,
-        sede: Number(formData.sede) || 0,
-        fichaCompromiso: Number(formData.fichaCompromiso) || 0,
-        porcentajeDiscapacidad: Number(formData.porcentajeDiscapacidad) || 0,
-        edad: String(formData.edad),
-        fechaApertura: isEditing
-          ? formData.fechaApertura
-          : new Date().toISOString(),
+        ...rest,
+        fechaNacimiento: rest.fechaNacimiento.split("T")[0],
+        institucionEducativaId: Number(rest.institucionEducativaId),
+        sedeId: Number(rest.sedeId),
       };
       if (isEditing) {
         await pacientesService.actualizar(id, payload);
+        toast.success("Paciente actualizado exitosamente");
       } else {
         await pacientesService.crear(payload);
+        toast.success("Paciente creado exitosamente");
       }
       navigate("/pacientes");
     } catch (error) {
+      toast.error("Error al guardar el paciente");
       console.error("Error saving patient:", error);
     } finally {
       setLoading(false);
@@ -175,13 +157,13 @@ export default function FormularioPacientes() {
   const [instituciones, setInstituciones] = useState([
     {
       id: "0",
-      nombreInstitucion: "",
+      nombre: "",
     },
   ]);
 
   const optionsInstituciones = instituciones.map((institucion) => ({
     value: institucion.id,
-    label: institucion.nombreInstitucion,
+    label: institucion.nombre,
   }));
 
   const optionsJornada = [
@@ -237,18 +219,8 @@ export default function FormularioPacientes() {
               <DatePicker
                 id="fechaNacimiento"
                 placeholder="Seleccione la fecha de nacimiento"
-                onChange={handleDateChange}
+                onChange={(dates) => handleDateChange("fechaNacimiento", dates)}
                 defaultDate={formData.fechaNacimiento}
-              />
-            </div>
-            <div>
-              <Label htmlFor="edad">Edad</Label>
-              <Input
-                id="edad"
-                type="number"
-                placeholder="Ingrese la edad"
-                value={formData.edad}
-                onChange={handleChange}
               />
             </div>
             <div>
@@ -276,38 +248,27 @@ export default function FormularioPacientes() {
               <Select
                 options={optionsSede}
                 placeholder="Seleccione una sede"
-                onChange={(value) => handleSelectChange("sede", value)}
-                className="dark:bg-dark-900"
-                defaultValue={String(formData.sede || "")}
+                onChange={(value) => handleSelectChange("sedeId", value)}
+                defaultValue={String(formData.sedeId || "")}
               />
             </div>
             <div>
-              <Label htmlFor="telefono">Teléfono Convencional</Label>
+              <Label htmlFor="numeroTelefono">Teléfono Convencional</Label>
               <Input
-                id="telefono"
+                id="numeroTelefono"
                 type="text"
                 placeholder="Ingrese el teléfono convencional"
-                value={formData.telefono}
+                value={formData.numeroTelefono}
                 onChange={handleChange}
               />
             </div>
             <div>
-              <Label htmlFor="celular">Teléfono Celular</Label>
+              <Label htmlFor="numeroCelular">Teléfono Celular</Label>
               <Input
-                id="celular"
+                id="numeroCelular"
                 type="text"
                 placeholder="Ingrese el teléfono celular"
-                value={formData.celular}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <Label htmlFor="imagen">Imagen (URL)</Label>
-              <Input
-                id="imagen"
-                type="text"
-                placeholder="URL de la imagen"
-                value={formData.imagen}
+                value={formData.numeroCelular}
                 onChange={handleChange}
               />
             </div>
@@ -321,7 +282,7 @@ export default function FormularioPacientes() {
             <div>
               <Switch
                 label="¿Presenta discapacidad?"
-                checked={formData.tieneDiscapacidad === "si"}
+                defaultChecked={formData.tieneDiscapacidad || false}
                 onChange={(checked) =>
                   handleSwitchChange("tieneDiscapacidad", checked)
                 }
@@ -330,7 +291,7 @@ export default function FormularioPacientes() {
             <div>
               <Switch
                 label="¿Porta carnet de discapacidad?"
-                checked={formData.portadorCarnet}
+                defaultChecked={formData.portadorCarnet || false}
                 onChange={(checked) =>
                   handleSwitchChange("portadorCarnet", checked)
                 }
@@ -344,8 +305,7 @@ export default function FormularioPacientes() {
                 onChange={(value) =>
                   handleSelectChange("tipoDiscapacidad", value)
                 }
-                className="dark:bg-dark-900"
-                defaultValue={formData.tipoDiscapacidad}
+                defaultValue={formData.tipoDiscapacidad || ""}
               />
             </div>
             <div>
@@ -390,17 +350,16 @@ export default function FormularioPacientes() {
         <div className="space-y-6">
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
             <div>
-              <Label htmlFor="institucionEducativa">
+              <Label htmlFor="institucionEducativaId">
                 Institución Educativa
               </Label>
               <Select
                 options={optionsInstituciones}
                 placeholder="Seleccione la institución educativa"
                 onChange={(value) =>
-                  handleSelectChange("institucionEducativa", value)
+                  handleSelectChange("institucionEducativaId", value)
                 }
-                className="dark:bg-dark-900"
-                defaultValue={String(formData.institucionEducativa || "")}
+                defaultValue={String(formData.institucionEducativaId || "")}
               />
             </div>
             <div>
@@ -409,7 +368,6 @@ export default function FormularioPacientes() {
                 options={optionsJornada}
                 placeholder="Seleccione la jornada"
                 onChange={(value) => handleSelectChange("jornada", value)}
-                className="dark:bg-dark-900"
                 defaultValue={String(formData.jornada || "")}
               />
             </div>
@@ -421,8 +379,7 @@ export default function FormularioPacientes() {
                 onChange={(value) =>
                   handleSelectChange("nivelEducativo", value)
                 }
-                className="dark:bg-dark-900"
-                defaultValue={formData.nivelEducativo}
+                defaultValue={formData.nivelEducativo || ""}
               />
             </div>
             <div>
@@ -431,14 +388,13 @@ export default function FormularioPacientes() {
                 options={optionsAñoEducativo}
                 placeholder="Seleccione el año educativo"
                 onChange={(value) => handleSelectChange("anioEducacion", value)}
-                className="dark:bg-dark-900"
-                defaultValue={formData.anioEducacion}
+                defaultValue={formData.anioEducacion || ""}
               />
             </div>
             <div>
               <Switch
                 label="Pertenencia a programa de inclusión"
-                checked={formData.perteneceInclusion === "si"}
+                defaultChecked={formData.perteneceInclusion || false}
                 onChange={(checked) =>
                   handleSwitchChange("perteneceInclusion", checked)
                 }
@@ -447,7 +403,7 @@ export default function FormularioPacientes() {
             <div>
               <Switch
                 label="Pertenece a Proyecto"
-                checked={formData.perteneceAProyecto}
+                defaultChecked={formData.perteneceAProyecto || false}
                 onChange={(checked) =>
                   handleSwitchChange("perteneceAProyecto", checked)
                 }
@@ -460,36 +416,6 @@ export default function FormularioPacientes() {
                 type="text"
                 placeholder="Ingrese el proyecto"
                 value={formData.proyecto}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <Label htmlFor="anioUniversitario">Año Universitario</Label>
-              <Input
-                id="anioUniversitario"
-                type="text"
-                placeholder="Ingrese el año universitario"
-                value={formData.anioUniversitario}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <Label htmlFor="ciclo">Ciclo</Label>
-              <Input
-                id="ciclo"
-                type="text"
-                placeholder="Ingrese el ciclo"
-                value={formData.ciclo}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <Label htmlFor="carrera">Carrera</Label>
-              <Input
-                id="carrera"
-                type="text"
-                placeholder="Ingrese la carrera"
-                value={formData.carrera}
                 onChange={handleChange}
               />
             </div>

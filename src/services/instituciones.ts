@@ -3,7 +3,7 @@ import api from './api';
 export const institucionesService = {
   listar: async () => {
     try {
-      const response = await api.get('api/instituciones/listar');
+      const response = await api.get('/instituciones');
       return response.data;
     } catch (error) {
       console.error('Error al obtener instituciones:', error);
@@ -13,7 +13,7 @@ export const institucionesService = {
 
   crear: async (request: any) => {
     try {
-      const response = await api.post('api/instituciones/insertar', request);
+      const response = await api.post('/instituciones', request);
       return response.data;
     } catch (error) {
       console.error('Error al crear institución:', error);
@@ -21,9 +21,19 @@ export const institucionesService = {
     }
   },
 
+  obtenerPorId: async (id: number | string) => {
+    try {
+      const response = await api.get(`/instituciones/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error al obtener institución:', error);
+      throw error;
+    }
+  },
+
   actualizar: async (id: number | string, request: any) => {
     try {
-      const response = await api.put(`api/instituciones/actualizar/${id}`, request);
+      const response = await api.put(`/instituciones/${id}`, request);
       return response.data;
     } catch (error) {
       console.error('Error al actualizar institución:', error);
@@ -33,7 +43,7 @@ export const institucionesService = {
 
   eliminar: async (id: number | string) => {
     try {
-      const response = await api.delete(`api/instituciones/eliminar/${id}`);
+      const response = await api.delete(`/instituciones/${id}`);
       return response.data;
     } catch (error) {
       console.error('Error al eliminar institución:', error);

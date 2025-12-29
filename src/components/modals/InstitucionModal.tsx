@@ -3,14 +3,12 @@ import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
-import Select from "../form/Select";
 
 interface Institucion {
     id: number;
-    nombreInstitucion: string;
+    nombre: string;
     direccion: string;
-    tipoInstitucion: string;
-    institucionEstado: number;
+    tipo: string;
 }
 
 interface InstitucionModalProps {
@@ -29,26 +27,23 @@ export const InstitucionModal: React.FC<InstitucionModalProps> = ({
     title = "Institución",
 }) => {
     const [formData, setFormData] = useState({
-        nombreInstitucion: "",
+        nombre: "",
         direccion: "",
-        tipoInstitucion: "",
-        institucionEstado: 1,
+        tipo: "",
     });
 
     useEffect(() => {
         if (initialData) {
             setFormData({
-                nombreInstitucion: initialData.nombreInstitucion,
+                nombre: initialData.nombre,
                 direccion: initialData.direccion,
-                tipoInstitucion: initialData.tipoInstitucion,
-                institucionEstado: initialData.institucionEstado,
+                tipo: initialData.tipo,
             });
         } else {
             setFormData({
-                nombreInstitucion: "",
+                nombre: "",
                 direccion: "",
-                tipoInstitucion: "",
-                institucionEstado: 1,
+                tipo: "",
             });
         }
     }, [initialData, isOpen]);
@@ -56,10 +51,6 @@ export const InstitucionModal: React.FC<InstitucionModalProps> = ({
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value } = e.target;
         setFormData((prev) => ({ ...prev, [id]: value }));
-    };
-
-    const handleSelectChange = (name: string, value: string) => {
-        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = () => {
@@ -70,11 +61,6 @@ export const InstitucionModal: React.FC<InstitucionModalProps> = ({
         onClose();
     };
 
-    const optionsEstado = [
-        { value: "1", label: "Activo" },
-        { value: "0", label: "Inactivo" },
-    ];
-
     return (
         <Modal isOpen={isOpen} onClose={onClose} className="max-w-[600px] p-6">
             <div className="mb-6">
@@ -84,12 +70,12 @@ export const InstitucionModal: React.FC<InstitucionModalProps> = ({
             </div>
             <div className="space-y-4">
                 <div>
-                    <Label htmlFor="nombreInstitucion">Nombre de la Institución</Label>
+                    <Label htmlFor="nombre">Nombre de la Institución</Label>
                     <Input
-                        id="nombreInstitucion"
+                        id="nombre"
                         type="text"
                         placeholder="Ingrese el nombre"
-                        value={formData.nombreInstitucion}
+                        value={formData.nombre}
                         onChange={handleChange}
                     />
                 </div>
@@ -106,23 +92,11 @@ export const InstitucionModal: React.FC<InstitucionModalProps> = ({
                 <div>
                     <Label htmlFor="tipoInstitucion">Tipo de Institución</Label>
                     <Input
-                        id="tipoInstitucion"
+                        id="tipo"
                         type="text"
                         placeholder="Ingrese el tipo (ej. Fiscal, Particular)"
-                        value={formData.tipoInstitucion}
+                        value={formData.tipo}
                         onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <Label htmlFor="institucionEstado">Estado</Label>
-                    <Select
-                        options={optionsEstado}
-                        placeholder="Seleccione el estado"
-                        onChange={(value) =>
-                            handleSelectChange("institucionEstado", value)
-                        }
-                        className="dark:bg-dark-900"
-                        defaultValue={String(formData.institucionEstado)}
                     />
                 </div>
             </div>

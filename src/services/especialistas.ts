@@ -1,29 +1,9 @@
 import api from './api';
 
 export const especialistasService = {
-  listarPasantes: async () => {
-    try {
-      const response = await api.get('api/especialistas/pasantes');
-      return response.data;
-    } catch (error) {
-      console.error('Error al obtener pasantes:', error);
-      throw error;
-    }
-  },
-
-  listarNoPasantes: async () => {
-    try {
-      const response = await api.get('api/especialistas/activos/nopasantes');
-      return response.data;
-    } catch (error) {
-      console.error('Error al obtener especialistas no pasantes:', error);
-      throw error;
-    }
-  },
-
   listarActivos: async () => {
     try {
-      const response = await api.get('api/especialistas/activos');
+      const response = await api.get('/especialistas');
       return response.data;
     } catch (error) {
       console.error('Error al obtener especialistas activos:', error);
@@ -33,15 +13,8 @@ export const especialistasService = {
 
   obtenerPorId: async (id: number | string) => {
     try {
-      const response = await api.get(`api/especialistas/${id}`);
+      const response = await api.get(`/especialistas/${id}`);
       const data = response.data;
-      
-      // Si tiene especialista asignado, obtenerlo también
-      if (data.especialistaAsignado) {
-        const asignado = await api.get(`api/especialistas/${data.especialistaAsignado}`);      
-          data.especialistaAsignado = asignado.data;
-      }
-      
       return data;
     } catch (error) {
       console.error('Error al obtener especialista:', error);
@@ -49,20 +22,34 @@ export const especialistasService = {
     }
   },
 
-  crear: async (request: any) => {
+  crear: async (data: any, file?: File) => {
     try {
-      const response = await api.post('api/especialistas/insertar', request);
-      return response.data;
-    } catch (error) {
-      console.error('Error al crear especialista:', error);
-      throw error;
-    }
-  },
+        const formData = new FormData();
+        formData.append("data", JSON.stringify(data));
+        
+        if (file) {
+            formData.append("file", file);
+        }
 
-  actualizar: async (id: number | string, request: any) => {
+        const response = await api.post('/especialistas', formData);
+        return response.data;
+    } catch (error) {
+        console.error('Error al crear especialista:', error);
+        throw error;
+    }
+},
+
+  actualizar: async (id: number | string, data: any, file?: File) => {
     try {
-      const response = await api.put(`api/especialistas/actualizar/${id}`, request);
-      return response.data;
+        const formData = new FormData();
+        formData.append("data", JSON.stringify(data));
+        
+        if (file) {
+            formData.append("file", file);
+        }
+
+        const response = await api.put(`/especialistas/${id}`, formData);
+        return response.data;
     } catch (error) {
       console.error('Error al actualizar especialista:', error);
       throw error;
@@ -71,11 +58,38 @@ export const especialistasService = {
 
   eliminar: async (id: number | string) => {
     try {
-      const response = await api.delete(`api/especialistas/${id}`);
+      const response = await api.delete(`/especialistas/${id}`);
       return response.data;
     } catch (error) {
       console.error('Error al eliminar especialista:', error);
       throw error;
+    }
+  },
+
+  buscar: async (search?: string, especialidadId?: number | string, sedeId?: number | string) => {
+    try {
+      const params = new URLSearchParams();
+      if (search) params.append('search', search);
+      if (especialidadId) params.append('especialidadId', String(especialidadId));
+      if (sedeId) params.append('sedeId', String(sedeId));
+
+      const response = await api.get(`/especialistas/buscar?${params.toString()}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error al buscar especialistas:', error);
+      throw error;
+    }
+  },
+
+  obtenerFoto: async (filename: string) => {
+    try {
+        const response = await api.get(`/especialistas/foto/${filename}`, {
+            responseType: 'blob'
+        });
+        return URL.createObjectURL(response.data);
+    } catch (error) {
+        console.error('Error al obtener foto:', error);
+        throw error;
     }
   },
 };

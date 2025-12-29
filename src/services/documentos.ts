@@ -1,9 +1,9 @@
 import api from './api';
 
 export const documentosService = {
-  obtenerContenido: async (documentoId: number | string) => {
+  obtenerPorId: async (id: number | string) => {
     try {
-      const response = await api.get(`api/documentos/${documentoId}/contenido`);
+      const response = await api.get(`/documentos/${id}`);
       return response.data;
     } catch (error) {
       console.error('Error al obtener documento:', error);
@@ -18,7 +18,11 @@ export const documentosService = {
       formData.append('pacienteId', String(pacienteId));
       formData.append('nombre', nombre);
 
-      const response = await api.post('api/documentos', formData);
+      const response = await api.post('/documentos', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+      });
       return response.data;
     } catch (error) {
       console.error('Error al subir documento:', error);
@@ -26,9 +30,9 @@ export const documentosService = {
     }
   },
 
-  eliminar: async (pacienteId: number | string, documentoId: number | string) => {
+  eliminar: async (id: number | string) => {
     try {
-      const response = await api.delete(`api/pacientes/${pacienteId}/documentos/${documentoId}`);
+      const response = await api.delete(`/documentos/${id}`);
       return response.data;
     } catch (error) {
       console.error('Error al eliminar documento:', error);
@@ -36,9 +40,9 @@ export const documentosService = {
     }
   },
 
-  descargar: async (documentoId: number | string) => {
+  descargar: async (id: number | string) => {
     try {
-      const response = await api.get(`api/documentos/${documentoId}/descargar`, {
+      const response = await api.get(`/documentos/${id}/descargar`, {
         responseType: 'blob',
       });
       
@@ -46,36 +50,9 @@ export const documentosService = {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `documento_${documentoId}.pdf`;
+      link.download = `documento_${id}.pdf`;
       link.click();
       window.URL.revokeObjectURL(url);
-      
-      return true;
-    } catch (error) {
-      console.error('Error al descargar documento:', error);
-      throw error;
-    }
-  },
-
-  descargarBase64: async (documentoId: number | string) => {
-    try {
-      const response = await api.get(`api/documentos/${documentoId}/contenido`);
-      const contenido = response.data;
-      const binaryString = atob(contenido);
-      const len = binaryString.length;
-      const bytes = new Uint8Array(len);
-      
-      for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-
-      const blob = new Blob([bytes], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `documento_${documentoId}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
       
       return true;
     } catch (error) {

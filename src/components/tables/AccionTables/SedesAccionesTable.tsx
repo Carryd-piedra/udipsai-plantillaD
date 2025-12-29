@@ -8,6 +8,7 @@ import {
 } from "../../ui/table";
 
 import Badge from "../../ui/badge/Badge";
+import { toast } from "react-toastify";
 import { sedesService } from "../../../services/sedes";
 import Button from "../../ui/button/Button";
 import { DeleteModal } from "../../ui/modal/DeleteModal";
@@ -19,7 +20,7 @@ import { SedeModal } from "../../modals/SedesModal";
 interface Sedes {
     id: number;
     nombre: string;
-    estado: number;
+    activo: boolean;
 }
 
 export default function SedesAccionesTable() {
@@ -58,8 +59,8 @@ export default function SedesAccionesTable() {
         fetchSedes();
     }, []);
 
-    const getEstadoBadge = (estado: number) => {
-        return estado === 1 ? 'success' : 'error';
+    const getEstadoBadge = (activo: boolean) => {
+        return activo ? 'success' : 'error';
     };
 
     // Handlers
@@ -82,25 +83,30 @@ export default function SedesAccionesTable() {
         if (sedesToDelete) {
             try {
                 await sedesService.eliminar(sedesToDelete);
+                toast.success("Sede eliminada correctamente");
                 await fetchSedes();
                 closeDeleteModal();
                 setSedesToDelete(null);
             } catch (error) {
+                toast.error("Error al eliminar sede");
                 console.error("Error deleting sedes:", error);
             }
         }
     };
 
-    const handleSave = async (sedes: Omit<Sedes, "id"> | Sedes) => {
+    const handleSave = async (sedes: any) => {
         try {
             if ('id' in sedes) {
                 await sedesService.actualizar(sedes.id, sedes);
+                toast.success("Sede actualizada correctamente");
             } else {
                 await sedesService.crear(sedes);
+                toast.success("Sede creada correctamente");
             }
             await fetchSedes();
             closeSedeModal();
         } catch (error) {
+            toast.error("Error al guardar sede");
             console.error("Error saving sedes:", error);
         }
     };
@@ -172,9 +178,9 @@ export default function SedesAccionesTable() {
                                 <TableCell className="px-5 py-3 text-theme-xs text-gray-700 dark:text-gray-300">
                                     <Badge
                                         size="sm"
-                                        color={getEstadoBadge(sede.estado)}
+                                        color={getEstadoBadge(sede.activo)}
                                     >
-                                        {sede.estado === 1 ? 'Activo' : 'Inactivo'}
+                                        {sede.activo ? 'Activo' : 'Inactivo'}
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="px-5 py-3 text-theme-xs text-gray-700 dark:text-gray-300">
@@ -217,8 +223,8 @@ export default function SedesAccionesTable() {
                 isOpen={isDeleteModalOpen}
                 onClose={closeDeleteModal}
                 onConfirm={confirmDelete}
-                title="Eliminar Institución"
-                description={`¿Estás seguro de que deseas eliminar la institución?`}
+                title="Eliminar Sede"
+                description={`¿Estás seguro de que deseas eliminar la sede?`}
             />
         </div>
     );

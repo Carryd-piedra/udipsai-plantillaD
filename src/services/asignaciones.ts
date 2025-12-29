@@ -1,19 +1,19 @@
 import api from './api';
 
 export const asignacionesService = {
-  buscar: async (formData: any) => {
+  listar: async () => {
     try {
-      const response = await api.post('api/asignaciones/buscar', formData);
+      const response = await api.get('/asignaciones');
       return response.data;
     } catch (error) {
-      console.error('Error al buscar asignaciones:', error);
+      console.error('Error al listar asignaciones:', error);
       throw error;
     }
   },
 
-  obtenerPorPasante: async (cedula: string) => {
+  obtenerPorPasante: async (id: number | string) => {
     try {
-      const response = await api.get(`api/asignaciones/pasante/${cedula}`);
+      const response = await api.get(`/asignaciones/pasante/${id}`);
       return response.data;
     } catch (error) {
       console.error('Error al obtener asignaciones del pasante:', error);
@@ -21,22 +21,22 @@ export const asignacionesService = {
     }
   },
 
-  asignar: async (pacienteId: number | string, pasanteId: number | string) => {
+  crear: async (pacienteId: number | string, pasanteId: number | string) => {
     try {
-      const response = await api.post('api/asignaciones/asignar', {
+      const response = await api.post('/asignaciones', {
         pacienteId,
         pasanteId,
       });
       return response.data;
     } catch (error) {
-      console.error('Error al asignar paciente:', error);
+      console.error('Error al crear asignación:', error);
       throw error;
     }
   },
 
-  eliminar: async (asignacionId: number | string) => {
+  eliminar: async (id: number | string) => {
     try {
-      const response = await api.delete(`api/asignaciones/eliminar/${asignacionId}`);
+      const response = await api.delete(`/asignaciones/${id}`);
       return response.data;
     } catch (error) {
       console.error('Error al eliminar asignación:', error);
