@@ -100,4 +100,15 @@ export const pacientesService = {
       throw error;
     }
   },
+
+  obtenerResumenFichas: async (id: number | string) => {
+    try {
+      const response = await api.get(`/pacientes/${id}/resumen-fichas`);
+      return response.data;
+    } catch (error) {
+      console.error('Error al obtener resumen fichas:', error);
+      throw error;
+    }
+  },
+
 };

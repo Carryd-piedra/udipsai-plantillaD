@@ -2,6 +2,7 @@ import { FileText, ListPlus, Search } from "lucide-react";
 import React, { useState } from "react";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
+import { FilterDropdown } from "./FilterDropdown";
 
 interface TableActionHeaderProps {
   title: string;
@@ -11,6 +12,9 @@ interface TableActionHeaderProps {
   onExport?: () => void;
   loading?: boolean;
   placeholder?: string;
+  onFilterApply?: () => void;
+  onFilterClear?: () => void;
+  filterContent?: React.ReactNode;
 }
 
 export const TableActionHeader: React.FC<TableActionHeaderProps> = ({
@@ -21,6 +25,9 @@ export const TableActionHeader: React.FC<TableActionHeaderProps> = ({
   onExport,
   loading = false,
   placeholder = "Buscar...",
+  onFilterApply,
+  onFilterClear,
+  filterContent,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -47,29 +54,42 @@ export const TableActionHeader: React.FC<TableActionHeaderProps> = ({
       </h2>
 
       <div className="flex items-center gap-4">
-        {onSearchClick && (
-          <div className="relative flex items-center group">
-            <Input
-              type="text"
-              placeholder={placeholder}
-              value={searchTerm}
-              onChange={handleSearchChange}
-              onKeyDown={handleKeyDown}
-              className="h-11 w-full sm:w-64 rounded-r-none border-r-0 focus:ring-0"
-            />
-            <Button
-              onClick={handleSearchSubmit}
-              className="h-11 rounded-l-none px-4 flex items-center gap-2 transition-all duration-200"
-            >
-              <Search size={16} />
-            </Button>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {onSearchClick && (
+            <div className="relative flex items-center group">
+              <Input
+                type="text"
+                placeholder={placeholder}
+                value={searchTerm}
+                onChange={handleSearchChange}
+                onKeyDown={handleKeyDown}
+                className="h-11 w-full sm:w-64 rounded-r-none border-r-0 focus:ring-0"
+              />
+              <Button
+                onClick={handleSearchSubmit}
+                className="h-11 rounded-l-none px-4 flex items-center gap-2 transition-all duration-200"
+              >
+                <Search size={16} />
+              </Button>
+            </div>
+          )}
+
+          {filterContent && onFilterApply && onFilterClear && (
+            <FilterDropdown onApply={onFilterApply} onClear={onFilterClear}>
+              {filterContent}
+            </FilterDropdown>
+          )}
+        </div>
 
         <div className="flex gap-2">
           {onExport && (
-            <Button variant="outline" onClick={onExport} disabled={loading} className="h-11">
-              <FileText size={16} /> Exportar
+            <Button
+              variant="outline"
+              onClick={onExport}
+              disabled={loading}
+              className="h-11"
+            >
+              <FileText size={16} /> <span className="hidden sm:inline">Exportar</span>
             </Button>
           )}
 

@@ -20,6 +20,11 @@ import { PatientDetailsModal } from "../../modals/PacienteDetalleModal";
 import { PatientFichasModal } from "../../modals/PatientFichasModal";
 import { TableActionHeader } from "../../common/TableActionHeader";
 import { Pagination } from "../../ui/Pagination";
+import { sedesService } from "../../../services/sedes";
+import { institucionesService } from "../../../services/instituciones";
+import Label from "../../form/Label";
+import Select from "../../form/Select";
+import Input from "../../form/input/InputField";
 
 interface Paciente {
   id: number;
@@ -51,6 +56,12 @@ export default function PacientesAccionesTable() {
   const [pageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
 
+  // Filter State
+  const [filters, setFilters] = useState<PacienteParams>({});
+  const [tempFilters, setTempFilters] = useState<PacienteParams>({});
+  const [sedes, setSedes] = useState<any[]>([]);
+  const [instituciones, setInstituciones] = useState<any[]>([]);
+
   const navigate = useNavigate();
 
   const {
@@ -71,10 +82,11 @@ export default function PacientesAccionesTable() {
     closeModal: closeFichasModal,
   } = useModal();
 
-  const fetchPacientes = async (page = currentPage, search = searchTerm) => {
+  const fetchPacientes = async (page = currentPage, search = searchTerm, currentFilters = filters) => {
     try {
       setLoading(true);
       const params: PacienteParams = {
+        ...currentFilters,
         page,
         size: pageSize,
         search: search || undefined,
@@ -90,6 +102,22 @@ export default function PacientesAccionesTable() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const loadFilterData = async () => {
+      try {
+        const [sedesData, institucionesData] = await Promise.all([
+          sedesService.listar(),
+          institucionesService.listar(),
+        ]);
+        setSedes(sedesData || []);
+        setInstituciones(institucionesData || []);
+      } catch (error) {
+        console.error("Error al cargar datos de filtros:", error);
+      }
+    };
+    loadFilterData();
+  }, []);
 
   useEffect(() => {
     fetchPacientes();
@@ -136,7 +164,20 @@ export default function PacientesAccionesTable() {
   const handleSearch = (term: string) => {
     setSearchTerm(term);
     setCurrentPage(0);
-    fetchPacientes(0, term);
+    fetchPacientes(0, term, filters);
+  };
+
+  const handleApplyFilters = () => {
+    setFilters(tempFilters);
+    setCurrentPage(0);
+    fetchPacientes(0, searchTerm, tempFilters);
+  };
+
+  const handleClearFilters = () => {
+    setTempFilters({});
+    setFilters({});
+    setCurrentPage(0);
+    fetchPacientes(0, searchTerm, {});
   };
 
   const handlePageChange = (page: number) => {
@@ -160,6 +201,54 @@ export default function PacientesAccionesTable() {
         onNew={() => navigate("/pacientes/nuevo")}
         newButtonText="Agregar"
         onExport={handleExport}
+        onFilterApply={handleApplyFilters}
+        onFilterClear={handleClearFilters}
+        filterContent={
+          <div className="space-y-4">
+            <div>
+              <Label className="mb-1.5 text-xs">Sede</Label>
+              <Select
+                options={sedes.map((s) => ({ value: s.id.toString(), label: s.nombre }))}
+                placeholder="Todas las sedes"
+                value={tempFilters.sedeId?.toString() || ""}
+                onChange={(val) => setTempFilters({ ...tempFilters, sedeId: val ? parseInt(val) : undefined })}
+                className="h-9 text-xs"
+              />
+            </div>
+            <div>
+              <Label className="mb-1.5 text-xs">Institución Educativa</Label>
+              <Select
+                options={instituciones.map((i) => ({ value: i.id.toString(), label: i.nombre }))}
+                placeholder="Todas las instituciones"
+                value={tempFilters.institucionEducativaId?.toString() || ""}
+                onChange={(val) => setTempFilters({ ...tempFilters, institucionEducativaId: val ? parseInt(val) : undefined })}
+                className="h-9 text-xs"
+              />
+            </div>
+            <div>
+              <Label className="mb-1.5 text-xs">Estado</Label>
+              <Select
+                options={[
+                  { value: "true", label: "Activo" },
+                  { value: "false", label: "Inactivo" },
+                ]}
+                placeholder="Todos"
+                value={tempFilters.activo === undefined ? "" : tempFilters.activo.toString()}
+                onChange={(val) => setTempFilters({ ...tempFilters, activo: val === "" ? undefined : val === "true" })}
+                className="h-9 text-xs"
+              />
+            </div>
+            <div>
+              <Label className="mb-1.5 text-xs">Ciudad</Label>
+              <Input
+                placeholder="Ej: Quito"
+                value={tempFilters.ciudad || ""}
+                onChange={(e) => setTempFilters({ ...tempFilters, ciudad: e.target.value })}
+                className="h-9 text-xs"
+              />
+            </div>
+          </div>
+        }
       />
       <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-white/[0.05] dark:bg-white/[0.03]">
         <div className="max-w-full overflow-x-auto">
