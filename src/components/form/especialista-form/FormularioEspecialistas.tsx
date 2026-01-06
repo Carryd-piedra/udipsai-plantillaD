@@ -19,8 +19,8 @@ export default function FormularioEspecialistas() {
     nombresApellidos: "",
     fotoUrl: "",
     contrasenia: "",
-    especialidadId: 0,
-    sedeId: 0,
+    especialidadId: "",
+    sedeId: "",
     activo: true,
   });
 
@@ -158,7 +158,7 @@ export default function FormularioEspecialistas() {
                 placeholder="Seleccione una sede"
                 onChange={(value) => handleSelectChange("sedeId", value)}
                 className="dark:bg-dark-900"
-                defaultValue={String(formData.sedeId || "")}
+                value={formData.sedeId || ""}
               />
             </div>
             <div>
@@ -170,7 +170,36 @@ export default function FormularioEspecialistas() {
                   handleSelectChange("especialidadId", value)
                 }
                 className="dark:bg-dark-900"
-                defaultValue={String(formData.especialidadId || "")}
+                value={formData.especialidadId || ""}
+              />
+            </div>
+          </div>
+        </div>
+      </ComponentCard>
+      <br />
+      <ComponentCard title="Pasantías">
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+            <div>
+              <Label htmlFor="sedeId">Sede</Label>
+              <Select
+                options={optionsSede}
+                placeholder="Seleccione una sede"
+                onChange={(value) => handleSelectChange("sedeId", value)}
+                className="dark:bg-dark-900"
+                value={formData.sedeId || ""}
+              />
+            </div>
+            <div>
+              <Label htmlFor="especialidad">Especialidad</Label>
+              <Select
+                options={optionsEspecialidad}
+                placeholder="Seleccione una especialidad"
+                onChange={(value) =>
+                  handleSelectChange("especialidadId", value)
+                }
+                className="dark:bg-dark-900"
+                value={formData.especialidadId || ""}
               />
             </div>
           </div>

@@ -14,8 +14,8 @@ interface Paciente {
   id: number;
   nombresApellidos: string;
   cedula: string;
-  telefono: string;
-  celular: string;
+  numeroTelefono: string;
+  numeroCelular: string;
   sede: {
     nombre: string;
   };
@@ -30,9 +30,17 @@ export default function PacientesTable() {
     const fetchPacientes = async () => {
       try {
         const data = await pacientesService.listar();
-        setPacientes(data);
+        console.log("BasicTable Pacientes Data:", data);
+        if (data?.content && Array.isArray(data.content)) {
+            setPacientes(data.content);
+        } else if (Array.isArray(data)) {
+            setPacientes(data);
+        } else {
+             setPacientes([]);
+        }
       } catch (error) {
         console.error("Error fetching pacientes:", error);
+        setPacientes([]);
       } finally {
         setLoading(false);
       }
@@ -78,7 +86,7 @@ export default function PacientesTable() {
                 isHeader
                 className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
               >
-                Teléfono
+                Celular
               </TableCell>
               <TableCell
                 isHeader
@@ -108,7 +116,7 @@ export default function PacientesTable() {
                   {paciente.cedula}
                 </TableCell>
                 <TableCell className="px-5 py-3 text-theme-xs text-gray-700 dark:text-gray-300">
-                  {paciente.telefono}
+                  {paciente.numeroCelular}
                 </TableCell>
                 <TableCell className="px-5 py-3 text-theme-xs text-gray-700 dark:text-gray-300">
                   {paciente.sede?.nombre}
