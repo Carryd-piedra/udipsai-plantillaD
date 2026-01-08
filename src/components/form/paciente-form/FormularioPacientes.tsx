@@ -46,6 +46,8 @@ export default function FormularioPacientes() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (isEditing) {
@@ -59,6 +61,8 @@ export default function FormularioPacientes() {
             institucionEducativaId: data.institucionEducativa?.id || 0,
             sedeId: data.sede?.id || 0,
           });
+          const fotoUrl = await pacientesService.obtenerFoto(data.fotoUrl);
+          setPreviewUrl(fotoUrl);
         } catch (error) {
           console.error("Error fetching patient:", error);
         } finally {
@@ -92,6 +96,14 @@ export default function FormularioPacientes() {
     setFormData((prev) => ({ ...prev, [name]: dates[0].toISOString() }));
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async () => {
     try {
       setLoading(true);
@@ -103,10 +115,14 @@ export default function FormularioPacientes() {
         sedeId: Number(rest.sedeId),
       };
       if (isEditing) {
-        await pacientesService.actualizar(id, payload);
+        await pacientesService.actualizar(
+          id,
+          payload,
+          selectedFile || undefined
+        );
         toast.success("Paciente actualizado exitosamente");
       } else {
-        await pacientesService.crear(payload);
+        await pacientesService.crear(payload, selectedFile || undefined);
         toast.success("Paciente creado exitosamente");
       }
       navigate("/pacientes");
@@ -194,6 +210,23 @@ export default function FormularioPacientes() {
       <ComponentCard title="Datos personales del paciente">
         <div className="space-y-6">
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+            <div>
+              <Label htmlFor="foto">Foto del Paciente</Label>
+              <input
+                id="foto"
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+              {previewUrl && (
+                <img
+                  src={previewUrl}
+                  alt="Vista previa"
+                  className="mt-2 h-20 w-20 object-cover rounded-full"
+                />
+              )}
+            </div>
             <div>
               <Label htmlFor="nombresApellidos">Nombre Completo</Label>
               <Input

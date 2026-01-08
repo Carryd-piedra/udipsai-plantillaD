@@ -37,11 +37,6 @@ const navItems: NavItem[] = [
   },
   { icon: <Calendar size={20} />, name: "Citas", path: "/citas" },
   {
-    icon: <FileText size={20} />,
-    name: "Fichas",
-    path: "/fichas",
-  },
-  {
     name: "Wais-IV",
     icon: <NotepadText size={20} />,
     path: "/wais",

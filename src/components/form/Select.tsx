@@ -1,5 +1,4 @@
-import { useState, useRef, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
+import { useState } from "react";
 
 interface Option {
   value: string;
@@ -11,80 +10,59 @@ interface SelectProps {
   placeholder?: string;
   onChange: (value: string) => void;
   className?: string;
+  defaultValue?: string;
   value?: string;
 }
 
 const Select: React.FC<SelectProps> = ({
   options,
-  placeholder = "Seleccionar opción",
+  placeholder = "Select an option",
   onChange,
   className = "",
+  defaultValue = "",
   value,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  // Manage the selected value
+  const [internalValue, setInternalValue] = useState<string>(defaultValue);
+  const selectedValue = value !== undefined ? value : internalValue;
 
-  // Encontrar la etiqueta de la opción seleccionada
-  const selectedOption = options.find((opt) => opt.value === value);
-
-  // Cerrar al hacer clic fuera
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const handleSelect = (val: string) => {
-    onChange(val);
-    setIsOpen(false);
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    if (value === undefined) {
+      setInternalValue(val);
+    }
+    onChange(val); // Trigger parent handler
   };
 
   return (
-    <div className={`relative ${className}`} ref={containerRef}>
-      {/* Botón del Select */}
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className={`flex h-11 w-full items-center justify-between rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-left text-sm shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 ${
-          !selectedOption ? "text-gray-400" : "text-gray-800"
-        }`}
+    <select
+      className={`h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pr-11 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 ${
+        selectedValue
+          ? "text-gray-800 dark:text-white/90"
+          : "text-gray-400 dark:text-gray-400"
+      } ${className}`}
+      value={selectedValue}
+      onChange={handleChange}
+    >
+      {/* Placeholder option */}
+      <option
+        value=""
+        disabled
+        className="text-gray-700 dark:bg-gray-900 dark:text-gray-400"
       >
-        <span className="truncate">
-          {selectedOption ? selectedOption.label : placeholder}
-        </span>
-        <ChevronDown
-          size={18}
-          className={`text-gray-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
-        />
-      </button>
-
-      {/* Menú Desplegable */}
-      {isOpen && (
-        <ul className="absolute z-50 mt-2 max-h-60 w-full rounded-lg bg-white p-1 shadow-lg outline-none ring-2 ring-gray-200 ring-opacity-5 dark:border-gray-700 dark:bg-gray-900 animate-in fade-in zoom-in duration-150">
-          {options.map((option) => (
-            <li
-              key={option.value}
-              onClick={() => handleSelect(option.value)}
-              className={`relative cursor-pointer select-none py-2.5 pl-3 pr-9 text-sm transition-colors
-                ${
-                  value === option.value
-                    ? "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white" // Estado Seleccionado
-                    : "text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/[0.05]" // Hover Gris
-                }
-              `}
-            >
-              <span className={`block truncate ${value === option.value ? "font-semibold" : "font-normal"}`}>
-                {option.label}
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+        {placeholder}
+      </option>
+      {/* Map over options */}
+      {options.map((option) => (
+        <option
+          key={option.value}
+          value={option.value}
+          className="text-gray-700 dark:bg-gray-900 dark:text-gray-400"
+        >
+          {option.label}
+        </option>
+      ))}
+    </select>
   );
 };
 
