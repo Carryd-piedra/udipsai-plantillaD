@@ -92,12 +92,25 @@ export default function PacientesAccionesTable() {
         search: search || undefined,
         sort: "id,desc",
       };
+      
+      console.log("Fetching patients with params:", params);
       const response = await pacientesService.listar(params);
-      setPacientes(response.content);
-      setTotalPages(response.totalPages);
+      console.log("Pacientes Response:", response);
+
+      if (response?.content && Array.isArray(response.content)) {
+        setPacientes(response.content);
+        setTotalPages(response.totalPages);
+      } else if (Array.isArray(response)) {
+        setPacientes(response);
+        setTotalPages(1); // Assuming 1 page if direct array
+      } else {
+        console.warn("Unexpected response format:", response);
+        setPacientes([]);
+      }
     } catch (error) {
       console.error("Error al obtener pacientes:", error);
       toast.error("Error al cargar la lista de pacientes");
+      setPacientes([]);
     } finally {
       setLoading(false);
     }
@@ -278,7 +291,7 @@ export default function PacientesAccionesTable() {
                   isHeader
                   className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
                 >
-                  Teléfono
+                  Celular
                 </TableCell>
                 <TableCell
                   isHeader
@@ -318,7 +331,7 @@ export default function PacientesAccionesTable() {
                       {paciente.cedula}
                     </TableCell>
                     <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
-                      {paciente.numeroTelefono}
+                      {paciente.numeroCelular}
                     </TableCell>
                     <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
                       {paciente.sede.nombre}

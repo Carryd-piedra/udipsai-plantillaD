@@ -157,7 +157,7 @@ export default function FormularioPacientes() {
   const [sedes, setSedes] = useState([{ id: "0", nombre: "" }]);
 
   const optionsSede = sedes.map((sede) => ({
-    value: sede.id,
+    value: String(sede.id),
     label: sede.nombre,
   }));
 
@@ -178,7 +178,7 @@ export default function FormularioPacientes() {
   ]);
 
   const optionsInstituciones = instituciones.map((institucion) => ({
-    value: institucion.id,
+    value: String(institucion.id),
     label: institucion.nombre,
   }));
 
@@ -282,7 +282,7 @@ export default function FormularioPacientes() {
                 options={optionsSede}
                 placeholder="Seleccione una sede"
                 onChange={(value) => handleSelectChange("sedeId", value)}
-                defaultValue={String(formData.sedeId || "")}
+                value={String(formData.sedeId || "")}
               />
             </div>
             <div>
@@ -338,7 +338,7 @@ export default function FormularioPacientes() {
                 onChange={(value) =>
                   handleSelectChange("tipoDiscapacidad", value)
                 }
-                defaultValue={formData.tipoDiscapacidad || ""}
+                value={formData.tipoDiscapacidad || ""}
               />
             </div>
             <div>
@@ -392,7 +392,7 @@ export default function FormularioPacientes() {
                 onChange={(value) =>
                   handleSelectChange("institucionEducativaId", value)
                 }
-                defaultValue={String(formData.institucionEducativaId || "")}
+                value={String(formData.institucionEducativaId || "")}
               />
             </div>
             <div>
@@ -401,7 +401,7 @@ export default function FormularioPacientes() {
                 options={optionsJornada}
                 placeholder="Seleccione la jornada"
                 onChange={(value) => handleSelectChange("jornada", value)}
-                defaultValue={String(formData.jornada || "")}
+                value={String(formData.jornada || "")}
               />
             </div>
             <div>
@@ -412,7 +412,7 @@ export default function FormularioPacientes() {
                 onChange={(value) =>
                   handleSelectChange("nivelEducativo", value)
                 }
-                defaultValue={formData.nivelEducativo || ""}
+                value={formData.nivelEducativo || ""}
               />
             </div>
             <div>
@@ -421,7 +421,7 @@ export default function FormularioPacientes() {
                 options={optionsAñoEducativo}
                 placeholder="Seleccione el año educativo"
                 onChange={(value) => handleSelectChange("anioEducacion", value)}
-                defaultValue={formData.anioEducacion || ""}
+                value={formData.anioEducacion || ""}
               />
             </div>
             <div>
