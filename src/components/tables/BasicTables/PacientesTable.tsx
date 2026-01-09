@@ -32,11 +32,11 @@ export default function PacientesTable() {
         const data = await pacientesService.listar();
         console.log("BasicTable Pacientes Data:", data);
         if (data?.content && Array.isArray(data.content)) {
-            setPacientes(data.content);
+          setPacientes(data.content);
         } else if (Array.isArray(data)) {
-            setPacientes(data);
+          setPacientes(data);
         } else {
-             setPacientes([]);
+          setPacientes([]);
         }
       } catch (error) {
         console.error("Error fetching pacientes:", error);
@@ -50,11 +50,18 @@ export default function PacientesTable() {
   }, []);
 
   const getEstadoBadge = (estado: number) => {
-    return estado === 1 ? 'success' : 'error';
+    return estado === 1 ? "success" : "error";
   };
 
   if (loading) {
-    return <div>Cargando...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <div className="w-12 h-12 border-4 border-red-200 border-t-red-600 rounded-full animate-spin"></div>
+        <p className="text-slate-500 font-medium animate-pulse text-lg">
+          Cargando pacientes...
+        </p>
+      </div>
+    );
   }
 
   return (
@@ -95,11 +102,11 @@ export default function PacientesTable() {
                 Sede
               </TableCell>
               <TableCell
-              isHeader
-              className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-            >
-              Estado
-            </TableCell>
+                isHeader
+                className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+              >
+                Estado
+              </TableCell>
             </TableRow>
           </TableHeader>
           {/* Table Body */}
@@ -126,7 +133,7 @@ export default function PacientesTable() {
                     size="sm"
                     color={getEstadoBadge(paciente.pacienteEstado)}
                   >
-                    {paciente.pacienteEstado === 1 ? 'Activo' : 'Inactivo'}
+                    {paciente.pacienteEstado === 1 ? "Activo" : "Inactivo"}
                   </Badge>
                 </TableCell>
               </TableRow>

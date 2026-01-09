@@ -10,14 +10,7 @@ import {
 } from "../ui/table";
 import Button from "../ui/button/Button";
 import { pacientesService } from "../../services/pacientes";
-import { 
-  FileText, 
-  Plus, 
-  Eye, 
-  Pen, 
-  Trash, 
-  Download 
-} from "lucide-react";
+import { FileText, Plus, Eye, Pen, Trash, Download } from "lucide-react";
 import { toast } from "react-toastify";
 import Badge from "../ui/badge/Badge";
 
@@ -38,10 +31,26 @@ interface PatientFichasModalProps {
 }
 
 const FILE_TYPES = [
-  { id: "ficha-medica", label: "Ficha Médica", internalName: "Ficha Médica" },
-  { id: "psicologia-educativa", label: "Psicología Educativa", internalName: "Psicología Educativa" },
-  { id: "psicologia-clinica", label: "Psicología Clínica", internalName: "Psicología Clínica" },
-  { id: "fonoaudiologia", label: "Fonoaudiología", internalName: "Fonoaudiología" },
+  {
+    id: "historia-clinica",
+    label: "Historia Clínica",
+    internalName: "Historia Clínica",
+  },
+  {
+    id: "psicologia-educativa",
+    label: "Psicología Educativa",
+    internalName: "Psicología Educativa",
+  },
+  {
+    id: "psicologia-clinica",
+    label: "Psicología Clínica",
+    internalName: "Psicología Clínica",
+  },
+  {
+    id: "fonoaudiologia",
+    label: "Fonoaudiología",
+    internalName: "Fonoaudiología",
+  },
 ];
 
 export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
@@ -76,7 +85,10 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
   if (!paciente) return null;
 
   const getFileStatus = (internalName: string) => {
-    return Array.isArray(resumen?.nombresFichas) && resumen.nombresFichas.includes(internalName);
+    return (
+      Array.isArray(resumen?.nombresFichas) &&
+      resumen.nombresFichas.includes(internalName)
+    );
   };
 
   const handleAction = (action: string, fileType: string) => {
@@ -102,21 +114,33 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-10">
-          <p className="text-gray-500">Cargando resumen de fichas...</p>
+        <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+          <div className="w-12 h-12 border-4 border-red-200 border-t-red-600 rounded-full animate-spin"></div>
+          <p className="text-slate-500 font-medium animate-pulse text-lg">
+            Cargando resumen de fichas...
+          </p>
         </div>
       ) : (
         <div className="max-w-full overflow-x-auto">
           <Table>
             <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
               <TableRow>
-                <TableCell isHeader className="px-4 py-3 font-medium text-gray-500 text-start text-sm dark:text-gray-400">
+                <TableCell
+                  isHeader
+                  className="px-4 py-3 font-medium text-gray-500 text-start text-sm dark:text-gray-400"
+                >
                   Tipo de Ficha
                 </TableCell>
-                <TableCell isHeader className="px-4 py-3 font-medium text-gray-500 text-start text-sm dark:text-gray-400">
+                <TableCell
+                  isHeader
+                  className="px-4 py-3 font-medium text-gray-500 text-start text-sm dark:text-gray-400"
+                >
                   Estado
                 </TableCell>
-                <TableCell isHeader className="px-4 py-3 font-medium text-gray-500 text-start text-sm dark:text-gray-400">
+                <TableCell
+                  isHeader
+                  className="px-4 py-3 font-medium text-gray-500 text-start text-sm dark:text-gray-400"
+                >
                   Acciones
                 </TableCell>
               </TableRow>
@@ -159,7 +183,7 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                             >
                               <Pen size={14} />
                             </Button>
-                            
+
                             <Button
                               size="sm"
                               variant="outline"

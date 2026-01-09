@@ -65,7 +65,7 @@ export default function App() {
                 <Route path="fonoaudiologia" element={<FichaFonoaudiologia />} />
                 <Route path="psicologia-clinica" element={<FichaPsicologiaClinica />} />
                 <Route path="psicologia-educativa" element={<FichaPsicologiaEducativa />} />
-                <Route path="ficha-medica" element={<HistoriaClinica />} />
+                <Route path="historia-clinica" element={<HistoriaClinica />} />
 
                 {/* Wais */}
                 <Route path="wais" element={<Wais />} />

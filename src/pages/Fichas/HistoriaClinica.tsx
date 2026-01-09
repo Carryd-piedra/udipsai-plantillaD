@@ -11,7 +11,7 @@ export default function HistoriaClinica() {
     <>
       <PageMeta
         title="Fichas | Udipsai"
-        description="Formulario para la gestión de fichas médicas en Udipsai"
+        description="Formulario para la gestión de Historias Clínicas en Udipsai"
       />
       <PageBreadcrumb
         pageTitle="Historia Clínica"

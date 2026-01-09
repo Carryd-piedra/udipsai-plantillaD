@@ -33,8 +33,7 @@ interface Pasante {
 export default function PasantesAccionesTable() {
   const [pasantes, setPasantes] = useState<Pasante[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedPasante, setSelectedPasante] =
-    useState<Pasante | null>(null);
+  const [selectedPasante, setSelectedPasante] = useState<Pasante | null>(null);
   const navigate = useNavigate();
 
   const {
@@ -97,14 +96,21 @@ export default function PasantesAccionesTable() {
   };
 
   if (loading) {
-    return <div>Cargando...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <div className="w-12 h-12 border-4 border-red-200 border-t-red-600 rounded-full animate-spin"></div>
+        <p className="text-slate-500 font-medium animate-pulse text-lg">
+          Cargando pasantes...
+        </p>
+      </div>
+    );
   }
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-white/[0.05] dark:bg-white/[0.03]">
       <TableActionHeader
         title="Pasantes"
-        onSearch={handleSearch}
+        onSearchClick={handleSearch}
         onNew={() => navigate("/pasantes/nuevo")}
         newButtonText="Nuevo Pasante"
         onExport={handleExport}
@@ -178,10 +184,7 @@ export default function PasantesAccionesTable() {
                   {pasante.tutor?.nombresApellidos || "N/A"}
                 </TableCell>
                 <TableCell className="px-5 py-3 text-theme-xs text-gray-700 dark:text-gray-300">
-                  <Badge
-                    size="sm"
-                    color={getEstadoBadge(pasante.activo)}
-                  >
+                  <Badge size="sm" color={getEstadoBadge(pasante.activo)}>
                     {pasante.activo ? "Activo" : "Inactivo"}
                   </Badge>
                 </TableCell>

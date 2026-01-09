@@ -61,8 +61,10 @@ export default function FormularioPacientes() {
             institucionEducativaId: data.institucionEducativa?.id || 0,
             sedeId: data.sede?.id || 0,
           });
-          const fotoUrl = await pacientesService.obtenerFoto(data.fotoUrl);
-          setPreviewUrl(fotoUrl);
+          if (data.fotoUrl) {
+            const fotoUrl = await pacientesService.obtenerFoto(data.fotoUrl);
+            setPreviewUrl(fotoUrl);
+          }
         } catch (error) {
           console.error("Error fetching patient:", error);
         } finally {
@@ -201,8 +203,15 @@ export default function FormularioPacientes() {
     { value: "tercero", label: "Tercero" },
   ];
 
-  if (loading && isEditing && !formData.nombresApellidos) {
-    return <div>Cargando datos del paciente...</div>;
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <div className="w-12 h-12 border-4 border-red-200 border-t-red-600 rounded-full animate-spin"></div>
+        <p className="text-slate-500 font-medium animate-pulse text-lg">
+          Cargando datos del paciente...
+        </p>
+      </div>
+    );
   }
 
   return (

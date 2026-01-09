@@ -99,14 +99,21 @@ export default function EspecialistasAccionesTable() {
   };
 
   if (loading) {
-    return <div>Cargando...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <div className="w-12 h-12 border-4 border-red-200 border-t-red-600 rounded-full animate-spin"></div>
+        <p className="text-slate-500 font-medium animate-pulse text-lg">
+          Cargando especialistas...
+        </p>
+      </div>
+    );
   }
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-white/[0.05] dark:bg-white/[0.03]">
       <TableActionHeader
         title="Especialistas"
-        onSearch={handleSearch}
+        onSearchClick={handleSearch}
         onNew={() => navigate("/especialistas/nuevo")}
         newButtonText="Nuevo Especialista"
         onExport={handleExport}
@@ -171,10 +178,7 @@ export default function EspecialistasAccionesTable() {
                   {especialista.sede?.nombre || "N/A"}
                 </TableCell>
                 <TableCell className="px-5 py-3 text-theme-xs text-gray-700 dark:text-gray-300">
-                  <Badge
-                    size="sm"
-                    color={getEstadoBadge(especialista.activo)}
-                  >
+                  <Badge size="sm" color={getEstadoBadge(especialista.activo)}>
                     {especialista.activo ? "Activo" : "Inactivo"}
                   </Badge>
                 </TableCell>

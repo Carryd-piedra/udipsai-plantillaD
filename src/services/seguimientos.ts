@@ -1,5 +1,23 @@
 import api from './api';
 
+export interface SeguimientoDTO {
+  id: number;
+  especialista: { id: number; nombresApellidos: string; especialidad: string };
+  paciente: { id: number; nombresApellidos: string };
+  fecha: string;
+  observacion: string;
+  activo: boolean;
+  documento?: { id: number; nombre: string; url: string };
+}
+
+export interface SeguimientoRequest {
+  especialistaId: number;
+  pacienteId: number;
+  fecha: string;
+  observacion: string;
+  documentoId?: number;
+}
+
 export const seguimientosService = {
   listar: async () => {
     try {
@@ -21,9 +39,16 @@ export const seguimientosService = {
     }
   },
 
-  crear: async (request: any) => {
+  crear: async (data: any, file?: File) => {
     try {
-      const response = await api.post('/seguimientos', request);
+      const formData = new FormData();
+      formData.append("data", JSON.stringify(data));
+      
+      if (file) {
+        formData.append("file", file);
+      }
+
+      const response = await api.post('/seguimientos', formData);
       return response.data;
     } catch (error) {
       console.error('Error al crear seguimiento:', error);
@@ -31,9 +56,16 @@ export const seguimientosService = {
     }
   },
 
-  actualizar: async (id: number | string, request: any) => {
+  actualizar: async (id: number | string, data: any, file?: File) => {
     try {
-      const response = await api.put(`/seguimientos/${id}`, request);
+      const formData = new FormData();
+      formData.append("data", JSON.stringify(data));
+      
+      if (file) {
+        formData.append("file", file);
+      }
+
+      const response = await api.put(`/seguimientos/${id}`, formData);
       return response.data;
     } catch (error) {
       console.error('Error al actualizar seguimiento:', error);

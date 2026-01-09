@@ -12,18 +12,18 @@ export const fichasService = {
     }
   },
 
-  // Ficha Médica
-  listarFichaMedica: async () => {
+  // Historia Clínica
+  listarHistoriaClinica: async () => {
     try {
-      const response = await api.get('/ficha-medica');
+      const response = await api.get('/historia-clinica');
       return response.data;
     } catch (error) {
-      console.error('Error al listar ficha médica:', error);
+      console.error('Error al listar historia clínica:', error);
       throw error;
     }
   },
 
-  crearFichaMedica: async (data: any, genograma?: File) => {
+  crearHistoriaClinica: async (data: any, genograma?: File) => {
     try {
       const formData = new FormData();
       formData.append("data", JSON.stringify(data));
@@ -32,27 +32,27 @@ export const fichasService = {
         formData.append("genograma", genograma);
       }
 
-      const response = await api.post('/ficha-medica', formData);
+      const response = await api.post('/historia-clinica', formData);
       return response.data;
     } catch (error) {
-      console.error('Error al crear ficha médica:', error);
+      console.error('Error al crear historia clínica:', error);
       throw error;
     }
   },
 
-  obtenerFichaMedica: async (id: number | string) => {
+  obtenerHistoriaClinica: async (id: number | string) => {
     try {
-      const response = await api.get(`/ficha-medica/paciente/${id}`);
+      const response = await api.get(`/historia-clinica/paciente/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Error al obtener ficha médica:', error);
+      console.error('Error al obtener historia clínica:', error);
       throw error;
     }
   },
   
   obtenerGenograma: async (pacienteId: number | string) => {
       try {
-        const response = await api.get(`/ficha-medica/paciente/${pacienteId}/genograma`, {
+        const response = await api.get(`/historia-clinica/paciente/${pacienteId}/genograma`, {
           responseType: 'blob'
         });
         return URL.createObjectURL(response.data);
@@ -62,22 +62,22 @@ export const fichasService = {
       }
   },
 
-  actualizarFichaMedica: async (id: number | string, request: any) => {
+  actualizarHistoriaClinica: async (id: number | string, request: any) => {
     try {
-      const response = await api.put(`/ficha-medica/${id}`, request);
+      const response = await api.put(`/historia-clinica/${id}`, request);
       return response.data;
     } catch (error) {
-      console.error('Error al actualizar ficha médica:', error);
+      console.error('Error al actualizar historia clínica:', error);
       throw error;
     }
   },
 
-  eliminarFichaMedica: async (id: number | string) => {
+  eliminarHistoriaClinica: async (id: number | string) => {
     try {
-      const response = await api.delete(`/ficha-medica/${id}`);
+      const response = await api.delete(`/historia-clinica/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Error al eliminar ficha médica:', error);
+      console.error('Error al eliminar historia clínica:', error);
       throw error;
     }
   },

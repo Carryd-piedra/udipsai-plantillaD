@@ -8,7 +8,6 @@ import {
   MoreHorizontal,
   PieChart,
   Building2,
-  FileText,
   Link2,
   Users,
   NotepadText,

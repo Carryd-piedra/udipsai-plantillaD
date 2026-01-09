@@ -50,13 +50,11 @@ export default function PacientesAccionesTable() {
     null
   );
 
-  // Pagination and Search State
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
 
-  // Filter State
   const [filters, setFilters] = useState<PacienteParams>({});
   const [tempFilters, setTempFilters] = useState<PacienteParams>({});
   const [sedes, setSedes] = useState<any[]>([]);
@@ -82,7 +80,11 @@ export default function PacientesAccionesTable() {
     closeModal: closeFichasModal,
   } = useModal();
 
-  const fetchPacientes = async (page = currentPage, search = searchTerm, currentFilters = filters) => {
+  const fetchPacientes = async (
+    page = currentPage,
+    search = searchTerm,
+    currentFilters = filters
+  ) => {
     try {
       setLoading(true);
       const params: PacienteParams = {
@@ -92,7 +94,7 @@ export default function PacientesAccionesTable() {
         search: search || undefined,
         sort: "id,desc",
       };
-      
+
       console.log("Fetching patients with params:", params);
       const response = await pacientesService.listar(params);
       console.log("Pacientes Response:", response);
@@ -102,7 +104,7 @@ export default function PacientesAccionesTable() {
         setTotalPages(response.totalPages);
       } else if (Array.isArray(response)) {
         setPacientes(response);
-        setTotalPages(1); // Assuming 1 page if direct array
+        setTotalPages(1);
       } else {
         console.warn("Unexpected response format:", response);
         setPacientes([]);
@@ -203,7 +205,14 @@ export default function PacientesAccionesTable() {
   };
 
   if (loading) {
-    return <div>Cargando...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <div className="w-12 h-12 border-4 border-red-200 border-t-red-600 rounded-full animate-spin"></div>
+        <p className="text-slate-500 font-medium animate-pulse text-lg">
+          Cargando pacientes...
+        </p>
+      </div>
+    );
   }
 
   return (
@@ -221,20 +230,36 @@ export default function PacientesAccionesTable() {
             <div>
               <Label className="mb-1.5 text-xs">Sede</Label>
               <Select
-                options={sedes.map((s) => ({ value: s.id.toString(), label: s.nombre }))}
+                options={sedes.map((s) => ({
+                  value: s.id.toString(),
+                  label: s.nombre,
+                }))}
                 placeholder="Todas las sedes"
                 value={tempFilters.sedeId?.toString() || ""}
-                onChange={(val) => setTempFilters({ ...tempFilters, sedeId: val ? parseInt(val) : undefined })}
+                onChange={(val) =>
+                  setTempFilters({
+                    ...tempFilters,
+                    sedeId: val ? parseInt(val) : undefined,
+                  })
+                }
                 className="h-9 text-xs"
               />
             </div>
             <div>
               <Label className="mb-1.5 text-xs">Institución Educativa</Label>
               <Select
-                options={instituciones.map((i) => ({ value: i.id.toString(), label: i.nombre }))}
+                options={instituciones.map((i) => ({
+                  value: i.id.toString(),
+                  label: i.nombre,
+                }))}
                 placeholder="Todas las instituciones"
                 value={tempFilters.institucionEducativaId?.toString() || ""}
-                onChange={(val) => setTempFilters({ ...tempFilters, institucionEducativaId: val ? parseInt(val) : undefined })}
+                onChange={(val) =>
+                  setTempFilters({
+                    ...tempFilters,
+                    institucionEducativaId: val ? parseInt(val) : undefined,
+                  })
+                }
                 className="h-9 text-xs"
               />
             </div>
@@ -246,8 +271,17 @@ export default function PacientesAccionesTable() {
                   { value: "false", label: "Inactivo" },
                 ]}
                 placeholder="Todos"
-                value={tempFilters.activo === undefined ? "" : tempFilters.activo.toString()}
-                onChange={(val) => setTempFilters({ ...tempFilters, activo: val === "" ? undefined : val === "true" })}
+                value={
+                  tempFilters.activo === undefined
+                    ? ""
+                    : tempFilters.activo.toString()
+                }
+                onChange={(val) =>
+                  setTempFilters({
+                    ...tempFilters,
+                    activo: val === "" ? undefined : val === "true",
+                  })
+                }
                 className="h-9 text-xs"
               />
             </div>
@@ -256,7 +290,9 @@ export default function PacientesAccionesTable() {
               <Input
                 placeholder="Ej: Quito"
                 value={tempFilters.ciudad || ""}
-                onChange={(e) => setTempFilters({ ...tempFilters, ciudad: e.target.value })}
+                onChange={(e) =>
+                  setTempFilters({ ...tempFilters, ciudad: e.target.value })
+                }
                 className="h-9 text-xs"
               />
             </div>

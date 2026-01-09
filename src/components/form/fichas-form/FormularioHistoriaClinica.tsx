@@ -17,7 +17,7 @@ interface FormularioHistoriaClinicaProps {
   pacienteId: string | null;
 }
 
-interface FichaMedicaState {
+interface HistoriaClinicaState {
   pacienteId: number;
   activo: boolean;
   datosFamiliares: {
@@ -83,7 +83,7 @@ interface FichaMedicaState {
   };
 }
 
-const initialState: FichaMedicaState = {
+const initialState: HistoriaClinicaState = {
   pacienteId: 0,
   activo: true,
   datosFamiliares: {
@@ -156,7 +156,7 @@ export default function FormularioHistoriaClinica({
   const [searchParams] = useSearchParams();
   const mode = searchParams.get("mode");
 
-  const [formData, setFormData] = useState<FichaMedicaState>({
+  const [formData, setFormData] = useState<HistoriaClinicaState>({
     ...initialState,
     pacienteId: pacienteId ? Number(pacienteId) : 0,
   });
@@ -174,7 +174,7 @@ export default function FormularioHistoriaClinica({
     try {
       if (!id) return;
       setLoading(true);
-      const data = await fichasService.obtenerFichaMedica(id);
+      const data = await fichasService.obtenerHistoriaClinica(id);
       if (data) {
         setFormData(data);
         setIsEdit(true);
@@ -187,7 +187,7 @@ export default function FormularioHistoriaClinica({
   };
 
   const handleNestedChange = (
-    section: keyof FichaMedicaState,
+    section: keyof HistoriaClinicaState,
     field: string,
     value: any
   ) => {
@@ -214,13 +214,13 @@ export default function FormularioHistoriaClinica({
         alimentacion: formData.alimentacion,
         antecedentesMedicos: formData.antecedentesMedicos,
       };
-      await fichasService.crearFichaMedica(payload, genogramaFile || undefined);
+      await fichasService.crearHistoriaClinica(payload, genogramaFile || undefined);
       toast.success(
-        isEdit ? "Ficha médica actualizada" : "Ficha médica creada exitosamente"
+        isEdit ? "Historia clínica actualizada" : "Historia clínica creada exitosamente"
       );
       navigate("/pacientes");
     } catch (error) {
-      toast.error("Error al guardar la ficha médica");
+      toast.error("Error al guardar la historia clínica");
       console.error("Error saving ficha:", error);
     } finally {
       setLoading(false);
@@ -228,7 +228,14 @@ export default function FormularioHistoriaClinica({
   };
 
   if (loading && !isEdit) {
-    return <div className="p-6 text-center text-gray-500">Cargando...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <div className="w-12 h-12 border-4 border-red-200 border-t-red-600 rounded-full animate-spin"></div>
+        <p className="text-slate-500 font-medium animate-pulse text-lg">
+          Cargando ficha...
+        </p>
+      </div>
+    );
   }
 
   return (
