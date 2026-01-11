@@ -149,8 +149,9 @@ export default function FormularioPacientes() {
 
   const getSedes = async () => {
     try {
-      const data = await sedesService.listar();
-      setSedes(data);
+      const data = await sedesService.listarActivos(0, 100);
+      const sedesData = data?.content || [];
+      setSedes(sedesData);
     } catch (error) {
       console.error("Error fetching sedes:", error);
     }
@@ -165,8 +166,9 @@ export default function FormularioPacientes() {
 
   const getInstituciones = async () => {
     try {
-      const data = await institucionesService.listar();
-      setInstituciones(data);
+      const data = await institucionesService.listarActivos(0, 100);
+      const institucionesData = data?.content || [];
+      setInstituciones(institucionesData);
     } catch (error) {
       console.error("Error fetching institutions:", error);
     }

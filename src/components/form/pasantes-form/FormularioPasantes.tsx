@@ -5,10 +5,13 @@ import Select from "../Select";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { pasantesService } from "../../../services/pasantes";
-import { especialistasService } from "../../../services";
+import { especialistasService, sedesService } from "../../../services";
 import Button from "../../ui/button/Button";
 import { toast } from "react-toastify";
 import DatePicker from "../date-picker";
+
+import { PermisosTable, PermissionsState } from "../../common/PermisosTable";
+import { especialidadesService } from "../../../services/especialidades";
 
 export default function FormularioPasantes() {
   const { id } = useParams();
@@ -18,14 +21,42 @@ export default function FormularioPasantes() {
   const [formData, setFormData] = useState({
     cedula: "",
     nombresApellidos: "",
-    contrasenia: "",
-    fotoUrl: "",
+    email: "",
+    ciudad: "",
+    fechaNacimiento: new Date().toISOString(),
     inicioPasantia: new Date().toISOString(),
     finPasantia: new Date().toISOString(),
-    tutorId: 0,
+    domicilio: "",
+    numeroTelefono: "",
+    numeroCelular: "",
+    sedeId: "",
+    especialidadId: "",
+    especialistaId: "",
+    contrasenia: "",
+  });
+
+  const [permisos, setPermisos] = useState<PermissionsState>({
+    pacientes: false,
+    pasantes: false,
+    sedes: false,
+    especialistas: false,
+    especialidades: false,
+    asignaciones: false,
+    recursos: false,
+    institucionesEducativas: false,
+    historiaClinica: false,
+    fonoAudiologia: false,
+    psicologiaClinica: false,
+    psicologiaEducativa: false,
   });
 
   const [loading, setLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const [sedes, setSedes] = useState<any[]>([]);
+  const [especialistas, setEspecialistas] = useState<any[]>([]);
+  const [especialidades, setEspecialidades] = useState<any[]>([]);
 
   useEffect(() => {
     if (isEditing) {
@@ -37,22 +68,76 @@ export default function FormularioPasantes() {
           setFormData({
             cedula: data.cedula,
             nombresApellidos: data.nombresApellidos,
-            contrasenia: data.contrasenia,
-            fotoUrl: data.fotoUrl,
-            inicioPasantia: data.inicioPasantia ? data.inicioPasantia.split("T")[0] : "",
+            email: data.email,
+            ciudad: data.ciudad,
+            fechaNacimiento: data.fechaNacimiento
+              ? data.fechaNacimiento.split("T")[0]
+              : "",
+            inicioPasantia: data.inicioPasantia
+              ? data.inicioPasantia.split("T")[0]
+              : "",
             finPasantia: data.finPasantia ? data.finPasantia.split("T")[0] : "",
-            tutorId: data.tutor?.id || 0,
+            domicilio: data.domicilio,
+            numeroTelefono: data.numeroTelefono,
+            numeroCelular: data.numeroCelular,
+            sedeId: data.sede?.id || "",
+            especialistaId: data.especialista?.id || "",
+            especialidadId: data.especialidad?.id || "",
+            contrasenia: data.contrasenia,
           });
+
+          if (data.permisos) {
+            setPermisos({
+              pacientes: data.permisos.pacientes || false,
+              pasantes: data.permisos.pasantes || false,
+              sedes: data.permisos.sedes || false,
+              especialistas: data.permisos.especialistas || false,
+              especialidades: data.permisos.especialidades || false,
+              asignaciones: data.permisos.asignaciones || false,
+              recursos: data.permisos.recursos || false,
+              institucionesEducativas:
+                data.permisos.institucionesEducativas || false,
+              historiaClinica: data.permisos.historiaClinica || false,
+              fonoAudiologia: data.permisos.fonoAudiologia || false,
+              psicologiaClinica: data.permisos.psicologiaClinica || false,
+              psicologiaEducativa: data.permisos.psicologiaEducativa || false,
+            });
+          }
+
+          if (data.fotoUrl) {
+            try {
+              const fotoUrl = await pasantesService.obtenerFoto(data.fotoUrl);
+              setPreviewUrl(fotoUrl);
+            } catch (error) {
+              console.error("Error al obtener foto del pasante:", error);
+            }
+          }
         } catch (error) {
           console.error("Error al obtener pasante:", error);
+          toast.error("Error al obtener pasante");
         } finally {
           setLoading(false);
         }
       };
       fetchPasante();
     }
-    getEspecialistas();
+    loadData();
   }, [id, isEditing]);
+
+  const loadData = async () => {
+    try {
+      const [sedesRes, especialistasRes, especialidadesRes] = await Promise.all([
+        sedesService.listarActivos(0, 100),
+        especialistasService.listarActivos(0, 100),
+        especialidadesService.listarActivos(0, 100),
+      ]);
+      setSedes(sedesRes?.content || []);
+      setEspecialistas(especialistasRes?.content || []);
+      setEspecialidades(especialidadesRes?.content || []);
+    } catch (error) {
+      console.error("Error al cargar datos iniciales:", error);
+    }
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -63,10 +148,19 @@ export default function FormularioPasantes() {
 
   const handleSelectChange = (name: string, value: string | number) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
+    console.log(formData);
   };
 
   const handleDateChange = (name: string, dates: Date[]) => {
     setFormData((prev) => ({ ...prev, [name]: dates[0].toISOString() }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
   };
 
   const handleSubmit = async () => {
@@ -75,17 +169,30 @@ export default function FormularioPasantes() {
       const payload = {
         cedula: formData.cedula,
         nombresApellidos: formData.nombresApellidos,
-        contrasenia: formData.contrasenia,
-        fotoUrl: formData.fotoUrl,
+        email: formData.email,
+        ciudad: formData.ciudad,
+        fechaNacimiento: formData.fechaNacimiento,
         inicioPasantia: formData.inicioPasantia,
         finPasantia: formData.finPasantia,
-        tutorId: Number(formData.tutorId),
+        domicilio: formData.domicilio,
+        numeroTelefono: formData.numeroTelefono,
+        numeroCelular: formData.numeroCelular,
+        sedeId: Number(formData.sedeId),
+        especialistaId: Number(formData.especialistaId),
+        especialidadId: Number(formData.especialidadId),
+
+        permisos: permisos,
+        contrasenia: formData.contrasenia,
       };
       if (isEditing) {
-        await pasantesService.actualizar(id, payload);
+        await pasantesService.actualizar(
+          id,
+          payload,
+          selectedFile || undefined
+        );
         toast.success("Pasante actualizado exitosamente");
       } else {
-        await pasantesService.crear(payload);
+        await pasantesService.crear(payload, selectedFile || undefined);
         toast.success("Pasante creado exitosamente");
       }
       navigate("/pasantes");
@@ -96,22 +203,19 @@ export default function FormularioPasantes() {
     }
   };
 
-  const getEspecialistas = async () => {
-    try {
-      const data = await especialistasService.listarActivos();
-      setEspecialistas(data);
-    } catch (error) {
-      console.error("Error fetching especialistas:", error);
-    }
-  };
+  const optionsSedes = sedes.map((s) => ({
+    value: s.id,
+    label: s.nombre,
+  }));
 
-  const [especialistas, setEspecialistas] = useState([
-    { id: "0", nombresApellidos: "" },
-  ]);
+  const optionsEspecialistas = especialistas.map((e) => ({
+    value: e.id,
+    label: e.nombresApellidos,
+  }));
 
-  const optionsEspecialistas = especialistas.map((especialista) => ({
-    value: especialista.id,
-    label: especialista.nombresApellidos,
+  const optionsEspecialidad = especialidades.map((e) => ({
+    value: e.id,
+    label: e.area,
   }));
 
   if (loading && isEditing && !formData.cedula) {
@@ -131,14 +235,21 @@ export default function FormularioPasantes() {
         <div className="space-y-6">
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
             <div>
-              <Label htmlFor="cedula">Cédula</Label>
-              <Input
-                id="cedula"
-                type="text"
-                placeholder="Ingrese el número de cédula/ruc"
-                value={formData.cedula}
-                onChange={handleChange}
+              <Label htmlFor="foto">Foto del Pasante</Label>
+              <input
+                id="foto"
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
               />
+              {previewUrl && (
+                <img
+                  src={previewUrl}
+                  alt="Vista previa"
+                  className="mt-2 h-20 w-20 object-cover rounded-full"
+                />
+              )}
             </div>
             <div>
               <Label htmlFor="nombresApellidos">Nombres y Apellidos</Label>
@@ -150,45 +261,143 @@ export default function FormularioPasantes() {
                 onChange={handleChange}
               />
             </div>
+            <div>
+              <Label htmlFor="cedula">Cédula</Label>
+              <Input
+                id="cedula"
+                type="text"
+                placeholder="Ingrese el número de cédula/ruc"
+                value={formData.cedula}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <Label htmlFor="email">Correo Electrónico</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="ejemplo@correo.com"
+                value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <Label htmlFor="fechaNacimiento">Fecha de Nacimiento</Label>
+              <DatePicker
+                id="fechaNacimiento"
+                placeholder="Seleccione la fecha de nacimiento"
+                onChange={(dates) => handleDateChange("fechaNacimiento", dates)}
+                defaultDate={formData.fechaNacimiento}
+              />
+            </div>
+            <div>
+              <Label htmlFor="ciudad">Ciudad</Label>
+              <Input
+                id="ciudad"
+                type="text"
+                placeholder="Ingrese la ciudad"
+                value={formData.ciudad}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <Label htmlFor="domicilio">Domicilio</Label>
+              <Input
+                id="domicilio"
+                type="text"
+                placeholder="Ingrese el domicilio"
+                value={formData.domicilio}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <Label htmlFor="numeroTelefono">Teléfono Fijo</Label>
+              <Input
+                id="numeroTelefono"
+                type="text"
+                placeholder="Ingrese el número fijo"
+                value={formData.numeroTelefono}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <Label htmlFor="numeroCelular">Teléfono Celular</Label>
+              <Input
+                id="numeroCelular"
+                type="text"
+                placeholder="Ingrese el número de celular"
+                value={formData.numeroCelular}
+                onChange={handleChange}
+              />
+            </div>
           </div>
         </div>
       </ComponentCard>
+
       <br />
-      <ComponentCard title="Datos de la pasante">
+
+      <ComponentCard title="Información de la pasantía">
         <div className="space-y-6">
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
             <div>
-              <Label htmlFor="fechaInicio">Fecha de inicio</Label>
+              <Label htmlFor="inicioPasantia">Fecha de Inicio</Label>
               <DatePicker
-                id="fechaInicio"
+                id="inicioPasantia"
                 placeholder="Seleccione la fecha de inicio"
                 onChange={(dates) => handleDateChange("inicioPasantia", dates)}
                 defaultDate={formData.inicioPasantia}
               />
             </div>
             <div>
-              <Label htmlFor="fechaFin">Fecha de fin</Label>
+              <Label htmlFor="finPasantia">Fecha de Fin</Label>
               <DatePicker
-                id="fechaFin"
+                id="finPasantia"
                 placeholder="Seleccione la fecha de fin"
                 onChange={(dates) => handleDateChange("finPasantia", dates)}
                 defaultDate={formData.finPasantia}
               />
             </div>
             <div>
-              <Label htmlFor="tutor">Tutor</Label>
+              <Label htmlFor="sedeId">Sede asignada</Label>
+              <Select
+                options={optionsSedes}
+                placeholder="Seleccione una sede"
+                onChange={(value) => handleSelectChange("sedeId", value)}
+                value={formData.sedeId || ""}
+              />
+            </div>
+            <div>
+              <Label htmlFor="especialistaId">Tutor (Especialista)</Label>
               <Select
                 options={optionsEspecialistas}
                 placeholder="Seleccione un tutor"
                 onChange={(value) =>
-                  handleSelectChange("tutorId", value)
+                  handleSelectChange("especialistaId", value)
                 }
-                defaultValue={String(formData.tutorId || "")}
+                value={formData.especialistaId || ""}
+              />
+            </div>
+            <div>
+              <Label htmlFor="especialidadId">Área de Especialidad</Label>
+              <Select
+                options={optionsEspecialidad}
+                placeholder="Seleccione el área"
+                onChange={(value) =>
+                  handleSelectChange("especialidadId", value)
+                }
+                value={formData.especialidadId || ""}
               />
             </div>
           </div>
         </div>
       </ComponentCard>
+      <br />
+      <PermisosTable
+        permissions={permisos}
+        onChange={(key, value) =>
+          setPermisos((prev) => ({ ...prev, [key]: value }))
+        }
+      />
       <br />
       <ComponentCard title="Autenticación">
         <div className="space-y-6">
@@ -198,7 +407,11 @@ export default function FormularioPasantes() {
               <Input
                 id="contrasenia"
                 type="password"
-                placeholder="Ingrese la contraseña"
+                placeholder={
+                  isEditing
+                    ? "Deje en blanco para mantener la actual"
+                    : "Ingrese la contraseña"
+                }
                 value={formData.contrasenia}
                 onChange={handleChange}
               />
@@ -206,6 +419,7 @@ export default function FormularioPasantes() {
           </div>
         </div>
       </ComponentCard>
+
       <div className="mt-6 flex justify-end gap-3">
         <Button variant="outline" onClick={() => navigate("/pasantes")}>
           Cancelar

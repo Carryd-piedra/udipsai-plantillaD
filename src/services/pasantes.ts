@@ -1,46 +1,77 @@
-import api from './api';
+import api from "./api";
+
+export interface PageResponse<T> {
+  content: T[];
+  totalPages: number;
+  totalElements: number;
+  size: number;
+  number: number;
+  last: boolean;
+  first: boolean;
+}
+
+export interface PasanteCriteria {
+  search?: string;
+  ciudad?: string;
+  activo?: boolean;
+  especialidadId?: number;
+  especialistaId?: number;
+  sedeId?: number;
+}
 
 export const pasantesService = {
-  listar: async () => {
+  listarActivos: async (page: number = 0, size: number = 10, sort: string = 'id,desc'): Promise<PageResponse<any>> => {
     try {
-      const response = await api.get('/pasantes');
+      const params = { page, size, sort };
+      const response = await api.get('/pasantes/activos', { params });
       return response.data;
     } catch (error) {
-      console.error('Error al listar pasantes:', error);
+      console.error('Error al listar pasantes activos:', error);
       throw error;
     }
   },
 
+  filtrar: async (criteria: PasanteCriteria, page: number = 0, size: number = 10, sort: string = 'id,desc'): Promise<PageResponse<any>> => {
+      try {
+        const params = { ...criteria, page, size, sort };
+        const response = await api.get('/pasantes/filter', { params });
+        return response.data;
+      } catch (error) {
+        console.error('Error al filtrar pasantes:', error);
+        throw error;
+      }
+    },
+
   crear: async (data: any, file?: File) => {
     try {
-        const formData = new FormData();
-        formData.append("data", JSON.stringify(data));
-        
-        if (file) {
-            formData.append("file", file);
-        }
+      const formData = new FormData();
+      formData.append("data", JSON.stringify(data));
 
-        const response = await api.post('/pasantes', formData);
-        return response.data;
+      if (file) {
+        formData.append("file", file);
+      }
+
+      const response = await api.post("/pasantes", formData);
+      return response.data;
     } catch (error) {
-        console.error('Error al crear pasante:', error);
-        throw error;
+      console.error("Error al crear pasante:", error);
+      throw error;
     }
   },
 
   actualizar: async (id: number | string, data: any, file?: File) => {
     try {
-        const formData = new FormData();
-        formData.append("data", JSON.stringify(data));
-        
-        if (file) {
-            formData.append("file", file);
-        }
+      const formData = new FormData();
+      formData.append("data", JSON.stringify(data));
 
-        const response = await api.put(`/pasantes/${id}`, formData);
-        return response.data;
+      if (file) {
+        formData.append("file", file);
+      }
+
+      const response = await api.put(`/pasantes/${id}`, formData);
+      return response.data;
     } catch (error) {
-      console.error('Error al actualizar pasante:', error);
+      console.error("Error al actualizar pasante:", error);
       throw error;
     }
   },
@@ -50,7 +81,7 @@ export const pasantesService = {
       const response = await api.get(`/pasantes/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Error al obtener pasante:', error);
+      console.error("Error al obtener pasante:", error);
       throw error;
     }
   },
@@ -58,26 +89,26 @@ export const pasantesService = {
   buscar: async (search?: string, tutorId?: number | string) => {
     try {
       const params = new URLSearchParams();
-      if (search) params.append('search', search);
-      if (tutorId) params.append('tutorId', String(tutorId));
+      if (search) params.append("search", search);
+      if (tutorId) params.append("tutorId", String(tutorId));
 
       const response = await api.get(`/pasantes/buscar?${params.toString()}`);
       return response.data;
     } catch (error) {
-      console.error('Error al buscar pasantes:', error);
+      console.error("Error al buscar pasantes:", error);
       throw error;
     }
   },
 
   obtenerFoto: async (filename: string) => {
     try {
-        const response = await api.get(`/pasantes/fotos/${filename}`, {
-            responseType: 'blob'
-        });
-        return URL.createObjectURL(response.data);
+      const response = await api.get(`/pasantes/fotos/${filename}`, {
+        responseType: "blob",
+      });
+      return URL.createObjectURL(response.data);
     } catch (error) {
-        console.error('Error al obtener foto:', error);
-        throw error;
+      console.error("Error al obtener foto:", error);
+      throw error;
     }
   },
 
@@ -86,7 +117,7 @@ export const pasantesService = {
       const response = await api.delete(`/pasantes/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Error al eliminar pasante:', error);
+      console.error("Error al eliminar pasante:", error);
       throw error;
     }
   },

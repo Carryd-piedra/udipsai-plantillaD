@@ -15,11 +15,8 @@ export default function EcommerceMetrics() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log("Fetching active patients...");
-        // Fetch only active patients
         const params: any = { activo: true };
-        const pacientesData = await pacientesService.listar(params);
-        console.log("Pacientes Data:", pacientesData);
+        const pacientesData = await pacientesService.listarActivos(params.page, params.size, params.sort);
         
         if (pacientesData?.totalElements !== undefined) {
           setTotalPacientes(pacientesData.totalElements);

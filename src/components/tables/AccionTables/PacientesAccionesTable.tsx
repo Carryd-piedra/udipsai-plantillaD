@@ -12,7 +12,10 @@ import { Pen, Trash, Info, FileText } from "lucide-react";
 
 import Badge from "../../ui/badge/Badge";
 import { toast } from "react-toastify";
-import { PacienteParams, pacientesService } from "../../../services/pacientes";
+import {
+  PacienteCriteria,
+  pacientesService,
+} from "../../../services/pacientes";
 import Button from "../../ui/button/Button";
 import { useModal } from "../../../hooks/useModal";
 import { DeleteModal } from "../../ui/modal/DeleteModal";
@@ -55,8 +58,12 @@ export default function PacientesAccionesTable() {
   const [pageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
 
-  const [filters, setFilters] = useState<PacienteParams>({});
-  const [tempFilters, setTempFilters] = useState<PacienteParams>({});
+  const [filters, setFilters] = useState<PacienteCriteria>({});
+  const [tempFilters, setTempFilters] = useState<PacienteCriteria>({});
+
+  const [sortField, setSortField] = useState("id");
+  const [sortDirection, setSortDirection] = useState("desc");
+
   const [sedes, setSedes] = useState<any[]>([]);
   const [instituciones, setInstituciones] = useState<any[]>([]);
 
@@ -83,21 +90,34 @@ export default function PacientesAccionesTable() {
   const fetchPacientes = async (
     page = currentPage,
     search = searchTerm,
-    currentFilters = filters
+    currentFilters = filters,
+    currentSortField = sortField,
+    currentSortDirection = sortDirection
   ) => {
     try {
       setLoading(true);
-      const params: PacienteParams = {
-        ...currentFilters,
-        page,
-        size: pageSize,
-        search: search || undefined,
-        sort: "id,desc",
-      };
+      const sort = `${currentSortField},${currentSortDirection}`;
 
-      console.log("Fetching patients with params:", params);
-      const response = await pacientesService.listar(params);
-      console.log("Pacientes Response:", response);
+      const hasFilters =
+        Object.values(currentFilters).some(
+          (val) => val !== undefined && val !== ""
+        ) || !!search;
+
+      let response;
+      if (hasFilters) {
+        const criteria: PacienteCriteria = {
+          ...currentFilters,
+          search: search || undefined,
+        };
+        response = await pacientesService.filtrar(
+          criteria,
+          page,
+          pageSize,
+          sort
+        );
+      } else {
+        response = await pacientesService.listarActivos(page, pageSize, sort);
+      }
 
       if (response?.content && Array.isArray(response.content)) {
         setPacientes(response.content);
@@ -106,11 +126,9 @@ export default function PacientesAccionesTable() {
         setPacientes(response);
         setTotalPages(1);
       } else {
-        console.warn("Unexpected response format:", response);
         setPacientes([]);
       }
     } catch (error) {
-      console.error("Error al obtener pacientes:", error);
       toast.error("Error al cargar la lista de pacientes");
       setPacientes([]);
     } finally {
@@ -121,12 +139,16 @@ export default function PacientesAccionesTable() {
   useEffect(() => {
     const loadFilterData = async () => {
       try {
-        const [sedesData, institucionesData] = await Promise.all([
-          sedesService.listar(),
-          institucionesService.listar(),
+        const [sedesResponse, institucionesResponse] = await Promise.all([
+          sedesService.listarActivos(0, 100),
+          institucionesService.listarActivos(0, 100),
         ]);
-        setSedes(sedesData || []);
-        setInstituciones(institucionesData || []);
+
+        const sedesData = sedesResponse?.content || [];
+        const institucionesData = institucionesResponse?.content || [];
+
+        setSedes(sedesData);
+        setInstituciones(institucionesData);
       } catch (error) {
         console.error("Error al cargar datos de filtros:", error);
       }
@@ -136,7 +158,7 @@ export default function PacientesAccionesTable() {
 
   useEffect(() => {
     fetchPacientes();
-  }, [currentPage]);
+  }, [currentPage, sortField, sortDirection, filters, searchTerm]);
 
   const handleEdit = (id: number) => {
     navigate(`/pacientes/editar/${id}`);
@@ -179,20 +201,17 @@ export default function PacientesAccionesTable() {
   const handleSearch = (term: string) => {
     setSearchTerm(term);
     setCurrentPage(0);
-    fetchPacientes(0, term, filters);
   };
 
   const handleApplyFilters = () => {
     setFilters(tempFilters);
     setCurrentPage(0);
-    fetchPacientes(0, searchTerm, tempFilters);
   };
 
   const handleClearFilters = () => {
     setTempFilters({});
     setFilters({});
     setCurrentPage(0);
-    fetchPacientes(0, searchTerm, {});
   };
 
   const handlePageChange = (page: number) => {
@@ -201,19 +220,7 @@ export default function PacientesAccionesTable() {
 
   const handleExport = () => {
     console.log("Exporting data...");
-    // Implement export logic here
   };
-
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-        <div className="w-12 h-12 border-4 border-red-200 border-t-red-600 rounded-full animate-spin"></div>
-        <p className="text-slate-500 font-medium animate-pulse text-lg">
-          Cargando pacientes...
-        </p>
-      </div>
-    );
-  }
 
   return (
     <div>
@@ -296,6 +303,31 @@ export default function PacientesAccionesTable() {
                 className="h-9 text-xs"
               />
             </div>
+
+            <div>
+              <Label className="mb-1.5 text-xs">Orden</Label>
+              <div className="flex gap-2">
+                <Select
+                  options={[
+                    { value: "id", label: "Registro (ID)" },
+                    { value: "nombresApellidos", label: "Nombre" },
+                    { value: "cedula", label: "Cédula" },
+                  ]}
+                  value={sortField}
+                  onChange={(val) => setSortField(val)}
+                  className="h-9 text-xs flex-1"
+                />
+                <Select
+                  options={[
+                    { value: "asc", label: "Asc" },
+                    { value: "desc", label: "Desc" },
+                  ]}
+                  value={sortDirection}
+                  onChange={(val) => setSortDirection(val)}
+                  className="h-9 text-xs w-24"
+                />
+              </div>
+            </div>
           </div>
         }
       />
@@ -350,8 +382,19 @@ export default function PacientesAccionesTable() {
               </TableRow>
             </TableHeader>
             {/* Table Body */}
-            <TableBody>
-              {Array.isArray(pacientes) && pacientes.length > 0 ? (
+            <TableBody className="relative min-h-[400px]">
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="px-5 py-20 text-center">
+                    <div className="flex flex-col items-center justify-center space-y-4">
+                      <div className="w-10 h-10 border-4 border-red-200 border-t-red-600 rounded-full animate-spin"></div>
+                      <p className="text-slate-500 font-medium animate-pulse">
+                        Cargando pacientes...
+                      </p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : pacientes.length > 0 ? (
                 pacientes.map((paciente) => (
                   <TableRow
                     key={paciente.id}
@@ -423,7 +466,7 @@ export default function PacientesAccionesTable() {
                 <TableRow>
                   <TableCell
                     colSpan={7}
-                    className="col-span-7 px-5 py-10 text-center text-theme-md text-gray-500 dark:text-gray-400"
+                    className="px-5 py-10 text-center text-theme-md text-gray-500 dark:text-gray-400"
                   >
                     <div className="flex flex-col items-center justify-center gap-2">
                       <span className="text-gray-400 dark:text-gray-600">

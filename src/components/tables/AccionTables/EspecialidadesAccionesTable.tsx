@@ -9,7 +9,7 @@ import {
 
 import Badge from "../../ui/badge/Badge";
 import { toast } from "react-toastify";
-import { sedesService, SedeCriteria } from "../../../services/sedes";
+import { especialidadesService, EspecialidadCriteria } from "../../../services/especialidades";
 import Button from "../../ui/button/Button";
 import { DeleteModal } from "../../ui/modal/DeleteModal";
 import { useModal } from "../../../hooks/useModal";
@@ -18,16 +18,16 @@ import Label from "../../form/Label";
 import Select from "../../form/Select";
 import { Pagination } from "../../ui/Pagination";
 import { Pencil, Trash, Info } from "lucide-react";
-import { SedeModal } from "../../modals/SedesModal";
+import { EspecialidadModal } from "../../modals/EspecialidadModal";
 
-interface Sedes {
+interface Especialidades {
   id: number;
-  nombre: string;
+  area: string;
   activo: boolean;
 }
 
-export default function SedesAccionesTable() {
-  const [sedes, setSedes] = useState<Sedes[]>([]);
+export default function EspecialidadesAccionesTable() {
+  const [especialidades, setEspecialidades] = useState<Especialidades[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -35,16 +35,16 @@ export default function SedesAccionesTable() {
   const [pageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
 
-  const [filters, setFilters] = useState<SedeCriteria>({});
-  const [tempFilters, setTempFilters] = useState<SedeCriteria>({});
+  const [filters, setFilters] = useState<EspecialidadCriteria>({});
+  const [tempFilters, setTempFilters] = useState<EspecialidadCriteria>({});
   
   const [sortField, setSortField] = useState("id");
   const [sortDirection, setSortDirection] = useState("desc");
 
   const {
     isOpen: isModalOpen,
-    openModal: openSedeModal,
-    closeModal: closeSedeModal,
+    openModal: openEspecialidadModal,
+    closeModal: closeEspecialidadModal,
   } = useModal();
 
   const {
@@ -53,10 +53,10 @@ export default function SedesAccionesTable() {
     closeModal: closeDeleteModal,
   } = useModal();
 
-  const [currentSede, setCurrentSede] = useState<Sedes | null>(null);
-  const [sedesToDelete, setSedesToDelete] = useState<number | null>(null);
+  const [currentEspecialidad, setCurrentEspecialidad] = useState<Especialidades | null>(null);
+  const [especialidadesToDelete, setEspecialidadesToDelete] = useState<number | null>(null);
 
-  const fetchSedes = async (
+  const fetchEspecialidades = async (
     page = currentPage,
     search = searchTerm,
     currentFilters = filters,
@@ -70,33 +70,33 @@ export default function SedesAccionesTable() {
 
       let data;
       if (hasFilters) {
-         const criteria: SedeCriteria = {
+         const criteria: EspecialidadCriteria = {
             ...currentFilters,
             search: search || undefined
          };
-         data = await sedesService.filtrar(criteria, page, pageSize, sort);
+         data = await especialidadesService.filtrar(criteria, page, pageSize, sort);
       } else {
-         data = await sedesService.listarActivos(page, pageSize, sort);
+         data = await especialidadesService.listarActivos(page, pageSize, sort);
       }
 
       if (data?.content && Array.isArray(data.content)) {
-        setSedes(data.content);
+        setEspecialidades(data.content);
         setTotalPages(data.totalPages);
       } else if (Array.isArray(data)) {
-        setSedes(data);
+        setEspecialidades(data);
         setTotalPages(1);
       } else {
-        setSedes([]);
+        setEspecialidades([]);
       }
     } catch (error) {
-      console.error("Error fetching sedes:", error);
+      console.error("Error fetching especialidades:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchSedes();
+    fetchEspecialidades();
   }, [currentPage, sortField, sortDirection, filters, searchTerm]);
 
   const getEstadoBadge = (activo: boolean) => {
@@ -105,49 +105,49 @@ export default function SedesAccionesTable() {
 
   // Handlers
   const handleCreate = () => {
-    setCurrentSede(null);
-    openSedeModal();
+    setCurrentEspecialidad(null);
+    openEspecialidadModal();
   };
 
-  const handleEdit = (sedes: Sedes) => {
-    setCurrentSede(sedes);
-    openSedeModal();
+  const handleEdit = (especialidad: Especialidades) => {
+    setCurrentEspecialidad(especialidad);
+    openEspecialidadModal();
   };
 
   const handleDelete = (id: number) => {
-    setSedesToDelete(id);
+    setEspecialidadesToDelete(id);
     openDeleteModal();
   };
 
   const confirmDelete = async () => {
-    if (sedesToDelete) {
+    if (especialidadesToDelete) {
       try {
-        await sedesService.eliminar(sedesToDelete);
-        toast.success("Sede eliminada correctamente");
-        await fetchSedes();
+        await especialidadesService.eliminar(especialidadesToDelete);
+        toast.success("Especialidad eliminada correctamente");
+        await fetchEspecialidades();
         closeDeleteModal();
-        setSedesToDelete(null);
+        setEspecialidadesToDelete(null);
       } catch (error) {
-        toast.error("Error al eliminar sede");
-        console.error("Error deleting sedes:", error);
+        toast.error("Error al eliminar especialidad");
+        console.error("Error deleting especialidad:", error);
       }
     }
   };
 
-  const handleSave = async (sedes: any) => {
+  const handleSave = async (especialidad: any) => {
     try {
-      if ("id" in sedes) {
-        await sedesService.actualizar(sedes.id, sedes);
-        toast.success("Sede actualizada correctamente");
+      if ("id" in especialidad) {
+        await especialidadesService.actualizar(especialidad.id, especialidad);
+        toast.success("Especialidad actualizada correctamente");
       } else {
-        await sedesService.crear(sedes);
-        toast.success("Sede creada correctamente");
+        await especialidadesService.crear(especialidad);
+        toast.success("Especialidad creada correctamente");
       }
-      await fetchSedes();
-      closeSedeModal();
+      await fetchEspecialidades();
+      closeEspecialidadModal();
     } catch (error) {
-      toast.error("Error al guardar sede");
-      console.error("Error saving sedes:", error);
+      toast.error("Error al guardar especialidad");
+      console.error("Error saving especialidad:", error);
     }
   };
 
@@ -175,7 +175,7 @@ export default function SedesAccionesTable() {
   return (
     <div>
       <TableActionHeader
-        title="Sedes"
+        title="Especialidades"
         onSearchClick={handleSearch}
         onNew={handleCreate}
         newButtonText="Agregar"
@@ -212,7 +212,7 @@ export default function SedesAccionesTable() {
                  <Select
                   options={[
                     { value: "id", label: "Registro (ID)" },
-                    { value: "nombre", label: "Nombre" },
+                    { value: "area", label: "Área" },
                   ]}
                   value={sortField}
                   onChange={(val) => setSortField(val)}
@@ -242,13 +242,13 @@ export default function SedesAccionesTable() {
                 isHeader
                 className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
               >
-                Id de la sede
+                Id
               </TableCell>
               <TableCell
                 isHeader
                 className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
               >
-                Nombre de la sede
+                Área / Especialidad
               </TableCell>
               <TableCell
                 isHeader
@@ -275,23 +275,23 @@ export default function SedesAccionesTable() {
                   <div className="flex flex-col items-center justify-center space-y-4">
                     <div className="w-10 h-10 border-4 border-red-200 border-t-red-600 rounded-full animate-spin"></div>
                     <p className="text-slate-500 font-medium animate-pulse">
-                      Cargando sedes...
+                      Cargando especialidades...
                     </p>
                   </div>
                 </TableCell>
               </TableRow>
-            ) : sedes.length > 0 ? (
-              sedes.map((sede) => (
-                <TableRow key={sede.id}>
+            ) : especialidades.length > 0 ? (
+              especialidades.map((item) => (
+                <TableRow key={item.id}>
                   <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
-                    {sede.id}
+                    {item.id}
                   </TableCell>
                   <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
-                    {sede.nombre}
+                    {item.area}
                   </TableCell>
                   <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
-                    <Badge size="sm" color={getEstadoBadge(sede.activo)}>
-                      {sede.activo ? "Activo" : "Inactivo"}
+                    <Badge size="sm" color={getEstadoBadge(item.activo)}>
+                      {item.activo ? "Activo" : "Inactivo"}
                     </Badge>
                   </TableCell>
                   <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
@@ -299,7 +299,7 @@ export default function SedesAccionesTable() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleEdit(sede)}
+                        onClick={() => handleEdit(item)}
                         className="hover:bg-white hover:text-yellow-600 p-2 text-blue-600 dark:text-blue-400"
                         title="Editar"
                       >
@@ -308,7 +308,7 @@ export default function SedesAccionesTable() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleDelete(sede.id)}
+                        onClick={() => handleDelete(item.id)}
                         className="hover:bg-red-500 hover:text-white p-2 text-red-600 dark:text-red-400"
                         title="Eliminar"
                       >
@@ -328,7 +328,7 @@ export default function SedesAccionesTable() {
                     <span className="text-gray-400 dark:text-gray-600">
                       <Info size={30} strokeWidth={1} />
                     </span>
-                    <p>No se encontraron sedes registradas</p>
+                    <p>No se encontraron especialidades registradas</p>
                   </div>
                 </TableCell>
               </TableRow>
@@ -337,20 +337,20 @@ export default function SedesAccionesTable() {
         </Table>
       </div>
 
-      <SedeModal
+      <EspecialidadModal
         isOpen={isModalOpen}
-        onClose={closeSedeModal}
+        onClose={closeEspecialidadModal}
         onSave={handleSave}
-        initialData={currentSede}
-        title={currentSede ? "Editar Sede" : "Nueva Sede"}
+        initialData={currentEspecialidad}
+        title={currentEspecialidad ? "Editar Especialidad" : "Nueva Especialidad"}
       />
 
       <DeleteModal
         isOpen={isDeleteModalOpen}
         onClose={closeDeleteModal}
         onConfirm={confirmDelete}
-        title="Eliminar Sede"
-        description={`¿Estás seguro de que deseas eliminar la sede?`}
+        title="Eliminar Especialidad"
+        description={`¿Estás seguro de que deseas eliminar la especialidad?`}
       />
       <Pagination
         currentPage={currentPage}

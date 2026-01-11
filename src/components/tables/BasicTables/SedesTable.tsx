@@ -23,8 +23,9 @@ export default function SedesTable() {
   useEffect(() => {
     const fetchSedes = async () => {
       try {
-        const data = await sedesService.listar();
-        setSedes(data);
+        const data = await sedesService.listarActivos(0, 100);
+        const sedesData = data?.content || [];
+        setSedes(sedesData);
       } catch (error) {
         console.error("Error fetching sedes:", error);
       } finally {

@@ -1,4 +1,3 @@
-import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import SedesAccionesTable from "../../components/tables/AccionTables/SedesAccionesTable";
 
@@ -9,7 +8,6 @@ export default function ListaSedes() {
         title="Lista de Sedes | Udipsai"
         description="Formulario para la gestión de sedes en Udipsai"
       />
-      <PageBreadcrumb pageTitle="Lista de sedes" />
       <SedesAccionesTable />
     </>
   );

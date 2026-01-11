@@ -1,6 +1,5 @@
-import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
-import InstitucionesAccionesTable from "../../components/tables/AccionTables/InsititucionesAccionesTable";
+import InstitucionesAccionesTable from "../../components/tables/AccionTables/InstitucionesAccionesTable";
 
 export default function ListaInstituciones() {
   return (
@@ -9,7 +8,6 @@ export default function ListaInstituciones() {
         title="Lista de Instituciones | Udipsai"
         description="Formulario para la gestión de instituciones en Udipsai"
       />
-      <PageBreadcrumb pageTitle="Lista de instituciones" />
       <InstitucionesAccionesTable />
     </>
   );

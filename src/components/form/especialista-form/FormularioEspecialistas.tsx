@@ -9,6 +9,9 @@ import { sedesService } from "../../../services";
 import Button from "../../ui/button/Button";
 import { toast } from "react-toastify";
 
+import { PermisosTable, PermissionsState } from "../../common/PermisosTable";
+import { especialidadesService } from "../../../services/especialidades";
+
 export default function FormularioEspecialistas() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -22,6 +25,21 @@ export default function FormularioEspecialistas() {
     especialidadId: "",
     sedeId: "",
     activo: true,
+  });
+
+  const [permisos, setPermisos] = useState<PermissionsState>({
+    pacientes: false,
+    pasantes: false,
+    sedes: false,
+    especialistas: false,
+    especialidades: false,
+    asignaciones: false,
+    recursos: false,
+    institucionesEducativas: false,
+    historiaClinica: false,
+    fonoAudiologia: false,
+    psicologiaClinica: false,
+    psicologiaEducativa: false,
   });
 
   const [loading, setLoading] = useState(false);
@@ -42,6 +60,23 @@ export default function FormularioEspecialistas() {
             sedeId: data.sede?.id || data.sedeId || 0,
             activo: data.activo,
           });
+          if (data.permisos) {
+            setPermisos({
+              pacientes: data.permisos.pacientes || false,
+              pasantes: data.permisos.pasantes || false,
+              sedes: data.permisos.sedes || false,
+              especialistas: data.permisos.especialistas || false,
+              especialidades: data.permisos.especialidades || false,
+              asignaciones: data.permisos.asignaciones || false,
+              recursos: data.permisos.recursos || false,
+              institucionesEducativas:
+                data.permisos.institucionesEducativas || false,
+              historiaClinica: data.permisos.historiaClinica || false,
+              fonoAudiologia: data.permisos.fonoAudiologia || false,
+              psicologiaClinica: data.permisos.psicologiaClinica || false,
+              psicologiaEducativa: data.permisos.psicologiaEducativa || false,
+            });
+          }
         } catch (error) {
           console.error("Error al obtener especialista:", error);
         } finally {
@@ -50,8 +85,21 @@ export default function FormularioEspecialistas() {
       };
       fetchEspecialista();
     }
-    getSedes();
+    loadData();
   }, [id, isEditing]);
+
+   const loadData = async () => {
+      try {
+        const [sedesRes, especialidadesRes] = await Promise.all([
+          sedesService.listarActivos(0, 100),
+          especialidadesService.listarActivos(0, 100),
+        ]);
+        setSedes(sedesRes?.content || []);
+        setEspecialidades(especialidadesRes?.content || []);
+      } catch (error) {
+        console.error("Error al cargar datos iniciales:", error);
+      }
+    };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -74,6 +122,7 @@ export default function FormularioEspecialistas() {
         especialidadId: Number(formData.especialidadId),
         sedeId: Number(formData.sedeId),
         activo: formData.activo,
+        permisos: permisos,
       };
       if (isEditing) {
         await especialistasService.actualizar(id, payload);
@@ -88,32 +137,19 @@ export default function FormularioEspecialistas() {
     }
   };
 
-  const getSedes = async () => {
-    try {
-      const data = await sedesService.listar();
-      setSedes(data);
-    } catch (error) {
-      console.error("Error fetching sedes:", error);
-    }
-  };
-
-  const [sedes, setSedes] = useState([{ id: "0", nombre: "" }]);
+  const [sedes, setSedes] = useState<any[]>([]);
+  const [especialidades, setEspecialidades] = useState<any[]>([]);
 
   const optionsSede = sedes.map((sede) => ({
     value: sede.id,
     label: sede.nombre,
   }));
 
-  const optionsEspecialidad = [
-    { value: "1", label: "Coordinación" },
-    { value: "2", label: "Secretaría" },
-    { value: "3", label: "Psicología Educativa" },
-    { value: "4", label: "Psicología Clínica" },
-    { value: "5", label: "Terapia de Lenguaje y Fonoaudiología" },
-    { value: "6", label: "Estimulación Temprana" },
-    { value: "7", label: "Recuperación Pedagógica" },
-    { value: "8", label: "Odontología" },
-  ];
+
+  const optionsEspecialidad = especialidades.map((e) => ({
+    value: e.id,
+    label: e.area,
+  }));
 
   if (loading && isEditing && !formData.cedula) {
     return (
@@ -164,7 +200,6 @@ export default function FormularioEspecialistas() {
                 options={optionsSede}
                 placeholder="Seleccione una sede"
                 onChange={(value) => handleSelectChange("sedeId", value)}
-                className="dark:bg-dark-900"
                 value={formData.sedeId || ""}
               />
             </div>
@@ -176,7 +211,6 @@ export default function FormularioEspecialistas() {
                 onChange={(value) =>
                   handleSelectChange("especialidadId", value)
                 }
-                className="dark:bg-dark-900"
                 value={formData.especialidadId || ""}
               />
             </div>
@@ -184,34 +218,12 @@ export default function FormularioEspecialistas() {
         </div>
       </ComponentCard>
       <br />
-      <ComponentCard title="Pasantías">
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-            <div>
-              <Label htmlFor="sedeId">Sede</Label>
-              <Select
-                options={optionsSede}
-                placeholder="Seleccione una sede"
-                onChange={(value) => handleSelectChange("sedeId", value)}
-                className="dark:bg-dark-900"
-                value={formData.sedeId || ""}
-              />
-            </div>
-            <div>
-              <Label htmlFor="especialidad">Especialidad</Label>
-              <Select
-                options={optionsEspecialidad}
-                placeholder="Seleccione una especialidad"
-                onChange={(value) =>
-                  handleSelectChange("especialidadId", value)
-                }
-                className="dark:bg-dark-900"
-                value={formData.especialidadId || ""}
-              />
-            </div>
-          </div>
-        </div>
-      </ComponentCard>
+      <PermisosTable
+        permissions={permisos}
+        onChange={(key, value) =>
+          setPermisos((prev) => ({ ...prev, [key]: value }))
+        }
+      />
       <br />
       <ComponentCard title="Autenticación">
         <div className="space-y-6">

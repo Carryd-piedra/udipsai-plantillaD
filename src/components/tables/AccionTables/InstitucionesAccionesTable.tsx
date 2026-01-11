@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
 import {
   Table,
   TableBody,
@@ -7,59 +6,53 @@ import {
   TableHeader,
   TableRow,
 } from "../../ui/table";
-import { Pen, Trash, Info } from "lucide-react";
+
 import Badge from "../../ui/badge/Badge";
 import { toast } from "react-toastify";
-import { PasanteCriteria, pasantesService } from "../../../services/pasantes";
+import {
+  institucionesService,
+  InstitucionEducativaCriteria,
+} from "../../../services/instituciones";
 import Button from "../../ui/button/Button";
+import { DeleteModal } from "../../ui/modal/DeleteModal";
+import { useModal } from "../../../hooks/useModal";
+import { TableActionHeader } from "../../common/TableActionHeader";
+import { InstitucionModal } from "../../modals/InstitucionModal";
 import Label from "../../form/Label";
 import Select from "../../form/Select";
-import Input from "../../form/input/InputField";
 import { Pagination } from "../../ui/Pagination";
+import { Pencil, Trash, Info } from "lucide-react";
 
-import { useModal } from "../../../hooks/useModal";
-import { DeleteModal } from "../../ui/modal/DeleteModal";
-import { TableActionHeader } from "../../common/TableActionHeader";
-import { especialistasService, sedesService } from "../../../services";
-
-interface Pasante {
+interface Institucion {
   id: number;
-  nombresApellidos: string;
-  cedula: string;
-  fechaNacimiento: string;
-  fechaApertura: string;
+  nombre: string;
+  direccion: string;
+  tipo: string;
   activo: boolean;
-  especialidad: { id: number; area: string };
-  especialista: { id: number; nombresApellidos: string };
-  sede: { id: number; nombre: string };
-  ciudad: string;
-  domicilio: string;
-  numeroTelefono: string;
-  numeroCelular: string;
-  inicioPasantia: string;
-  finPasantia: string;
 }
 
-export default function PasantesAccionesTable() {
-  const [pasantes, setPasantes] = useState<Pasante[]>([]);
+export default function InstitucionesTable() {
+  const [instituciones, setInstituciones] = useState<Institucion[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedPasante, setSelectedPasante] = useState<Pasante | null>(null);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
 
-  const [filters, setFilters] = useState<PasanteCriteria>({});
-  const [tempFilters, setTempFilters] = useState<PasanteCriteria>({});
+  const [filters, setFilters] = useState<InstitucionEducativaCriteria>({});
+  const [tempFilters, setTempFilters] = useState<InstitucionEducativaCriteria>(
+    {}
+  );
 
   const [sortField, setSortField] = useState("id");
   const [sortDirection, setSortDirection] = useState("desc");
 
-  const [sedes, setSedes] = useState<any[]>([]);
-  const [instituciones, setInstituciones] = useState<any[]>([]);
-
-  const navigate = useNavigate();
+  const {
+    isOpen: isModalOpen,
+    openModal: openInstitucionModal,
+    closeModal: closeInstitucionModal,
+  } = useModal();
 
   const {
     isOpen: isDeleteModalOpen,
@@ -67,7 +60,13 @@ export default function PasantesAccionesTable() {
     closeModal: closeDeleteModal,
   } = useModal();
 
-  const fetchPasantes = async (
+  const [currentInstitucion, setCurrentInstitucion] =
+    useState<Institucion | null>(null);
+  const [institucionToDelete, setInstitucionToDelete] = useState<number | null>(
+    null
+  );
+
+  const fetchInstituciones = async (
     page = currentPage,
     search = searchTerm,
     currentFilters = filters,
@@ -77,95 +76,96 @@ export default function PasantesAccionesTable() {
     try {
       setLoading(true);
       const sort = `${currentSortField},${currentSortDirection}`;
-
       const hasFilters =
         Object.values(currentFilters).some(
           (val) => val !== undefined && val !== ""
         ) || !!search;
 
-      let response;
+      let data;
       if (hasFilters) {
-        const criteria: PasanteCriteria = {
+        const criteria: InstitucionEducativaCriteria = {
           ...currentFilters,
           search: search || undefined,
         };
-        response = await pasantesService.filtrar(
+        data = await institucionesService.filtrar(
           criteria,
           page,
           pageSize,
           sort
         );
       } else {
-        response = await pasantesService.listarActivos(page, pageSize, sort);
+        data = await institucionesService.listarActivos(page, pageSize, sort);
       }
 
-      if (response?.content && Array.isArray(response.content)) {
-        setPasantes(response.content);
-        setTotalPages(response.totalPages);
-      } else if (Array.isArray(response)) {
-        setPasantes(response);
+      if (data?.content && Array.isArray(data.content)) {
+        setInstituciones(data.content);
+        setTotalPages(data.totalPages);
+      } else if (Array.isArray(data)) {
+        setInstituciones(data);
         setTotalPages(1);
       } else {
-        setPasantes([]);
+        setInstituciones([]);
       }
     } catch (error) {
-      toast.error("Error al cargar pasantes");
-      setPasantes([]);
+      console.error("Error fetching instituciones:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    const loadFilterData = async () => {
-      try {
-        const [sedesResponse, especialistasResponse] = await Promise.all([
-          sedesService.listarActivos(0, 100),
-          especialistasService.listarActivos(0, 100),
-        ]);
-
-        const sedesData = sedesResponse?.content || [];
-        const especialistasData = especialistasResponse?.content || [];
-
-        setSedes(sedesData);
-        setInstituciones(especialistasData);
-      } catch (error) {
-        console.error("Error al cargar datos de filtros:", error);
-      }
-    };
-    loadFilterData();
-  }, []);
-
-  useEffect(() => {
-    fetchPasantes();
+    fetchInstituciones();
   }, [currentPage, sortField, sortDirection, filters, searchTerm]);
 
-  const handleEdit = (id: number) => {
-    navigate(`/pasantes/editar/${id}`);
+  const getEstadoBadge = (estado: boolean) => {
+    return estado ? "success" : "error";
   };
 
-  const handleDeleteClick = (pasante: Pasante) => {
-    setSelectedPasante(pasante);
+  const handleCreate = () => {
+    setCurrentInstitucion(null);
+    openInstitucionModal();
+  };
+
+  const handleEdit = (institucion: Institucion) => {
+    setCurrentInstitucion(institucion);
+    openInstitucionModal();
+  };
+
+  const handleDelete = (id: number) => {
+    setInstitucionToDelete(id);
     openDeleteModal();
   };
 
-  const handleConfirmDelete = async () => {
-    if (selectedPasante) {
+  const confirmDelete = async () => {
+    if (institucionToDelete) {
       try {
-        await pasantesService.eliminar(selectedPasante.id);
-        toast.success("Pasante eliminado correctamente");
-        await fetchPasantes();
+        await institucionesService.eliminar(institucionToDelete);
+        toast.success("Institución eliminada correctamente");
+        await fetchInstituciones();
         closeDeleteModal();
-        setSelectedPasante(null);
+        setInstitucionToDelete(null);
       } catch (error) {
-        toast.error("Error al eliminar pasante");
-        console.error("Error al eliminar pasante:", error);
+        toast.error("Error al eliminar la institución");
+        console.error("Error deleting institucion:", error);
       }
     }
   };
 
-  const getEstadoBadge = (estado: boolean) => {
-    return estado === true ? "success" : "error";
+  const handleSave = async (institucion: any) => {
+    try {
+      if ("id" in institucion) {
+        await institucionesService.actualizar(institucion.id, institucion);
+        toast.success("Institución actualizada correctamente");
+      } else {
+        await institucionesService.crear(institucion);
+        toast.success("Institución creada correctamente");
+      }
+      await fetchInstituciones();
+      closeInstitucionModal();
+    } catch (error) {
+      toast.error("Error al guardar la institución");
+      console.error("Error saving institucion:", error);
+    }
   };
 
   const handleSearch = (term: string) => {
@@ -186,56 +186,21 @@ export default function PasantesAccionesTable() {
 
   const handleExport = () => {
     console.log("Exporting data...");
+    // Implement export logic here
   };
 
   return (
     <div>
       <TableActionHeader
-        title="Pasantes"
+        title="Instituciones Educativas"
         onSearchClick={handleSearch}
-        onNew={() => navigate("/pasantes/nuevo")}
+        onNew={handleCreate}
         newButtonText="Agregar"
         onExport={handleExport}
         onFilterApply={handleApplyFilters}
         onFilterClear={handleClearFilters}
         filterContent={
           <div className="space-y-4">
-            <div>
-              <Label className="mb-1.5 text-xs">Tutor (Especialista)</Label>
-              <Select
-                options={instituciones.map((i) => ({
-                  value: i.id.toString(),
-                  label: i.nombresApellidos,
-                }))}
-                placeholder="Todos los tutores"
-                value={tempFilters.especialistaId?.toString() || ""}
-                onChange={(val) =>
-                  setTempFilters({
-                    ...tempFilters,
-                    especialistaId: val ? parseInt(val) : undefined,
-                  })
-                }
-                className="h-9 text-xs"
-              />
-            </div>
-            <div>
-              <Label className="mb-1.5 text-xs">Sede</Label>
-              <Select
-                options={sedes.map((s) => ({
-                  value: s.id.toString(),
-                  label: s.nombre,
-                }))}
-                placeholder="Todas las sedes"
-                value={tempFilters.sedeId?.toString() || ""}
-                onChange={(val) =>
-                  setTempFilters({
-                    ...tempFilters,
-                    sedeId: val ? parseInt(val) : undefined,
-                  })
-                }
-                className="h-9 text-xs"
-              />
-            </div>
             <div>
               <Label className="mb-1.5 text-xs">Estado</Label>
               <Select
@@ -259,24 +224,12 @@ export default function PasantesAccionesTable() {
               />
             </div>
             <div>
-              <Label className="mb-1.5 text-xs">Ciudad</Label>
-              <Input
-                placeholder="Ej: Quito"
-                value={tempFilters.ciudad || ""}
-                onChange={(e) =>
-                  setTempFilters({ ...tempFilters, ciudad: e.target.value })
-                }
-                className="h-9 text-xs"
-              />
-            </div>
-            <div>
               <Label className="mb-1.5 text-xs">Orden</Label>
               <div className="flex gap-2">
                 <Select
                   options={[
                     { value: "id", label: "Registro (ID)" },
-                    { value: "nombresApellidos", label: "Nombre" },
-                    { value: "cedula", label: "Cédula" },
+                    { value: "nombre", label: "Nombre" },
                   ]}
                   value={sortField}
                   onChange={(val) => setSortField(val)}
@@ -306,31 +259,25 @@ export default function PasantesAccionesTable() {
                   isHeader
                   className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
                 >
-                  Cédula
+                  Id de institución
                 </TableCell>
                 <TableCell
                   isHeader
                   className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
                 >
-                  Nombres
+                  Nombre de la institución
                 </TableCell>
                 <TableCell
                   isHeader
                   className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
                 >
-                  Inicio Pasantía
+                  Dirección
                 </TableCell>
                 <TableCell
                   isHeader
                   className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
                 >
-                  Fin Pasantía
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
-                >
-                  Tutor
+                  Tipo de institución
                 </TableCell>
                 <TableCell
                   isHeader
@@ -350,54 +297,54 @@ export default function PasantesAccionesTable() {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="px-5 py-20 text-center">
+                  <TableCell colSpan={6} className="px-5 py-20 text-center">
                     <div className="flex flex-col items-center justify-center space-y-4">
                       <div className="w-10 h-10 border-4 border-red-200 border-t-red-600 rounded-full animate-spin"></div>
                       <p className="text-slate-500 font-medium animate-pulse">
-                        Cargando pasantes...
+                        Cargando instituciones...
                       </p>
                     </div>
                   </TableCell>
                 </TableRow>
-              ) : pasantes.length > 0 ? (
-                pasantes.map((pasante) => (
-                  <TableRow key={pasante.id}>
+              ) : instituciones.length > 0 ? (
+                instituciones.map((institucion) => (
+                  <TableRow key={institucion.id}>
                     <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
-                      {pasante.cedula}
+                      {institucion.id}
                     </TableCell>
                     <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
-                      {pasante.nombresApellidos}
+                      {institucion.nombre}
                     </TableCell>
                     <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
-                      {pasante.inicioPasantia || "N/A"}
+                      {institucion.direccion}
                     </TableCell>
                     <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
-                      {pasante.finPasantia || "N/A"}
+                      {institucion.tipo}
                     </TableCell>
                     <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
-                      {pasante.especialista?.nombresApellidos || "N/A"}
-                    </TableCell>
-                    <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
-                      <Badge size="sm" color={getEstadoBadge(pasante.activo)}>
-                        {pasante.activo ? "Activo" : "Inactivo"}
+                      <Badge
+                        size="sm"
+                        color={getEstadoBadge(institucion.activo)}
+                      >
+                        {institucion.activo ? "Activo" : "Inactivo"}
                       </Badge>
                     </TableCell>
                     <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
                       <div className="flex justify-center gap-2">
                         <Button
-                          size="sm"
                           variant="outline"
-                          onClick={() => handleEdit(pasante.id)}
-                          className="hover:bg-white hover:text-yellow-600 p-2 text-blue-600 dark:text-blue-400"
+                          size="sm"
+                          onClick={() => handleEdit(institucion)}
                           title="Editar"
+                          className="hover:bg-white hover:text-yellow-600 p-2 text-blue-600 dark:text-blue-400"
                         >
-                          <Pen size={14} />
+                          <Pencil size={14} />
                         </Button>
                         <Button
-                          size="sm"
                           variant="outline"
-                          onClick={() => handleDeleteClick(pasante)}
-                          className="hover:bg-red-500 hover:text-white p-2 text-red-600 dark:text-red-400"
+                          className="hover:bg-red-500 hover:text-white p-2 text-red-600 hover:text-red-700 dark:text-red-400"
+                          size="sm"
+                          onClick={() => handleDelete(institucion.id)}
                           title="Eliminar"
                         >
                           <Trash size={14} />
@@ -409,14 +356,14 @@ export default function PasantesAccionesTable() {
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={7}
+                    colSpan={6}
                     className="px-5 py-10 text-center text-theme-md text-gray-500 dark:text-gray-400"
                   >
                     <div className="flex flex-col items-center justify-center gap-2">
                       <span className="text-gray-400 dark:text-gray-600">
-                        <Info size={30} strokeWidth={1} stroke="currentColor" />
+                        <Info size={30} strokeWidth={1} />
                       </span>
-                      <p>No se encontraron pasantes registrados</p>
+                      <p>No se encontraron instituciones registradas</p>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -425,14 +372,23 @@ export default function PasantesAccionesTable() {
           </Table>
         </div>
 
+        <InstitucionModal
+          isOpen={isModalOpen}
+          onClose={closeInstitucionModal}
+          onSave={handleSave}
+          initialData={currentInstitucion}
+          title={
+            currentInstitucion ? "Editar Institución" : "Nueva Institución"
+          }
+        />
+
         <DeleteModal
           isOpen={isDeleteModalOpen}
           onClose={closeDeleteModal}
-          onConfirm={handleConfirmDelete}
-          title="Eliminar Pasante"
-          description={`¿Estás seguro de que deseas eliminar al pasante ${selectedPasante?.nombresApellidos}? Esta acción no se puede deshacer.`}
+          onConfirm={confirmDelete}
+          title="Eliminar Institución"
+          description={`¿Estás seguro de que deseas eliminar la institución?`}
         />
-
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

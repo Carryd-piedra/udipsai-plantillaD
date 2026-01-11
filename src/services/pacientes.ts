@@ -10,27 +10,34 @@ export interface PageResponse<T> {
   first: boolean;
 }
 
-export interface PacienteParams {
+export interface PacienteCriteria {
   search?: string;
-  nombresApellidos?: string;
-  cedula?: string;
   ciudad?: string;
   activo?: boolean;
-  jornada?: string;
   sedeId?: number;
   institucionEducativaId?: number;
-  page?: number;
-  size?: number;
-  sort?: string;
+  id?: number;
 }
 
 export const pacientesService = {
-  listar: async (params?: PacienteParams): Promise<PageResponse<any>> => {
+  listarActivos: async (page: number = 0, size: number = 10, sort: string = 'id,desc'): Promise<PageResponse<any>> => {
     try {
-      const response = await api.get('/pacientes', { params });
+      const params = { page, size, sort };
+      const response = await api.get('/pacientes/activos', { params });
       return response.data;
     } catch (error) {
-      console.error('Error al listar pacientes:', error);
+      console.error('Error al listar pacientes activos:', error);
+      throw error;
+    }
+  },
+
+  filtrar: async (criteria: PacienteCriteria, page: number = 0, size: number = 10, sort: string = 'id,desc'): Promise<PageResponse<any>> => {
+    try {
+      const params = { ...criteria, page, size, sort };
+      const response = await api.get('/pacientes/filter', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Error al filtrar pacientes:', error);
       throw error;
     }
   },

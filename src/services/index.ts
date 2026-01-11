@@ -14,3 +14,4 @@ export { pacientesService } from './pacientes';
 export { pasantesService } from './pasantes';
 export { sedesService } from './sedes';
 export { seguimientosService } from './seguimientos';
+export * from './recursos';

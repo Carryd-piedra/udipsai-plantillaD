@@ -1,16 +1,33 @@
 import api from './api';
 
+export interface SedeCriteria {
+  search?: string;
+  activo?: boolean;
+}
+
 export const sedesService = {
-  listar: async () => {
+  listarActivos: async (page: number = 0, size: number = 10, sort: string = 'id,desc') => {
     try {
-      const response = await api.get('/sedes');
+      const params = { page, size, sort };
+      const response = await api.get('/sedes/activos', { params });
       return response.data;
     } catch (error) {
-      console.error('Error al obtener sedes:', error);
+      console.error('Error al obtener sedes activas:', error);
       throw error;
     }
   },
 
+  filtrar: async (criteria: SedeCriteria, page: number = 0, size: number = 10, sort: string = 'id,desc') => {
+    try {
+      const params = { ...criteria, page, size, sort };
+      const response = await api.get('/sedes/filter', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Error al filtrar sedes:', error);
+      throw error;
+    }
+  },
+  
   crear: async (request: any) => {
     try {
       const response = await api.post('/sedes', request);

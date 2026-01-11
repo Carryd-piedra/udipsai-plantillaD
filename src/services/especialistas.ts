@@ -1,15 +1,34 @@
 import api from './api';
 
+export interface EspecialistaCriteria {
+  search?: string;
+  especialidadId?: number;
+  sedeId?: number;
+  activo?: boolean;
+}
+
 export const especialistasService = {
-  listarActivos: async () => {
+  listarActivos: async (page: number = 0, size: number = 10, sort: string = 'id,desc') => {
     try {
-      const response = await api.get('/especialistas');
+      const params = { page, size, sort };
+      const response = await api.get('/especialistas/activos', { params });
       return response.data;
     } catch (error) {
       console.error('Error al obtener especialistas activos:', error);
       throw error;
     }
   },
+
+  filtrar: async (criteria: EspecialistaCriteria, page: number = 0, size: number = 10, sort: string = 'id,desc') => {
+      try {
+        const params = { ...criteria, page, size, sort };
+        const response = await api.get('/especialistas/filter', { params });
+        return response.data;
+      } catch (error) {
+        console.error('Error al filtrar especialistas:', error);
+        throw error;
+      }
+    },
 
   obtenerPorId: async (id: number | string) => {
     try {

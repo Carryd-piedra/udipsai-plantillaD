@@ -10,60 +10,95 @@ import {
   Building2,
   Link2,
   Users,
-  NotepadText,
   MapPin,
+  Gamepad2,
+  ClipboardList,
+  UploadCloud,
 } from "lucide-react";
 
 import { useSidebar } from "../context/SidebarContext";
+import { useAuth } from "../context/AuthContext";
 
 type NavItem = {
   name: string;
   icon: React.ReactNode;
   path?: string;
   subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
+  requiredPermission?: string;
 };
 
 const navItems: NavItem[] = [
   {
     icon: <LayoutGrid size={20} />,
-    name: "Home",
+    name: "Dashboard",
     path: "/",
   },
   {
     icon: <Users size={20} />,
     name: "Pacientes",
     path: "/pacientes",
-  },
-  { icon: <Calendar size={20} />, name: "Citas", path: "/citas" },
-  {
-    name: "Wais-IV",
-    icon: <NotepadText size={20} />,
-    path: "/wais",
+    requiredPermission: "PERM_PACIENTES",
   },
   {
     name: "Especialistas",
     icon: <Users size={20} />,
     path: "/especialistas",
+    requiredPermission: "PERM_ESPECIALISTAS",
   },
   {
     name: "Pasantes",
     icon: <Users size={20} />,
     path: "/pasantes",
-  },
-  {
-    name: "Asignaciones",
-    icon: <Link2 size={20} />,
-    path: "/asignaciones",
+    requiredPermission: "PERM_PASANTES",
   },
   {
     icon: <Building2 size={20} />,
     name: "Instituciones",
     path: "/instituciones",
+    requiredPermission: "PERM_INSTITUCIONES_EDUCATIVAS",
   },
   {
     name: "Sedes",
     icon: <MapPin size={20} />,
     path: "/sedes",
+    requiredPermission: "PERM_SEDES",
+  },
+  {
+    name: "Especialidades",
+    icon: <ClipboardList size={20} />,
+    path: "/especialidades",
+    requiredPermission: "PERM_ESPECIALIDADES",
+  },
+  {
+    icon: <Calendar size={20} />,
+    name: "Citas",
+    path: "/citas",
+    requiredPermission: "PERM_PACIENTES",
+  }, // Using PERM_PACIENTES as common denominator
+  {
+    name: "Asignaciones",
+    icon: <Link2 size={20} />,
+    path: "/asignaciones",
+    requiredPermission: "PERM_ASIGNACIONES",
+  },
+
+  {
+    name: "Juegos",
+    icon: <Gamepad2 size={20} />,
+    path: "/juegos",
+    requiredPermission: "PERM_RECURSOS",
+  },
+  {
+    name: "Tests",
+    icon: <ClipboardList size={20} />,
+    path: "/tests",
+    requiredPermission: "PERM_RECURSOS",
+  },
+  {
+    name: "Subir Recursos",
+    icon: <UploadCloud size={20} />,
+    path: "/subir-recursos",
+    requiredPermission: "PERM_RECURSOS",
   },
 ];
 
@@ -76,11 +111,15 @@ const othersItems: NavItem[] = [
       { name: "Cambios", path: "/reportes-cambios", pro: false },
       { name: "Citas", path: "/reportes-citas", pro: false },
     ],
+    requiredPermission: "PERM_PACIENTES",
   },
 ];
 
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  const { permissions } = useAuth(); // permissions comes from AuthContext
+  /* eslint-enable @typescript-eslint/no-unused-vars */
   const location = useLocation();
 
   const [openSubmenu, setOpenSubmenu] = useState<{
@@ -97,10 +136,31 @@ const AppSidebar: React.FC = () => {
     [location.pathname]
   );
 
+  const filterItems = (items: NavItem[]) => {
+    return items.filter((item) => {
+      if (!item.requiredPermission) return true;
+
+      if (permissions.includes(item.requiredPermission)) return true;
+
+      return false;
+    });
+  };
+
+  const filteredNavItems = filterItems(navItems);
+  const filteredOthersItems = filterItems(othersItems);
+
+  useEffect(() => {
+    // console.group("AppSidebar - Permissions Check");
+    // console.log("Current Permissions:", permissions);
+    // console.log("Filtered Nav Items:", filteredNavItems);
+    // console.groupEnd();
+  }, [permissions, filteredNavItems]);
+
   useEffect(() => {
     let submenuMatched = false;
     ["main", "others"].forEach((menuType) => {
-      const items = menuType === "main" ? navItems : othersItems;
+      const items =
+        menuType === "main" ? filteredNavItems : filteredOthersItems;
       items.forEach((nav, index) => {
         if (nav.subItems) {
           nav.subItems.forEach((subItem) => {
@@ -119,7 +179,7 @@ const AppSidebar: React.FC = () => {
     if (!submenuMatched) {
       setOpenSubmenu(null);
     }
-  }, [location, isActive]);
+  }, [location, isActive, filteredNavItems, filteredOthersItems]);
 
   useEffect(() => {
     if (openSubmenu !== null) {
@@ -334,7 +394,7 @@ const AppSidebar: React.FC = () => {
                   <MoreHorizontal className="size-6" />
                 )}
               </h2>
-              {renderMenuItems(navItems, "main")}
+              {renderMenuItems(filteredNavItems, "main")}
             </div>
             <div className="">
               <h2

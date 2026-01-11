@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { toast } from 'react-toastify';
 
 const api = axios.create({
   baseURL: 'http://localhost:8080/api',
@@ -84,7 +83,7 @@ api.interceptors.response.use(
 
     if (error.response?.status !== 401) {
         const errorMessage = error.response?.data?.message || 'Ocurrió un error inesperado';
-        toast.error(errorMessage);
+        console.log(errorMessage);
     }
 
     return Promise.reject(error);

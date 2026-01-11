@@ -1,6 +1,33 @@
 import api from './api';
 
+export interface InstitucionEducativaCriteria {
+  search?: string;
+  activo?: boolean;
+}
+
 export const institucionesService = {
+  listarActivos: async (page: number = 0, size: number = 10, sort: string = 'id,desc') => {
+    try {
+      const params = { page, size, sort };
+      const response = await api.get('/instituciones/activos', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Error al obtener instituciones activas:', error);
+      throw error;
+    }
+  },
+
+  filtrar: async (criteria: InstitucionEducativaCriteria, page: number = 0, size: number = 10, sort: string = 'id,desc') => {
+    try {
+      const params = { ...criteria, page, size, sort };
+      const response = await api.get('/instituciones/filter', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Error al filtrar instituciones:', error);
+      throw error;
+    }
+  },
+
   listar: async () => {
     try {
       const response = await api.get('/instituciones');

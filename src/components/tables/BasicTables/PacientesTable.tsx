@@ -29,7 +29,7 @@ export default function PacientesTable() {
   useEffect(() => {
     const fetchPacientes = async () => {
       try {
-        const data = await pacientesService.listar();
+        const data = await pacientesService.listarActivos();
         console.log("BasicTable Pacientes Data:", data);
         if (data?.content && Array.isArray(data.content)) {
           setPacientes(data.content);
