@@ -19,6 +19,7 @@ import Select from "../../form/Select";
 import { Pagination } from "../../ui/Pagination";
 import { Pencil, Trash, Info } from "lucide-react";
 import { EspecialidadModal } from "../../modals/EspecialidadModal";
+import { useAuth } from "../../../context/AuthContext";
 
 interface Especialidades {
   id: number;
@@ -172,12 +173,14 @@ export default function EspecialidadesAccionesTable() {
     // Implement export logic here
   };
 
+  const { permissions } = useAuth();
+
   return (
     <div>
       <TableActionHeader
         title="Especialidades"
         onSearchClick={handleSearch}
-        onNew={handleCreate}
+        onNew={permissions.includes("PERM_ESPECIALIDADES_CREAR") ? handleCreate : undefined}
         newButtonText="Agregar"
         onExport={handleExport}
         onFilterApply={handleApplyFilters}
@@ -296,24 +299,28 @@ export default function EspecialidadesAccionesTable() {
                   </TableCell>
                   <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
                     <div className="flex justify-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleEdit(item)}
-                        className="hover:bg-white hover:text-yellow-600 p-2 text-blue-600 dark:text-blue-400"
-                        title="Editar"
-                      >
-                        <Pencil size={14} />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDelete(item.id)}
-                        className="hover:bg-red-500 hover:text-white p-2 text-red-600 dark:text-red-400"
-                        title="Eliminar"
-                      >
-                        <Trash size={14} />
-                      </Button>
+                      {permissions.includes("PERM_ESPECIALIDADES_EDITAR") && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEdit(item)}
+                          className="hover:bg-white hover:text-yellow-600 p-2 text-blue-600 dark:text-blue-400"
+                          title="Editar"
+                        >
+                          <Pencil size={14} />
+                        </Button>
+                      )}
+                      {permissions.includes("PERM_ESPECIALIDADES_ELIMINAR") && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDelete(item.id)}
+                          className="hover:bg-red-500 hover:text-white p-2 text-red-600 dark:text-red-400"
+                          title="Eliminar"
+                        >
+                          <Trash size={14} />
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

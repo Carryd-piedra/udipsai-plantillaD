@@ -21,6 +21,7 @@ import { useModal } from "../../../hooks/useModal";
 import { DeleteModal } from "../../ui/modal/DeleteModal";
 import { TableActionHeader } from "../../common/TableActionHeader";
 import { especialistasService, sedesService } from "../../../services";
+import { useAuth } from "../../../context/AuthContext";
 
 interface Pasante {
   id: number;
@@ -188,12 +189,14 @@ export default function PasantesAccionesTable() {
     console.log("Exporting data...");
   };
 
+  const { permissions } = useAuth();
+
   return (
     <div>
       <TableActionHeader
         title="Pasantes"
         onSearchClick={handleSearch}
-        onNew={() => navigate("/pasantes/nuevo")}
+        onNew={permissions.includes("PERM_PASANTES_CREAR") ? () => navigate("/pasantes/nuevo") : undefined}
         newButtonText="Agregar"
         onExport={handleExport}
         onFilterApply={handleApplyFilters}
@@ -384,24 +387,28 @@ export default function PasantesAccionesTable() {
                     </TableCell>
                     <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
                       <div className="flex justify-center gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEdit(pasante.id)}
-                          className="hover:bg-white hover:text-yellow-600 p-2 text-blue-600 dark:text-blue-400"
-                          title="Editar"
-                        >
-                          <Pen size={14} />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDeleteClick(pasante)}
-                          className="hover:bg-red-500 hover:text-white p-2 text-red-600 dark:text-red-400"
-                          title="Eliminar"
-                        >
-                          <Trash size={14} />
-                        </Button>
+                        {permissions.includes("PERM_PASANTES_EDITAR") && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEdit(pasante.id)}
+                            className="hover:bg-white hover:text-yellow-600 p-2 text-blue-600 dark:text-blue-400"
+                            title="Editar"
+                          >
+                            <Pen size={14} />
+                          </Button>
+                        )}
+                        {permissions.includes("PERM_PASANTES_ELIMINAR") && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDeleteClick(pasante)}
+                            className="hover:bg-red-500 hover:text-white p-2 text-red-600 dark:text-red-400"
+                            title="Eliminar"
+                          >
+                            <Trash size={14} />
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

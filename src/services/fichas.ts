@@ -1,4 +1,4 @@
-import api from './api';
+import api from "../api/api";
 
 export const fichasService = {
   // Historial de cambios
@@ -7,7 +7,7 @@ export const fichasService = {
       const response = await api.get(`/historial-cambios/listar/todos/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Error al obtener historial:', error);
+      console.error("Error al obtener historial:", error);
       throw error;
     }
   },
@@ -15,10 +15,10 @@ export const fichasService = {
   // Historia Clínica
   listarHistoriaClinica: async () => {
     try {
-      const response = await api.get('/historia-clinica');
+      const response = await api.get("/historia-clinica");
       return response.data;
     } catch (error) {
-      console.error('Error al listar historia clínica:', error);
+      console.error("Error al listar historia clínica:", error);
       throw error;
     }
   },
@@ -27,15 +27,15 @@ export const fichasService = {
     try {
       const formData = new FormData();
       formData.append("data", JSON.stringify(data));
-      
+
       if (genograma) {
         formData.append("genograma", genograma);
       }
 
-      const response = await api.post('/historia-clinica', formData);
+      const response = await api.post("/historia-clinica", formData);
       return response.data;
     } catch (error) {
-      console.error('Error al crear historia clínica:', error);
+      console.error("Error al crear historia clínica:", error);
       throw error;
     }
   },
@@ -45,21 +45,24 @@ export const fichasService = {
       const response = await api.get(`/historia-clinica/paciente/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Error al obtener historia clínica:', error);
+      console.error("Error al obtener historia clínica:", error);
       throw error;
     }
   },
-  
+
   obtenerGenograma: async (pacienteId: number | string) => {
-      try {
-        const response = await api.get(`/historia-clinica/paciente/${pacienteId}/genograma`, {
-          responseType: 'blob'
-        });
-        return URL.createObjectURL(response.data);
-      } catch (error) {
-        console.error('Error al obtener genograma:', error);
-        throw error;
-      }
+    try {
+      const response = await api.get(
+        `/historia-clinica/paciente/${pacienteId}/genograma`,
+        {
+          responseType: "blob",
+        }
+      );
+      return URL.createObjectURL(response.data);
+    } catch (error) {
+      console.error("Error al obtener genograma:", error);
+      throw error;
+    }
   },
 
   actualizarHistoriaClinica: async (id: number | string, request: any) => {
@@ -67,7 +70,7 @@ export const fichasService = {
       const response = await api.put(`/historia-clinica/${id}`, request);
       return response.data;
     } catch (error) {
-      console.error('Error al actualizar historia clínica:', error);
+      console.error("Error al actualizar historia clínica:", error);
       throw error;
     }
   },
@@ -77,7 +80,7 @@ export const fichasService = {
       const response = await api.delete(`/historia-clinica/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Error al eliminar historia clínica:', error);
+      console.error("Error al eliminar historia clínica:", error);
       throw error;
     }
   },
@@ -85,20 +88,20 @@ export const fichasService = {
   // Psicología Educativa
   listarPsicologiaEducativa: async () => {
     try {
-      const response = await api.get('/psicologia-educativa');
+      const response = await api.get("/psicologia-educativa");
       return response.data;
     } catch (error) {
-      console.error('Error al listar psicología educativa:', error);
+      console.error("Error al listar psicología educativa:", error);
       throw error;
     }
   },
 
   crearPsicologiaEducativa: async (request: any) => {
     try {
-      const response = await api.post('/psicologia-educativa', request);
+      const response = await api.post("/psicologia-educativa", request);
       return response.data;
     } catch (error) {
-      console.error('Error al crear psicología educativa:', error);
+      console.error("Error al crear psicología educativa:", error);
       throw error;
     }
   },
@@ -108,7 +111,7 @@ export const fichasService = {
       const response = await api.get(`/psicologia-educativa/paciente/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Error al obtener psicología educativa:', error);
+      console.error("Error al obtener psicología educativa:", error);
       throw error;
     }
   },
@@ -118,7 +121,7 @@ export const fichasService = {
       const response = await api.put(`/psicologia-educativa/${id}`, request);
       return response.data;
     } catch (error) {
-      console.error('Error al actualizar psicología educativa:', error);
+      console.error("Error al actualizar psicología educativa:", error);
       throw error;
     }
   },
@@ -128,7 +131,7 @@ export const fichasService = {
       const response = await api.delete(`/psicologia-educativa/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Error al eliminar psicología educativa:', error);
+      console.error("Error al eliminar psicología educativa:", error);
       throw error;
     }
   },
@@ -136,20 +139,20 @@ export const fichasService = {
   // Psicología Clínica
   listarPsicologiaClinica: async () => {
     try {
-      const response = await api.get('/psicologia-clinica');
+      const response = await api.get("/psicologia-clinica");
       return response.data;
     } catch (error) {
-      console.error('Error al listar psicología clínica:', error);
+      console.error("Error al listar psicología clínica:", error);
       throw error;
     }
   },
 
   crearPsicologiaClinica: async (request: any) => {
     try {
-      const response = await api.post('/psicologia-clinica', request);
+      const response = await api.post("/psicologia-clinica", request);
       return response.data;
     } catch (error) {
-      console.error('Error al crear psicología clínica:', error);
+      console.error("Error al crear psicología clínica:", error);
       throw error;
     }
   },
@@ -159,7 +162,7 @@ export const fichasService = {
       const response = await api.get(`/psicologia-clinica/paciente/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Error al obtener psicología clínica:', error);
+      console.error("Error al obtener psicología clínica:", error);
       throw error;
     }
   },
@@ -169,7 +172,7 @@ export const fichasService = {
       const response = await api.put(`/psicologia-clinica/${id}`, request);
       return response.data;
     } catch (error) {
-      console.error('Error al actualizar psicología clínica:', error);
+      console.error("Error al actualizar psicología clínica:", error);
       throw error;
     }
   },
@@ -179,7 +182,7 @@ export const fichasService = {
       const response = await api.delete(`/psicologia-clinica/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Error al eliminar psicología clínica:', error);
+      console.error("Error al eliminar psicología clínica:", error);
       throw error;
     }
   },
@@ -187,20 +190,20 @@ export const fichasService = {
   // Fonoaudiología
   listarFonoaudiologia: async () => {
     try {
-      const response = await api.get('/fonoaudiologia');
+      const response = await api.get("/fonoaudiologia");
       return response.data;
     } catch (error) {
-      console.error('Error al listar fonoaudiología:', error);
+      console.error("Error al listar fonoaudiología:", error);
       throw error;
     }
   },
 
   crearFonoaudiologia: async (request: any) => {
     try {
-      const response = await api.post('/fonoaudiologia', request);
+      const response = await api.post("/fonoaudiologia", request);
       return response.data;
     } catch (error) {
-      console.error('Error al crear fonoaudiología:', error);
+      console.error("Error al crear fonoaudiología:", error);
       throw error;
     }
   },
@@ -210,7 +213,7 @@ export const fichasService = {
       const response = await api.get(`/fonoaudiologia/paciente/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Error al obtener fonoaudiología:', error);
+      console.error("Error al obtener fonoaudiología:", error);
       throw error;
     }
   },
@@ -220,7 +223,7 @@ export const fichasService = {
       const response = await api.put(`/fonoaudiologia/${id}`, request);
       return response.data;
     } catch (error) {
-      console.error('Error al actualizar fonoaudiología:', error);
+      console.error("Error al actualizar fonoaudiología:", error);
       throw error;
     }
   },
@@ -230,7 +233,7 @@ export const fichasService = {
       const response = await api.delete(`/fonoaudiologia/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Error al eliminar fonoaudiología:', error);
+      console.error("Error al eliminar fonoaudiología:", error);
       throw error;
     }
   },

@@ -1,4 +1,4 @@
-import api from "./api";
+import api from "../api/api";
 
 export interface PageResponse<T> {
   content: T[];
@@ -20,27 +20,36 @@ export interface PasanteCriteria {
 }
 
 export const pasantesService = {
-  listarActivos: async (page: number = 0, size: number = 10, sort: string = 'id,desc'): Promise<PageResponse<any>> => {
+  listarActivos: async (
+    page: number = 0,
+    size: number = 10,
+    sort: string = "id,desc"
+  ): Promise<PageResponse<any>> => {
     try {
       const params = { page, size, sort };
-      const response = await api.get('/pasantes/activos', { params });
+      const response = await api.get("/pasantes/activos", { params });
       return response.data;
     } catch (error) {
-      console.error('Error al listar pasantes activos:', error);
+      console.error("Error al listar pasantes activos:", error);
       throw error;
     }
   },
 
-  filtrar: async (criteria: PasanteCriteria, page: number = 0, size: number = 10, sort: string = 'id,desc'): Promise<PageResponse<any>> => {
-      try {
-        const params = { ...criteria, page, size, sort };
-        const response = await api.get('/pasantes/filter', { params });
-        return response.data;
-      } catch (error) {
-        console.error('Error al filtrar pasantes:', error);
-        throw error;
-      }
-    },
+  filtrar: async (
+    criteria: PasanteCriteria,
+    page: number = 0,
+    size: number = 10,
+    sort: string = "id,desc"
+  ): Promise<PageResponse<any>> => {
+    try {
+      const params = { ...criteria, page, size, sort };
+      const response = await api.get("/pasantes/filter", { params });
+      return response.data;
+    } catch (error) {
+      console.error("Error al filtrar pasantes:", error);
+      throw error;
+    }
+  },
 
   crear: async (data: any, file?: File) => {
     try {

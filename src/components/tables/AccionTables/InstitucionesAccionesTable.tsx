@@ -22,6 +22,7 @@ import Label from "../../form/Label";
 import Select from "../../form/Select";
 import { Pagination } from "../../ui/Pagination";
 import { Pencil, Trash, Info } from "lucide-react";
+import { useAuth } from "../../../context/AuthContext";
 
 interface Institucion {
   id: number;
@@ -189,12 +190,14 @@ export default function InstitucionesTable() {
     // Implement export logic here
   };
 
+  const { permissions } = useAuth();
+
   return (
     <div>
       <TableActionHeader
         title="Instituciones Educativas"
         onSearchClick={handleSearch}
-        onNew={handleCreate}
+        onNew={permissions.includes("PERM_INSTITUCIONES_EDUCATIVAS_CREAR") ? handleCreate : undefined}
         newButtonText="Agregar"
         onExport={handleExport}
         onFilterApply={handleApplyFilters}
@@ -331,24 +334,28 @@ export default function InstitucionesTable() {
                     </TableCell>
                     <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
                       <div className="flex justify-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEdit(institucion)}
-                          title="Editar"
-                          className="hover:bg-white hover:text-yellow-600 p-2 text-blue-600 dark:text-blue-400"
-                        >
-                          <Pencil size={14} />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          className="hover:bg-red-500 hover:text-white p-2 text-red-600 hover:text-red-700 dark:text-red-400"
-                          size="sm"
-                          onClick={() => handleDelete(institucion.id)}
-                          title="Eliminar"
-                        >
-                          <Trash size={14} />
-                        </Button>
+                        {permissions.includes("PERM_INSTITUCIONES_EDUCATIVAS_EDITAR") && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEdit(institucion)}
+                            title="Editar"
+                            className="hover:bg-white hover:text-yellow-600 p-2 text-blue-600 dark:text-blue-400"
+                          >
+                            <Pencil size={14} />
+                          </Button>
+                        )}
+                        {permissions.includes("PERM_INSTITUCIONES_EDUCATIVAS_ELIMINAR") && (
+                          <Button
+                            variant="outline"
+                            className="hover:bg-red-500 hover:text-white p-2 text-red-600 hover:text-red-700 dark:text-red-400"
+                            size="sm"
+                            onClick={() => handleDelete(institucion.id)}
+                            title="Eliminar"
+                          >
+                            <Trash size={14} />
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

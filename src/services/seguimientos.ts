@@ -1,4 +1,4 @@
-import api from './api';
+import api from "../api/api";
 
 export interface SeguimientoDTO {
   id: number;
@@ -21,10 +21,10 @@ export interface SeguimientoRequest {
 export const seguimientosService = {
   listar: async () => {
     try {
-      const response = await api.get('/seguimientos');
+      const response = await api.get("/seguimientos");
       return response.data;
     } catch (error) {
-      console.error('Error al listar seguimientos:', error);
+      console.error("Error al listar seguimientos:", error);
       throw error;
     }
   },
@@ -34,7 +34,7 @@ export const seguimientosService = {
       const response = await api.get(`/seguimientos/paciente/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Error al obtener seguimientos del paciente:', error);
+      console.error("Error al obtener seguimientos del paciente:", error);
       throw error;
     }
   },
@@ -43,15 +43,15 @@ export const seguimientosService = {
     try {
       const formData = new FormData();
       formData.append("data", JSON.stringify(data));
-      
+
       if (file) {
         formData.append("file", file);
       }
 
-      const response = await api.post('/seguimientos', formData);
+      const response = await api.post("/seguimientos", formData);
       return response.data;
     } catch (error) {
-      console.error('Error al crear seguimiento:', error);
+      console.error("Error al crear seguimiento:", error);
       throw error;
     }
   },
@@ -60,7 +60,7 @@ export const seguimientosService = {
     try {
       const formData = new FormData();
       formData.append("data", JSON.stringify(data));
-      
+
       if (file) {
         formData.append("file", file);
       }
@@ -68,7 +68,7 @@ export const seguimientosService = {
       const response = await api.put(`/seguimientos/${id}`, formData);
       return response.data;
     } catch (error) {
-      console.error('Error al actualizar seguimiento:', error);
+      console.error("Error al actualizar seguimiento:", error);
       throw error;
     }
   },
@@ -78,7 +78,7 @@ export const seguimientosService = {
       const response = await api.delete(`/seguimientos/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Error al eliminar seguimiento:', error);
+      console.error("Error al eliminar seguimiento:", error);
       throw error;
     }
   },

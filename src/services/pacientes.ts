@@ -1,4 +1,4 @@
-import api from './api';
+import api from "../api/api";
 
 export interface PageResponse<T> {
   content: T[];
@@ -20,24 +20,33 @@ export interface PacienteCriteria {
 }
 
 export const pacientesService = {
-  listarActivos: async (page: number = 0, size: number = 10, sort: string = 'id,desc'): Promise<PageResponse<any>> => {
+  listarActivos: async (
+    page: number = 0,
+    size: number = 10,
+    sort: string = "id,desc"
+  ): Promise<PageResponse<any>> => {
     try {
       const params = { page, size, sort };
-      const response = await api.get('/pacientes/activos', { params });
+      const response = await api.get("/pacientes/activos", { params });
       return response.data;
     } catch (error) {
-      console.error('Error al listar pacientes activos:', error);
+      console.error("Error al listar pacientes activos:", error);
       throw error;
     }
   },
 
-  filtrar: async (criteria: PacienteCriteria, page: number = 0, size: number = 10, sort: string = 'id,desc'): Promise<PageResponse<any>> => {
+  filtrar: async (
+    criteria: PacienteCriteria,
+    page: number = 0,
+    size: number = 10,
+    sort: string = "id,desc"
+  ): Promise<PageResponse<any>> => {
     try {
       const params = { ...criteria, page, size, sort };
-      const response = await api.get('/pacientes/filter', { params });
+      const response = await api.get("/pacientes/filter", { params });
       return response.data;
     } catch (error) {
-      console.error('Error al filtrar pacientes:', error);
+      console.error("Error al filtrar pacientes:", error);
       throw error;
     }
   },
@@ -46,15 +55,15 @@ export const pacientesService = {
     try {
       const formData = new FormData();
       formData.append("data", JSON.stringify(data));
-      
+
       if (file) {
         formData.append("file", file);
       }
 
-      const response = await api.post('/pacientes', formData);
+      const response = await api.post("/pacientes", formData);
       return response.data;
     } catch (error) {
-      console.error('Error al crear paciente:', error);
+      console.error("Error al crear paciente:", error);
       throw error;
     }
   },
@@ -63,7 +72,7 @@ export const pacientesService = {
     try {
       const formData = new FormData();
       formData.append("data", JSON.stringify(data));
-      
+
       if (file) {
         formData.append("file", file);
       }
@@ -71,7 +80,7 @@ export const pacientesService = {
       const response = await api.put(`/pacientes/${id}`, formData);
       return response.data;
     } catch (error) {
-      console.error('Error al actualizar paciente:', error);
+      console.error("Error al actualizar paciente:", error);
       throw error;
     }
   },
@@ -81,20 +90,20 @@ export const pacientesService = {
       const response = await api.get(`/pacientes/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Error al obtener paciente:', error);
+      console.error("Error al obtener paciente:", error);
       throw error;
     }
   },
 
   obtenerFoto: async (filename: string) => {
     try {
-        const response = await api.get(`/pacientes/foto/${filename}`, {
-            responseType: 'blob'
-        });
-        return URL.createObjectURL(response.data);
+      const response = await api.get(`/pacientes/foto/${filename}`, {
+        responseType: "blob",
+      });
+      return URL.createObjectURL(response.data);
     } catch (error) {
-        console.error('Error al obtener foto:', error);
-        throw error;
+      console.error("Error al obtener foto:", error);
+      throw error;
     }
   },
 
@@ -103,7 +112,7 @@ export const pacientesService = {
       const response = await api.delete(`/pacientes/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Error al eliminar paciente:', error);
+      console.error("Error al eliminar paciente:", error);
       throw error;
     }
   },
@@ -113,9 +122,8 @@ export const pacientesService = {
       const response = await api.get(`/pacientes/${id}/resumen-fichas`);
       return response.data;
     } catch (error) {
-      console.error('Error al obtener resumen fichas:', error);
+      console.error("Error al obtener resumen fichas:", error);
       throw error;
     }
   },
-
 };

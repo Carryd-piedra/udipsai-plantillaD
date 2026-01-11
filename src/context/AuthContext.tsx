@@ -11,6 +11,7 @@ interface AuthContextType {
   loading: boolean;
   userRole: string | null;
   permissions: string[];
+  hasPermission: (permission: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -46,9 +47,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const role = allAuthorities.find(auth => auth.startsWith('ROLE_')) || null;
       const perms = allAuthorities.filter(auth => !auth.startsWith('ROLE_'));
 
-      // console.log("Extracted Role:", role);
-      // console.log("Extracted Permissions:", perms);
-      // console.groupEnd();
+      //  console.log("Extracted Role:", role);
+      //  console.log("Extracted Permissions:", perms);
+      //  console.groupEnd();
 
       setUserRole(role);
       setPermissions(perms);
@@ -85,8 +86,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setPermissions([]);
   };
 
+  const hasPermission = (permission: string) => {
+    return permissions.includes(permission);
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, loading, userRole, permissions }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, loading, userRole, permissions, hasPermission }}>
       {children}
     </AuthContext.Provider>
   );

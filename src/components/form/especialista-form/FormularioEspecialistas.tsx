@@ -63,18 +63,64 @@ export default function FormularioEspecialistas() {
           if (data.permisos) {
             setPermisos({
               pacientes: data.permisos.pacientes || false,
+              pacientesCrear: data.permisos.pacientesCrear || false,
+              pacientesEditar: data.permisos.pacientesEditar || false,
+              pacientesEliminar: data.permisos.pacientesEliminar || false,
+
               pasantes: data.permisos.pasantes || false,
+              pasantesCrear: data.permisos.pasantesCrear || false,
+              pasantesEditar: data.permisos.pasantesEditar || false,
+              pasantesEliminar: data.permisos.pasantesEliminar || false,
+
               sedes: data.permisos.sedes || false,
+              sedesCrear: data.permisos.sedesCrear || false,
+              sedesEditar: data.permisos.sedesEditar || false,
+              sedesEliminar: data.permisos.sedesEliminar || false,
+
               especialistas: data.permisos.especialistas || false,
+              especialistasCrear: data.permisos.especialistasCrear || false,
+              especialistasEditar: data.permisos.especialistasEditar || false,
+              especialistasEliminar: data.permisos.especialistasEliminar || false,
+
               especialidades: data.permisos.especialidades || false,
+              especialidadesCrear: data.permisos.especialidadesCrear || false,
+              especialidadesEditar: data.permisos.especialidadesEditar || false,
+              especialidadesEliminar: data.permisos.especialidadesEliminar || false,
+
               asignaciones: data.permisos.asignaciones || false,
+              asignacionesCrear: data.permisos.asignacionesCrear || false,
+              asignacionesEditar: data.permisos.asignacionesEditar || false,
+              asignacionesEliminar: data.permisos.asignacionesEliminar || false,
+
               recursos: data.permisos.recursos || false,
-              institucionesEducativas:
-                data.permisos.institucionesEducativas || false,
+              recursosCrear: data.permisos.recursosCrear || false,
+              recursosEditar: data.permisos.recursosEditar || false,
+              recursosEliminar: data.permisos.recursosEliminar || false,
+
+              institucionesEducativas: data.permisos.institucionesEducativas || false,
+              institucionesEducativasCrear: data.permisos.institucionesEducativasCrear || false,
+              institucionesEducativasEditar: data.permisos.institucionesEducativasEditar || false,
+              institucionesEducativasEliminar: data.permisos.institucionesEducativasEliminar || false,
+
               historiaClinica: data.permisos.historiaClinica || false,
+              historiaClinicaCrear: data.permisos.historiaClinicaCrear || false,
+              historiaClinicaEditar: data.permisos.historiaClinicaEditar || false,
+              historiaClinicaEliminar: data.permisos.historiaClinicaEliminar || false,
+
               fonoAudiologia: data.permisos.fonoAudiologia || false,
+              fonoAudiologiaCrear: data.permisos.fonoAudiologiaCrear || false,
+              fonoAudiologiaEditar: data.permisos.fonoAudiologiaEditar || false,
+              fonoAudiologiaEliminar: data.permisos.fonoAudiologiaEliminar || false,
+
               psicologiaClinica: data.permisos.psicologiaClinica || false,
+              psicologiaClinicaCrear: data.permisos.psicologiaClinicaCrear || false,
+              psicologiaClinicaEditar: data.permisos.psicologiaClinicaEditar || false,
+              psicologiaClinicaEliminar: data.permisos.psicologiaClinicaEliminar || false,
+
               psicologiaEducativa: data.permisos.psicologiaEducativa || false,
+              psicologiaEducativaCrear: data.permisos.psicologiaEducativaCrear || false,
+              psicologiaEducativaEditar: data.permisos.psicologiaEducativaEditar || false,
+              psicologiaEducativaEliminar: data.permisos.psicologiaEducativaEliminar || false,
             });
           }
         } catch (error) {

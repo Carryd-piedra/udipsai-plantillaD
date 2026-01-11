@@ -1,12 +1,12 @@
-import api from './api';
+import api from "../api/api";
 
 export const asignacionesService = {
   listar: async () => {
     try {
-      const response = await api.get('/asignaciones');
+      const response = await api.get("/asignaciones");
       return response.data;
     } catch (error) {
-      console.error('Error al listar asignaciones:', error);
+      console.error("Error al listar asignaciones:", error);
       throw error;
     }
   },
@@ -16,20 +16,20 @@ export const asignacionesService = {
       const response = await api.get(`/asignaciones/pasante/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Error al obtener asignaciones del pasante:', error);
+      console.error("Error al obtener asignaciones del pasante:", error);
       throw error;
     }
   },
 
   crear: async (pacienteId: number | string, pasanteId: number | string) => {
     try {
-      const response = await api.post('/asignaciones', {
+      const response = await api.post("/asignaciones", {
         pacienteId,
         pasanteId,
       });
       return response.data;
     } catch (error) {
-      console.error('Error al crear asignación:', error);
+      console.error("Error al crear asignación:", error);
       throw error;
     }
   },
@@ -39,7 +39,7 @@ export const asignacionesService = {
       const response = await api.delete(`/asignaciones/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Error al eliminar asignación:', error);
+      console.error("Error al eliminar asignación:", error);
       throw error;
     }
   },

@@ -27,6 +27,7 @@ import { sedesService } from "../../../services/sedes";
 import { institucionesService } from "../../../services/instituciones";
 import Label from "../../form/Label";
 import Select from "../../form/Select";
+import { useAuth } from "../../../context/AuthContext";
 import Input from "../../form/input/InputField";
 
 interface Paciente {
@@ -222,12 +223,14 @@ export default function PacientesAccionesTable() {
     console.log("Exporting data...");
   };
 
+  const { permissions } = useAuth();
+
   return (
     <div>
       <TableActionHeader
         title="Lista de pacientes"
         onSearchClick={handleSearch}
-        onNew={() => navigate("/pacientes/nuevo")}
+        onNew={permissions.includes("PERM_PACIENTES_CREAR") ? () => navigate("/pacientes/nuevo") : undefined}
         newButtonText="Agregar"
         onExport={handleExport}
         onFilterApply={handleApplyFilters}
@@ -440,24 +443,28 @@ export default function PacientesAccionesTable() {
                         >
                           <FileText size={14} />
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEdit(paciente.id)}
-                          className="hover:bg-white hover:text-yellow-600 p-2 text-center text-dark dark:text-white-400 dark:hover:text-yellow-600"
-                          title="Editar"
-                        >
-                          <Pen size={14} />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDeleteClick(paciente)}
-                          className="hover:bg-red-500 hover:text-white p-2 text-center text-red-600 dark:text-red-400 dark:hover:text-red-400"
-                          title="Eliminar"
-                        >
-                          <Trash size={14} />
-                        </Button>
+                        {permissions.includes("PERM_PACIENTES_EDITAR") && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEdit(paciente.id)}
+                            className="hover:bg-white hover:text-yellow-600 p-2 text-center text-dark dark:text-white-400 dark:hover:text-yellow-600"
+                            title="Editar"
+                          >
+                            <Pen size={14} />
+                          </Button>
+                        )}
+                        {permissions.includes("PERM_PACIENTES_ELIMINAR") && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDeleteClick(paciente)}
+                            className="hover:bg-red-500 hover:text-white p-2 text-center text-red-600 dark:text-red-400 dark:hover:text-red-400"
+                            title="Eliminar"
+                          >
+                            <Trash size={14} />
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

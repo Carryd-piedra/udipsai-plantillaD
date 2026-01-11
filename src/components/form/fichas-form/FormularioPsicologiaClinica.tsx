@@ -1,9 +1,12 @@
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useRef } from "react";
 import ComponentCard from "../../common/ComponentCard";
-import { fichasService } from "../../../services/fichas";
-import { toast } from "react-toastify";
 import Button from "../../ui/button/Button";
-import { useNavigate, useSearchParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
+import { toast } from "react-toastify";
+import { fichasService } from "../../../services/fichas";
+import { pacientesService } from "../../../services/pacientes";
+import Input from "../../form/input/InputField";
 
 import AnamnesisForm from "./sections/PsicologiaClinica.tsx/AnamnesisForm";
 import SuenioForm from "./sections/PsicologiaClinica.tsx/SuenioForm";
@@ -15,11 +18,8 @@ import EvaluacionCognitivaForm from "./sections/PsicologiaClinica.tsx/Evaluacion
 import EvaluacionPensamientoForm from "./sections/PsicologiaClinica.tsx/EvaluacionPensamientoForm";
 import DiagnosticoPsicologiaForm from "./sections/PsicologiaClinica.tsx/DiagnosticoPsicologiaForm";
 
-interface FormularioPsicologiaClinicaProps {
-  pacienteId: string | null;
-}
-
-interface FichaPsicologiaClinicaState {
+export interface FichaPsicologiaClinicaState {
+  id?: number;
   pacienteId: number;
   activo: boolean;
   anamnesis: {
@@ -150,7 +150,7 @@ interface FichaPsicologiaClinicaState {
     toscoYDescortes: boolean;
     triste: boolean;
     irritable: boolean;
-    popensoARinias: boolean;
+    popensoARinias: false;
     suaveYAfable: boolean;
     indiferente: boolean;
     preocupadoYPensativo: boolean;
@@ -334,9 +334,9 @@ interface FichaPsicologiaClinicaState {
   };
 }
 
-const initialState: FichaPsicologiaClinicaState = {
+export const initialPsicologiaClinicaState: FichaPsicologiaClinicaState = {
   pacienteId: 0,
-  activo: false,
+  activo: true,
   anamnesis: {
     anamnesisFamiliar: "",
     personal: "",
@@ -349,7 +349,7 @@ const initialState: FichaPsicologiaClinicaState = {
     tipoHorarioDeSuenio: "DIURNO",
     companiaSuenio: "SOLO",
     especificarCompaniaSuenio: "",
-    edad: "",
+    edad: "0",
     hipersomnia: false,
     dificultadDeConciliarElSuenio: false,
     despertarFrecuente: false,
@@ -649,37 +649,41 @@ const initialState: FichaPsicologiaClinicaState = {
   },
 };
 
-export default function FormularioPsicologiaClinica({
-  pacienteId,
-}: FormularioPsicologiaClinicaProps) {
+export default function FormularioPsicologiaClinica() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const mode = searchParams.get("mode");
+  const { id } = useParams<{ id: string }>();
 
-  const [formData, setFormData] = useState<FichaPsicologiaClinicaState>({
-    ...initialState,
-    pacienteId: pacienteId ? Number(pacienteId) : 0,
-  });
+  const [formData, setFormData] = useState<FichaPsicologiaClinicaState>(initialPsicologiaClinicaState);
   const [loading, setLoading] = useState(false);
-  const [isEdit, setIsEdit] = useState(false);
+  
+  // Create Mode state
+  const isEdit = !!id;
+  const [selectedPatient, setSelectedPatient] = useState<any>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [showResults, setShowResults] = useState(false);
+  const searchTimeoutRef = useRef<any>(null);
 
   useEffect(() => {
-    if (pacienteId && mode === "editar") {
-      fetchFicha(pacienteId);
+    if (isEdit && id) {
+      loadFicha(id);
     }
-  }, [pacienteId, mode]);
+  }, [id, isEdit]);
 
-  const fetchFicha = async (id: string) => {
+  const loadFicha = async (fichaId: string) => {
     try {
-      if (!id) return;
       setLoading(true);
-      const data = await fichasService.obtenerPsicologiaClinica(id);
+      const data = await fichasService.obtenerPsicologiaClinica(fichaId);
       if (data) {
         setFormData(data);
-        setIsEdit(true);
+      } else {
+        toast.error("No se encontró la ficha");
+        navigate("/psicologia-clinica");
       }
     } catch (error) {
-      console.log("No existing ficha found or error fetching:", error);
+      console.error("Error loading ficha:", error);
+      toast.error("Error al cargar la ficha");
+      navigate("/psicologia-clinica");
     } finally {
       setLoading(false);
     }
@@ -699,38 +703,65 @@ export default function FormularioPsicologiaClinica({
     }));
   };
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    
+    if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+    }
+
+    if (value.length > 2) {
+        searchTimeoutRef.current = setTimeout(() => {
+            searchPatients(value);
+        }, 300);
+    } else {
+        setSearchResults([]);
+        setShowResults(false);
+    }
+  };
+
+  const searchPatients = async (term: string) => {
+    try {
+        const response = await pacientesService.filtrar({ search: term }, 0, 5);
+        setSearchResults(response.content);
+        setShowResults(true);
+    } catch (error) {
+        console.error("Error searching patients", error);
+    }
+  };
+
+  const selectPatient = (patient: any) => {
+      setSelectedPatient(patient);
+      setFormData(prev => ({ ...prev, pacienteId: patient.id }));
+      setSearchTerm("");
+      setShowResults(false);
+  };
+
   const handleSubmit = async () => {
     try {
       setLoading(true);
-      const payload = {
-        pacienteId: Number(pacienteId),
-        activo: formData.activo,
-        anamnesis: formData.anamnesis,
-        suenio: formData.suenio,
-        conducta: formData.conducta,
-        sexualidad: formData.sexualidad,
-        evaluacionLenguaje: formData.evaluacionLenguaje,
-        evaluacionAfectiva: formData.evaluacionAfectiva,
-        evaluacionCognitiva: formData.evaluacionCognitiva,
-        evaluacionPensamiento: formData.evaluacionPensamiento,
-        diagnostico: formData.diagnostico,
-      };
-      await fichasService.crearPsicologiaClinica(payload);
-      toast.success(
-        isEdit
-          ? "Ficha de psicologia clinica actualizada exitosamente"
-          : "Ficha de psicologia clinica creada exitosamente"
-      );
-      navigate("/pacientes");
-    } catch (error) {
-      toast.error("Error al guardar la ficha de psicologia clinica");
-      console.error("Error al guardar la ficha de psicologia clinica:", error);
+      if (isEdit && id) {
+        await fichasService.actualizarPsicologiaClinica(Number(id), formData);
+        toast.success("Ficha actualizada exitosamente");
+      } else {
+        await fichasService.crearPsicologiaClinica(formData);
+        toast.success("Ficha creada exitosamente");
+      }
+      navigate("/psicologia-clinica");
+    } catch (error: any) {
+         if (error.response?.status === 409) {
+            toast.error("Este paciente ya tiene una ficha activa.");
+        } else {
+            toast.error(isEdit ? "Error al actualizar la ficha" : "Error al crear la ficha");
+        }
+      console.error("Error saving ficha:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading && !isEdit) {
+  if (loading && isEdit) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
         <div className="w-12 h-12 border-4 border-red-200 border-t-red-600 rounded-full animate-spin"></div>
@@ -741,8 +772,69 @@ export default function FormularioPsicologiaClinica({
     );
   }
 
+  // Show Patient Selection if New and no patient selected
+  if (!isEdit && !selectedPatient) {
+      return (
+        <div className="space-y-6">
+            <h2 className="text-xl font-semibold text-slate-800">Seleccionar Paciente</h2>
+             <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Buscar Paciente
+                </label>
+                <div className="relative w-full max-w-md">
+                        <Input
+                            type="text"
+                            onChange={handleSearchChange}
+                            value={searchTerm}
+                            placeholder="Buscar por nombre o cédula..."
+                            className="w-full"
+                        />
+                        {showResults && searchResults.length > 0 && (
+                            <div className="absolute z-10 w-full bg-white mt-1 border border-slate-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                {searchResults.map((p) => (
+                                    <div 
+                                        key={p.id}
+                                        className="p-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0"
+                                        onClick={() => selectPatient(p)}
+                                    >
+                                        <div className="font-medium text-slate-800">{p.nombres} {p.apellidos}</div>
+                                        <div className="text-xs text-slate-500">{p.cedula}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        {showResults && searchResults.length === 0 && (
+                            <div className="absolute z-10 w-full bg-white mt-1 border border-slate-200 rounded-md shadow-lg p-3 text-slate-500 text-sm">
+                                No se encontraron pacientes
+                            </div>
+                        )}
+                </div>
+            </div>
+            <div className="flex justify-end">
+                <Button variant="outline" onClick={() => navigate("/psicologia-clinica")}>
+                     Cancelar
+                </Button>
+            </div>
+        </div>
+      );
+  }
+
   return (
     <div className="space-y-6">
+      {!isEdit && selectedPatient && (
+          <div className="flex items-center justify-between bg-blue-50 p-4 rounded-md border border-blue-100 mb-6">
+            <div>
+                <span className="font-semibold text-blue-900">Paciente:</span> {selectedPatient.nombres} {selectedPatient.apellidos} ({selectedPatient.cedula})
+            </div>
+            <button 
+                onClick={() => { setSelectedPatient(null); setFormData(prev => ({...prev, pacienteId: 0})); }}
+                className="text-sm text-blue-600 hover:underline"
+            >
+                Cambiar Paciente
+            </button>
+        </div>
+      )}
+
       <ComponentCard title="Anamnesis">
         <AnamnesisForm
           data={formData.anamnesis}
@@ -798,11 +890,11 @@ export default function FormularioPsicologiaClinica({
         />
       </ComponentCard>
        <div className="flex justify-end gap-4">
-        <Button variant="outline" onClick={() => navigate("/pacientes")}>
+        <Button variant="outline" onClick={() => navigate("/psicologia-clinica")}>
           Cancelar
         </Button>
         <Button variant="primary" onClick={handleSubmit} disabled={loading}>
-          {loading ? "Guardando..." : "Guardar Ficha"}
+          {loading ? "Guardando..." : isEdit ? "Actualizar Ficha" : "Guardar Ficha"}
         </Button>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 
 import {
@@ -23,7 +23,13 @@ type NavItem = {
   name: string;
   icon: React.ReactNode;
   path?: string;
-  subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
+  subItems?: {
+    name: string;
+    path: string;
+    pro?: boolean;
+    new?: boolean;
+    requiredPermission?: string;
+  }[];
   requiredPermission?: string;
 };
 
@@ -37,6 +43,33 @@ const navItems: NavItem[] = [
     icon: <Users size={20} />,
     name: "Pacientes",
     path: "/pacientes",
+    requiredPermission: "PERM_PACIENTES",
+  },
+  {
+    name: "Fichas",
+    icon: <ClipboardList size={20} />,
+    subItems: [
+      {
+        name: "Fonoaudiología",
+        path: "/fonoaudiologia",
+        requiredPermission: "PERM_FONOAUDIOLOGIA",
+      },
+      {
+        name: "Psicología Clínica",
+        path: "/psicologia-clinica",
+        requiredPermission: "PERM_PSICOLOGIA_CLINICA",
+      },
+      {
+        name: "Psicología Educativa",
+        path: "/psicologia-educativa",
+        requiredPermission: "PERM_PSICOLOGIA_EDUCATIVA",
+      },
+      {
+        name: "Historia Clínica",
+        path: "/historia-clinica",
+        requiredPermission: "PERM_HISTORIA_CLINICA",
+      },
+    ],
     requiredPermission: "PERM_PACIENTES",
   },
   {
@@ -137,17 +170,37 @@ const AppSidebar: React.FC = () => {
   );
 
   const filterItems = (items: NavItem[]) => {
-    return items.filter((item) => {
-      if (!item.requiredPermission) return true;
-
-      if (permissions.includes(item.requiredPermission)) return true;
-
-      return false;
-    });
+    return items
+      .filter((item) => {
+        if (!item.requiredPermission) return true;
+        return permissions.includes(item.requiredPermission);
+      })
+      .map((item) => {
+        if (item.subItems) {
+          const filteredSubItems = item.subItems.filter((subItem) => {
+            if (!subItem.requiredPermission) return true;
+            return permissions.includes(subItem.requiredPermission);
+          });
+          return { ...item, subItems: filteredSubItems };
+        }
+        return item;
+      })
+      .filter((item) => {
+        // If it's a subitem group with no visible items and no main path, hide it.
+        if (item.subItems && item.subItems.length === 0 && !item.path)
+          return false;
+        return true;
+      });
   };
 
-  const filteredNavItems = filterItems(navItems);
-  const filteredOthersItems = filterItems(othersItems);
+  const filteredNavItems = useMemo(
+    () => filterItems(navItems),
+    [permissions]
+  );
+  const filteredOthersItems = useMemo(
+    () => filterItems(othersItems),
+    [permissions]
+  );
 
   useEffect(() => {
     // console.group("AppSidebar - Permissions Check");
@@ -161,9 +214,9 @@ const AppSidebar: React.FC = () => {
     ["main", "others"].forEach((menuType) => {
       const items =
         menuType === "main" ? filteredNavItems : filteredOthersItems;
-      items.forEach((nav, index) => {
+      items.forEach((nav: NavItem, index: number) => {
         if (nav.subItems) {
-          nav.subItems.forEach((subItem) => {
+          nav.subItems.forEach((subItem: any) => {
             if (isActive(subItem.path)) {
               setOpenSubmenu({
                 type: menuType as "main" | "others",
@@ -177,9 +230,12 @@ const AppSidebar: React.FC = () => {
     });
 
     if (!submenuMatched) {
+      // Only close if we are not matched and the screen is small or we want it to follow the path
+      // but strictly speaking, if path is not in any submenu, we probably want to collapse.
+      // However, we only do this when the pathname actually changes to avoid overriding manual toggles.
       setOpenSubmenu(null);
     }
-  }, [location, isActive, filteredNavItems, filteredOthersItems]);
+  }, [location.pathname, filteredNavItems, filteredOthersItems, isActive]);
 
   useEffect(() => {
     if (openSubmenu !== null) {

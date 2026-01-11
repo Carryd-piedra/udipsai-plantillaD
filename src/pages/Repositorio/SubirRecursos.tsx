@@ -20,6 +20,7 @@ import { useModal } from "../../hooks/useModal";
 import Label from "../../components/form/Label";
 import Input from "../../components/form/input/InputField";
 import Select from "../../components/form/Select";
+import { useAuth } from "../../context/AuthContext";
 
 export default function SubirRecursos() {
   const [recursos, setRecursos] = useState<Recurso[]>([]);
@@ -149,6 +150,8 @@ export default function SubirRecursos() {
     );
   }
 
+  const { permissions } = useAuth();
+
   return (
     <>
       <PageMeta
@@ -158,7 +161,7 @@ export default function SubirRecursos() {
 
       <TableActionHeader
         title="Gestor de Recursos"
-        onNew={openUploadModal}
+        onNew={permissions.includes("PERM_RECURSOS_CREAR") ? openUploadModal : undefined}
         newButtonText="Subir Recurso"
         placeholder="Buscar recurso..."
         onSearchClick={(term) => {
@@ -239,24 +242,28 @@ export default function SubirRecursos() {
                     </TableCell>
                     <TableCell className="px-5 py-3 text-right text-theme-xs text-gray-700 dark:text-gray-300">
                       <div className="flex justify-end gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => openReplace(r)}
-                          className="hover:bg-white hover:text-blue-600 p-2"
-                          title="Reemplazar"
-                        >
-                          <RefreshCw size={14} />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => openDelete(r)}
-                          className="hover:bg-red-500 hover:text-white p-2 text-red-600"
-                          title="Eliminar"
-                        >
-                          <Trash size={14} />
-                        </Button>
+                        {permissions.includes("PERM_RECURSOS_EDITAR") && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => openReplace(r)}
+                            className="hover:bg-white hover:text-blue-600 p-2"
+                            title="Reemplazar"
+                          >
+                            <RefreshCw size={14} />
+                          </Button>
+                        )}
+                        {permissions.includes("PERM_RECURSOS_ELIMINAR") && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => openDelete(r)}
+                            className="hover:bg-red-500 hover:text-white p-2 text-red-600"
+                            title="Eliminar"
+                          >
+                            <Trash size={14} />
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
