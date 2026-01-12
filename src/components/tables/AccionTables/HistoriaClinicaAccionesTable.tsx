@@ -87,8 +87,6 @@ export default function HistoriaClinicaAccionesTable() {
       <TableActionHeader
         title="Fichas de Historia Clínica"
         onSearchClick={setSearchTerm}
-        onNew={() => navigate("/historia-clinica/nuevo")}
-        newButtonText="Nueva Ficha"
       />
 
       <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-white/[0.05] dark:bg-white/[0.03]">

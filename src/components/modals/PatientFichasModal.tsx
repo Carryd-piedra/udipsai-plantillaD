@@ -21,7 +21,7 @@ interface Paciente {
 
 interface FichaResumen {
   totalFichas: number;
-  nombresFichas: string[];
+  fichas: Record<string, number>;
 }
 
 interface PatientFichasModalProps {
@@ -86,16 +86,25 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
 
   const getFileStatus = (internalName: string) => {
     return (
-      Array.isArray(resumen?.nombresFichas) &&
-      resumen.nombresFichas.includes(internalName)
+      resumen?.fichas &&
+      resumen.fichas[internalName] !== undefined
     );
   };
 
-  const handleAction = (action: string, fileType: string) => {
-    if (action === "Crear" || action === "Editar") {
-      const mode = action === "Crear" ? "crear" : "editar";
-      navigate(`/${fileType}?pacienteId=${paciente.id}&mode=${mode}`);
+  const handleAction = (action: string, fileType: string, internalName: string) => {
+    if (action === "Crear") {
+      navigate(`/${fileType}/nuevo?pacienteId=${paciente.id}`);
       onClose();
+      return;
+    }
+    if (action === "Editar") {
+      const fichaId = resumen?.fichas?.[internalName];
+      if (fichaId) {
+        navigate(`/${fileType}/editar/${fichaId}`);
+        onClose();
+      } else {
+        toast.error("No se pudo obtener el ID de la ficha");
+      }
       return;
     }
     console.log(`${action} - ${fileType} for patient ${paciente.id}`);
@@ -168,7 +177,7 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleAction("Ver", file.id)}
+                              onClick={() => handleAction("Ver", file.id, file.internalName)}
                               className="hover:bg-white hover:text-blue-600 p-2 text-dark dark:text-white-400 dark:hover:text-blue-600"
                               title="Ver"
                             >
@@ -177,7 +186,7 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleAction("Editar", file.id)}
+                              onClick={() => handleAction("Editar", file.id, file.internalName)}
                               className="hover:bg-white hover:text-yellow-600 p-2 text-dark dark:text-white-400 dark:hover:text-yellow-600"
                               title="Editar"
                             >
@@ -187,7 +196,7 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleAction("Exportar", file.id)}
+                              onClick={() => handleAction("Exportar", file.id, file.internalName)}
                               className="hover:bg-white hover:text-green-600 p-2 text-dark dark:text-white-400 dark:hover:text-green-600"
                               title="Exportar"
                             >
@@ -196,7 +205,7 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleAction("Eliminar", file.id)}
+                              onClick={() => handleAction("Eliminar", file.id, file.internalName)}
                               className="hover:bg-red-500 hover:text-white p-2 text-red-600 dark:text-red-400 dark:hover:text-red-400"
                               title="Eliminar"
                             >
@@ -207,7 +216,7 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleAction("Crear", file.id)}
+                            onClick={() => handleAction("Crear", file.id, file.internalName)}
                             className="hover:bg-white hover:text-green-600 p-2 text-dark dark:text-white-400 dark:hover:text-green-600"
                           >
                             <Plus size={14} />

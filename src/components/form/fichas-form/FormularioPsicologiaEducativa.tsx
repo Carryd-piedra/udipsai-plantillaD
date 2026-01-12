@@ -1,12 +1,11 @@
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import ComponentCard from "../../common/ComponentCard";
 import Button from "../../ui/button/Button";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useParams, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
 import { fichasService } from "../../../services/fichas";
 import { pacientesService } from "../../../services/pacientes";
-import Input from "../../form/input/InputField";
 
 import HistoriaEscolarForm from "./sections/PsicologiaEducativa.tsx/HistoriaEscolarForm";
 import DesarrolloForm from "./sections/PsicologiaEducativa.tsx/DesarrolloForm";
@@ -123,16 +122,33 @@ export default function FormularioPsicologiaEducativa() {
   // Create Mode state
   const isEdit = !!id;
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [showResults, setShowResults] = useState(false);
-  const searchTimeoutRef = useRef<any>(null);
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
+    const pacienteIdParam = searchParams.get("pacienteId");
     if (isEdit && id) {
       loadFicha(id);
+    } else if (pacienteIdParam) {
+        loadPacienteFromUrl(pacienteIdParam);
     }
-  }, [id, isEdit]);
+  }, [id, isEdit, searchParams]);
+
+  const loadPacienteFromUrl = async (id: string) => {
+    try {
+        setLoading(true);
+        const paciente = await pacientesService.obtenerPorId(id);
+        if (paciente) {
+            setSelectedPatient(paciente);
+            setFormData(prev => ({ ...prev, pacienteId: paciente.id }));
+        }
+    } catch (error) {
+        console.error("Error loading patient from URL", error);
+        toast.error("Error al cargar datos del paciente asociado");
+    } finally {
+        setLoading(false);
+    }
+  };
+
 
   const loadFicha = async (fichaId: string) => {
     try {
@@ -168,40 +184,6 @@ export default function FormularioPsicologiaEducativa() {
     }));
   };
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-    
-    if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-    }
-
-    if (value.length > 2) {
-        searchTimeoutRef.current = setTimeout(() => {
-            searchPatients(value);
-        }, 300);
-    } else {
-        setSearchResults([]);
-        setShowResults(false);
-    }
-  };
-
-  const searchPatients = async (term: string) => {
-    try {
-        const response = await pacientesService.filtrar({ search: term }, 0, 5);
-        setSearchResults(response.content);
-        setShowResults(true);
-    } catch (error) {
-        console.error("Error searching patients", error);
-    }
-  };
-
-  const selectPatient = (patient: any) => {
-      setSelectedPatient(patient);
-      setFormData(prev => ({ ...prev, pacienteId: patient.id }));
-      setSearchTerm("");
-      setShowResults(false);
-  };
 
   const handleSubmit = async () => {
     try {
@@ -237,52 +219,6 @@ export default function FormularioPsicologiaEducativa() {
     );
   }
 
-  // Show Patient Selection if New and no patient selected
-  if (!isEdit && !selectedPatient) {
-      return (
-        <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-slate-800">Seleccionar Paciente</h2>
-             <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Buscar Paciente
-                </label>
-                <div className="relative w-full max-w-md">
-                        <Input
-                            type="text"
-                            onChange={handleSearchChange}
-                            value={searchTerm}
-                            placeholder="Buscar por nombre o cédula..."
-                            className="w-full"
-                        />
-                        {showResults && searchResults.length > 0 && (
-                            <div className="absolute z-10 w-full bg-white mt-1 border border-slate-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                                {searchResults.map((p) => (
-                                    <div 
-                                        key={p.id}
-                                        className="p-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0"
-                                        onClick={() => selectPatient(p)}
-                                    >
-                                        <div className="font-medium text-slate-800">{p.nombres} {p.apellidos}</div>
-                                        <div className="text-xs text-slate-500">{p.cedula}</div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                        {showResults && searchResults.length === 0 && (
-                            <div className="absolute z-10 w-full bg-white mt-1 border border-slate-200 rounded-md shadow-lg p-3 text-slate-500 text-sm">
-                                No se encontraron pacientes
-                            </div>
-                        )}
-                </div>
-            </div>
-            <div className="flex justify-end">
-                <Button variant="outline" onClick={() => navigate("/psicologia-educativa")}>
-                     Cancelar
-                </Button>
-            </div>
-        </div>
-      );
-  }
 
   return (
     <div className="space-y-6">
@@ -291,12 +227,6 @@ export default function FormularioPsicologiaEducativa() {
             <div>
                 <span className="font-semibold text-blue-900">Paciente:</span> {selectedPatient.nombres} {selectedPatient.apellidos} ({selectedPatient.cedula})
             </div>
-            <button 
-                onClick={() => { setSelectedPatient(null); setFormData(prev => ({...prev, pacienteId: 0})); }}
-                className="text-sm text-blue-600 hover:underline"
-            >
-                Cambiar Paciente
-            </button>
         </div>
       )}
 

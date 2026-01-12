@@ -10,6 +10,8 @@ interface AuthContextType {
   logout: () => void;
   loading: boolean;
   userRole: string | null;
+  userName: string | null;
+  userIdentity: string | null; // Holds Cedula or Username
   permissions: string[];
   hasPermission: (permission: string) => boolean;
 }
@@ -22,23 +24,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
+  const [userIdentity, setUserIdentity] = useState<string | null>(null);
   const [permissions, setPermissions] = useState<string[]>([]);
 
   const decodeAndSetUser = (token: string) => {
     try {
-      // console.group("AuthContext - Token Decoding");
-      // console.log("Raw Token:", token);
-      
       const decoded = jwtDecode<any>(token);
-      // console.log("Decoded Token:", decoded);
       
       const allAuthorities: string[] = [];
       
       if (Array.isArray(decoded.authorities)) {
-         // console.log("Found authorities array:", decoded.authorities);
          allAuthorities.push(...decoded.authorities.map((a: any) => typeof a === 'string' ? a : a.authority));
       } else if (Array.isArray(decoded.roles)) {
-          // console.log("Found roles array:", decoded.roles);
           allAuthorities.push(...decoded.roles);
       } else {
           console.warn("No 'authorities' or 'roles' found in token");
@@ -47,11 +45,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const role = allAuthorities.find(auth => auth.startsWith('ROLE_')) || null;
       const perms = allAuthorities.filter(auth => !auth.startsWith('ROLE_'));
 
-      //  console.log("Extracted Role:", role);
-      //  console.log("Extracted Permissions:", perms);
-      //  console.groupEnd();
+      // Extract User Info
+      // 'name' claim is now added by Backend JwtTokenProvider
+      const extractedName = decoded.name || decoded.fullName || "Usuario";
+      // 'sub' claim holds the username/cedula
+      const extractedIdentity = decoded.sub || ""; 
 
       setUserRole(role);
+      setUserName(extractedName);
+      setUserIdentity(extractedIdentity);
       setPermissions(perms);
       setIsAuthenticated(true);
     } catch (error) {
@@ -83,6 +85,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     authService.logout();
     setIsAuthenticated(false);
     setUserRole(null);
+    setUserName(null);
+    setUserIdentity(null);
     setPermissions([]);
   };
 
@@ -91,7 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, loading, userRole, permissions, hasPermission }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, loading, userRole, userName, userIdentity, permissions, hasPermission }}>
       {children}
     </AuthContext.Provider>
   );

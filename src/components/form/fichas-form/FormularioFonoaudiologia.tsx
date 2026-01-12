@@ -1,12 +1,10 @@
-
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import ComponentCard from "../../common/ComponentCard";
 import Button from "../../ui/button/Button";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useParams, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
 import { fichasService } from "../../../services/fichas";
 import { pacientesService } from "../../../services/pacientes";
-import Input from "../../form/input/InputField";
 
 import HablaForm from "./sections/Fonoaudiologia/HablaForm";
 import AudicionForm from "./sections/Fonoaudiologia/AudicionForm";
@@ -47,7 +45,7 @@ export const initialFonoaudiologiaState: FonoaudiologiaState = {
     alteracionesHabla: false,
     disfasiaAfasia: false,
     disartriaAnartria: false,
-    otrasAlteracionesHabla: false
+    otrasAlteracionesHabla: false,
   },
   audicion: {
     seARealizadoExamenAudiologico: false,
@@ -81,7 +79,7 @@ export const initialFonoaudiologiaState: FonoaudiologiaState = {
     finUsoAudifonos: "",
     implanteCoclear: false,
     tratamientoFonoaudiologicoPrevio: false,
-    atenidoPerdidaAudicionPasado: false
+    atenidoPerdidaAudicionPasado: false,
   },
   fonacion: {
     creeTonoVozEstudianteApropiado: false,
@@ -99,7 +97,7 @@ export const initialFonoaudiologiaState: FonoaudiologiaState = {
     oracionesDosPalabras: false,
     oracionesTresPalabras: false,
     formacionLinguisticaCompleta: false,
-    numeroTotalPalabras: 0
+    numeroTotalPalabras: 0,
   },
   historiaAuditiva: {
     otalgia: false,
@@ -160,13 +158,13 @@ export const initialFonoaudiologiaState: FonoaudiologiaState = {
     especficarAyudaAuditiva: "",
     percibeSonidoIgualAmbosOidos: false,
     conQueOidoEscuchaMejor: "AMBOS",
-    haceCuantoTiempoPresentaSintomasAuditivos: "DÍAS"
+    haceCuantoTiempoPresentaSintomasAuditivos: "DÍAS",
   },
   vestibular: {
     faltaEquilibrioCaminar: false,
     mareos: false,
     cuandoMareos: "SIEMPRE",
-    vertigo: false
+    vertigo: false,
   },
   otoscopia: {
     palpacionPabellonOidoDerecho: "NORMAL",
@@ -184,30 +182,48 @@ export const initialFonoaudiologiaState: FonoaudiologiaState = {
     aparienciaMenbranaTimpanicaOidoIzquierdo: "NORMAL",
     perforacionOidoIzquierdo: false,
     burbujaOidoIzquierdo: false,
-    coloracionOidoIzquierdo: "NORMAL"
-  }
+    coloracionOidoIzquierdo: "NORMAL",
+  },
 };
 
 export default function FormularioFonoaudiologia() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  
-  const [formData, setFormData] = useState<FonoaudiologiaState>(initialFonoaudiologiaState);
+
+  const [formData, setFormData] = useState<FonoaudiologiaState>(
+    initialFonoaudiologiaState
+  );
   const [loading, setLoading] = useState(false);
-  
+
   // Create Mode state
   const isEdit = !!id;
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [showResults, setShowResults] = useState(false);
-  const searchTimeoutRef = useRef<any>(null);
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
+    const pacienteIdParam = searchParams.get("pacienteId");
     if (isEdit && id) {
       loadFicha(id);
+    } else if (pacienteIdParam) {
+      loadPacienteFromUrl(pacienteIdParam);
     }
-  }, [id, isEdit]);
+  }, [id, isEdit, searchParams]);
+
+  const loadPacienteFromUrl = async (id: string) => {
+    try {
+      setLoading(true);
+      const paciente = await pacientesService.obtenerPorId(id);
+      if (paciente) {
+        setSelectedPatient(paciente);
+        setFormData((prev) => ({ ...prev, pacienteId: paciente.id }));
+      }
+    } catch (error) {
+      console.error("Error loading patient from URL", error);
+      toast.error("Error al cargar datos del paciente asociado");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadFicha = async (fichaId: string) => {
     try {
@@ -215,11 +231,6 @@ export default function FormularioFonoaudiologia() {
       const data = await fichasService.obtenerFonoaudiologia(fichaId);
       if (data) {
         setFormData(data);
-        if (data.pacienteId) {
-            // Optionally load patient details if needed for display, 
-            // though usually ficha data might contain nested patient info or just ID.
-            // For now assuming we just need the form data.
-        }
       } else {
         toast.error("No se encontró la ficha");
         navigate("/fonoaudiologia");
@@ -247,41 +258,6 @@ export default function FormularioFonoaudiologia() {
     }));
   };
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-    
-    if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-    }
-
-    if (value.length > 2) {
-        searchTimeoutRef.current = setTimeout(() => {
-            searchPatients(value);
-        }, 300);
-    } else {
-        setSearchResults([]);
-        setShowResults(false);
-    }
-  };
-
-  const searchPatients = async (term: string) => {
-    try {
-        const response = await pacientesService.filtrar({ search: term }, 0, 5);
-        setSearchResults(response.content);
-        setShowResults(true);
-    } catch (error) {
-        console.error("Error searching patients", error);
-    }
-  };
-
-  const selectPatient = (patient: any) => {
-      setSelectedPatient(patient);
-      setFormData(prev => ({ ...prev, pacienteId: patient.id }));
-      setSearchTerm("");
-      setShowResults(false);
-  };
-
   const handleSubmit = async () => {
     try {
       setLoading(true);
@@ -294,11 +270,13 @@ export default function FormularioFonoaudiologia() {
       }
       navigate("/fonoaudiologia");
     } catch (error: any) {
-         if (error.response?.status === 409) {
-            toast.error("Este paciente ya tiene una ficha activa.");
-        } else {
-            toast.error(isEdit ? "Error al actualizar la ficha" : "Error al crear la ficha");
-        }
+      if (error.response?.status === 409) {
+        toast.error("Este paciente ya tiene una ficha activa.");
+      } else {
+        toast.error(
+          isEdit ? "Error al actualizar la ficha" : "Error al crear la ficha"
+        );
+      }
       console.error("Error saving ficha:", error);
     } finally {
       setLoading(false);
@@ -316,68 +294,14 @@ export default function FormularioFonoaudiologia() {
     );
   }
 
-  // Show Patient Selection if New and no patient selected
-  if (!isEdit && !selectedPatient) {
-      return (
-        <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-slate-800">Seleccionar Paciente</h2>
-             <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Buscar Paciente
-                </label>
-                <div className="relative w-full max-w-md">
-                        <Input
-                            type="text"
-                            onChange={handleSearchChange}
-                            value={searchTerm}
-                            placeholder="Buscar por nombre o cédula..."
-                            className="w-full"
-                        />
-                        {showResults && searchResults.length > 0 && (
-                            <div className="absolute z-10 w-full bg-white mt-1 border border-slate-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                                {searchResults.map((p) => (
-                                    <div 
-                                        key={p.id}
-                                        className="p-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0"
-                                        onClick={() => selectPatient(p)}
-                                    >
-                                        <div className="font-medium text-slate-800">{p.nombres} {p.apellidos}</div>
-                                        <div className="text-xs text-slate-500">{p.cedula}</div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                        {showResults && searchResults.length === 0 && (
-                            <div className="absolute z-10 w-full bg-white mt-1 border border-slate-200 rounded-md shadow-lg p-3 text-slate-500 text-sm">
-                                No se encontraron pacientes
-                            </div>
-                        )}
-                </div>
-            </div>
-            <div className="flex justify-end">
-                <Button variant="outline" onClick={() => navigate("/fonoaudiologia")}>
-                     Cancelar
-                </Button>
-            </div>
-        </div>
-      );
-  }
-
   return (
     <div className="space-y-6">
-      {!isEdit && selectedPatient && (
-          <div className="flex items-center justify-between bg-blue-50 p-4 rounded-md border border-blue-100 mb-6">
-            <div>
-                <span className="font-semibold text-blue-900">Paciente:</span> {selectedPatient.nombres} {selectedPatient.apellidos} ({selectedPatient.cedula})
-            </div>
-            <button 
-                onClick={() => { setSelectedPatient(null); setFormData(prev => ({...prev, pacienteId: 0})); }}
-                className="text-sm text-blue-600 hover:underline"
-            >
-                Cambiar Paciente
-            </button>
+      <div className="flex items-center justify-between bg-blue-50 p-4 rounded-md border border-blue-100 mb-6">
+        <div>
+          <span className="font-semibold text-blue-900">Paciente:</span>{" "}
+          {selectedPatient.nombresApellidos} ({selectedPatient.cedula})
         </div>
-      )}
+      </div>
 
       <ComponentCard title="Habla / Lenguaje">
         <HablaForm
@@ -403,14 +327,18 @@ export default function FormularioFonoaudiologia() {
       <ComponentCard title="Historia Auditiva">
         <HistoriaAuditivaForm
           data={formData.historiaAuditiva}
-          onChange={(field, val) => handleNestedChange("historiaAuditiva", field, val)}
+          onChange={(field, val) =>
+            handleNestedChange("historiaAuditiva", field, val)
+          }
         />
       </ComponentCard>
 
       <ComponentCard title="Vestibular / Equilibrio">
         <VestibularForm
           data={formData.vestibular}
-          onChange={(field, val) => handleNestedChange("vestibular", field, val)}
+          onChange={(field, val) =>
+            handleNestedChange("vestibular", field, val)
+          }
         />
       </ComponentCard>
 
@@ -426,7 +354,11 @@ export default function FormularioFonoaudiologia() {
           Cancelar
         </Button>
         <Button variant="primary" onClick={handleSubmit} disabled={loading}>
-          {loading ? "Guardando..." : isEdit ? "Actualizar Ficha" : "Guardar Ficha"}
+          {loading
+            ? "Guardando..."
+            : isEdit
+            ? "Actualizar Ficha"
+            : "Guardar Ficha"}
         </Button>
       </div>
     </div>

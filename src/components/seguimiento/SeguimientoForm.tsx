@@ -35,15 +35,6 @@ export const SeguimientoForm: React.FC<SeguimientoFormProps> = ({
   const [especialistas, setEspecialistas] = useState<any[]>([]);
 
   useEffect(() => {
-    const getEspecialistas = async () => {
-      try {
-        const data = await especialistasService.listarActivos();
-        setEspecialistas(data || []);
-      } catch (error) {
-        console.error("Error fetching especialistas:", error);
-      }
-    };
-
     if (isOpen) {
       getEspecialistas();
       if (initialData) {
@@ -58,6 +49,15 @@ export const SeguimientoForm: React.FC<SeguimientoFormProps> = ({
       }
     }
   }, [isOpen, initialData, especialistaId]);
+
+  const getEspecialistas = async () => {
+      try {
+        const data = await especialistasService.listarActivos(0, 100);
+        setEspecialistas(data?.content || []);
+      } catch (error) {
+        console.error("Error fetching especialistas:", error);
+      }
+    };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -23,6 +23,7 @@ import { useModal } from "../../../hooks/useModal";
 import { DeleteModal } from "../../ui/modal/DeleteModal";
 import { TableActionHeader } from "../../common/TableActionHeader";
 import { useAuth } from "../../../context/AuthContext";
+import { especialidadesService } from "../../../services/especialidades";
 
 interface Especialista {
   id: number;
@@ -59,17 +60,7 @@ export default function EspecialistasAccionesTable() {
   const [sortDirection, setSortDirection] = useState("desc");
 
   const [sedes, setSedes] = useState<any[]>([]);
-
-  const optionsEspecialidad = [
-    { value: "1", label: "Coordinación" },
-    { value: "2", label: "Secretaría" },
-    { value: "3", label: "Psicología Educativa" },
-    { value: "4", label: "Psicología Clínica" },
-    { value: "5", label: "Terapia de Lenguaje y Fonoaudiología" },
-    { value: "6", label: "Estimulación Temprana" },
-    { value: "7", label: "Recuperación Pedagógica" },
-    { value: "8", label: "Odontología" },
-  ];
+  const [especialidades, setEspecialidades] = useState<any[]>([]);
 
   const {
     isOpen: isDeleteModalOpen,
@@ -127,9 +118,12 @@ export default function EspecialistasAccionesTable() {
   useEffect(() => {
     const loadFilterData = async () => {
       try {
-        const sedesResponse: any = await sedesService.listarActivos(0, 100);
-        const sedesData = sedesResponse?.content || [];
-        setSedes(sedesData);
+        const [sedesRes, especialidadesRes] = await Promise.all([
+          sedesService.listarActivos(0, 100),
+          especialidadesService.listarActivos(0, 100),
+        ]);
+        setSedes(sedesRes?.content || []);
+        setEspecialidades(especialidadesRes?.content || []);
       } catch (error) {
         console.error("Error al cargar sedes:", error);
       }
@@ -190,13 +184,17 @@ export default function EspecialistasAccionesTable() {
   };
 
   const { permissions } = useAuth();
-  
+
   return (
     <div>
       <TableActionHeader
         title="Especialistas"
         onSearchClick={handleSearch}
-        onNew={permissions.includes("PERM_ESPECIALISTAS_CREAR") ? () => navigate("/especialistas/nuevo") : undefined}
+        onNew={
+          permissions.includes("PERM_ESPECIALISTAS_CREAR")
+            ? () => navigate("/especialistas/nuevo")
+            : undefined
+        }
         newButtonText="Agregar"
         onExport={handleExport}
         onFilterApply={handleApplyFilters}
@@ -224,7 +222,10 @@ export default function EspecialistasAccionesTable() {
             <div>
               <Label className="mb-1.5 text-xs">Especialidad</Label>
               <Select
-                options={optionsEspecialidad}
+                options={especialidades.map((e) => ({
+                  value: e.id.toString(),
+                  label: e.area,
+                }))}
                 placeholder="Todas"
                 value={tempFilters.especialidadId?.toString() || ""}
                 onChange={(val) =>
@@ -378,7 +379,9 @@ export default function EspecialistasAccionesTable() {
                             <Pen size={14} />
                           </Button>
                         )}
-                        {permissions.includes("PERM_ESPECIALISTAS_ELIMINAR") && (
+                        {permissions.includes(
+                          "PERM_ESPECIALISTAS_ELIMINAR"
+                        ) && (
                           <Button
                             size="sm"
                             variant="outline"

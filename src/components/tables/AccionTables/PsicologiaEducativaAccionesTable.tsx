@@ -87,8 +87,6 @@ export default function PsicologiaEducativaAccionesTable() {
       <TableActionHeader
         title="Fichas de Psicología Educativa"
         onSearchClick={setSearchTerm}
-        onNew={() => navigate("/psicologia-educativa/nuevo")}
-        newButtonText="Nueva Ficha"
       />
 
       <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-white/[0.05] dark:bg-white/[0.03]">

@@ -40,6 +40,27 @@ export const fichasService = {
     }
   },
 
+  actualizarHistoriaClinica: async (
+    id: number | string,
+    data: any,
+    genograma?: File
+  ) => {
+    try {
+      const formData = new FormData();
+      formData.append("data", JSON.stringify(data));
+
+      if (genograma) {
+        formData.append("genograma", genograma);
+      }
+
+      const response = await api.put(`/historia-clinica/${id}`, formData);
+      return response.data;
+    } catch (error) {
+      console.error("Error al actualizar historia clínica:", error);
+      throw error;
+    }
+  },
+
   obtenerHistoriaClinica: async (id: number | string) => {
     try {
       const response = await api.get(`/historia-clinica/paciente/${id}`);
@@ -61,16 +82,6 @@ export const fichasService = {
       return URL.createObjectURL(response.data);
     } catch (error) {
       console.error("Error al obtener genograma:", error);
-      throw error;
-    }
-  },
-
-  actualizarHistoriaClinica: async (id: number | string, request: any) => {
-    try {
-      const response = await api.put(`/historia-clinica/${id}`, request);
-      return response.data;
-    } catch (error) {
-      console.error("Error al actualizar historia clínica:", error);
       throw error;
     }
   },
