@@ -146,7 +146,7 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
                 Sede
                 </label>
                 <p className="text-gray-900 dark:text-white">
-                {paciente.sede.nombre}
+                {paciente.sede?.nombre}
                 </p>
             </div>
             <div>
@@ -154,7 +154,7 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
                 Institución Educativa
                 </label>
                 <p className="text-gray-900 dark:text-white">
-                {paciente.institucionEducativa.nombre || "N/A"}
+                {paciente.institucionEducativa?.nombre || "N/A"}
                 </p>
             </div>
             </div>
