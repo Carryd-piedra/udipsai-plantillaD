@@ -722,9 +722,11 @@ export default function FormularioPsicologiaClinica() {
   const handleSubmit = async () => {
     try {
       setLoading(true);
-      if (isEdit && id) {
-        await fichasService.actualizarPsicologiaClinica(Number(id), formData);
+      if (isEdit && formData.id) {
+        await fichasService.actualizarPsicologiaClinica(formData.id, formData);
         toast.success("Ficha actualizada exitosamente");
+      } else if (isEdit && !formData.id) {
+        toast.error("No se encontró la ficha");
       } else {
         await fichasService.crearPsicologiaClinica(formData);
         toast.success("Ficha creada exitosamente");

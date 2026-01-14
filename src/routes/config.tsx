@@ -1,6 +1,11 @@
 import { lazy, ReactNode } from "react";
 import { RouteObject } from "react-router";
 import PermissionRoute from "../components/auth/PermissionRoute";
+import JuegosList from "../pages/Repositorio/JuegosList";
+import GamePlayer from "../pages/Repositorio/GamePlayer";
+import Tests from "../pages/Repositorio/Tests";
+import Wais from "../pages/Repositorio/Wais";
+import SubirRecursos from "../pages/Repositorio/SubirRecursos";
 
 // Lazy-loaded components
 const Home = lazy(() => import("../pages/Dashboard/Home"));
@@ -20,25 +25,20 @@ const EditarPasantes = lazy(() => import("../pages/Pasantes/EditarPasantes"));
 const ListaEspecialidades = lazy(() => import("../pages/Especialidades/ListaEspecialidades"));
 
 // Fichas
-const ListaFonoaudiologia = lazy(() => import("../pages/Fichas/Fonoaudiologia/ListaFonoaudiologia"));
+// Fichas
+const ListaFichasUnificadas = lazy(() => import("../pages/Fichas/ListaFichasUnificadas"));
+
+// Sub-components kept for Edit/New pages which might still be specific
 const NuevaFonoaudiologia = lazy(() => import("../pages/Fichas/Fonoaudiologia/NuevaFonoaudiologia"));
 const EditarFonoaudiologia = lazy(() => import("../pages/Fichas/Fonoaudiologia/EditarFonoaudiologia"));
-const ListaPsicologiaClinica = lazy(() => import("../pages/Fichas/PsicologiaClinica/ListaPsicologiaClinica"));
 const NuevaPsicologiaClinica = lazy(() => import("../pages/Fichas/PsicologiaClinica/NuevaPsicologiaClinica"));
 const EditarPsicologiaClinica = lazy(() => import("../pages/Fichas/PsicologiaClinica/EditarPsicologiaClinica"));
-const ListaPsicologiaEducativa = lazy(() => import("../pages/Fichas/PsicologiaEducativa/ListaPsicologiaEducativa"));
 const NuevaPsicologiaEducativa = lazy(() => import("../pages/Fichas/PsicologiaEducativa/NuevaPsicologiaEducativa"));
 const EditarPsicologiaEducativa = lazy(() => import("../pages/Fichas/PsicologiaEducativa/EditarPsicologiaEducativa"));
-const ListaHistoriaClinica = lazy(() => import("../pages/Fichas/HistoriaClinica/ListaHistoriaClinica"));
 const NuevaHistoriaClinica = lazy(() => import("../pages/Fichas/HistoriaClinica/NuevaHistoriaClinica"));
 const EditarHistoriaClinica = lazy(() => import("../pages/Fichas/HistoriaClinica/EditarHistoriaClinica"));
 
-// Repositorio
-const Wais = lazy(() => import("../pages/Repositorio/Wais"));
-const JuegosList = lazy(() => import("../pages/Repositorio/JuegosList"));
-const GamePlayer = lazy(() => import("../pages/Repositorio/GamePlayer"));
-const Tests = lazy(() => import("../pages/Repositorio/Tests"));
-const SubirRecursos = lazy(() => import("../pages/Repositorio/SubirRecursos"));
+// ...
 
 // Helper to wrap with permission
 const protectedRoute = (permission: string, element: ReactNode, children?: RouteObject[]): RouteObject => ({
@@ -97,7 +97,7 @@ export const privateRouteObjects: RouteObject[] = [
     path: "fonoaudiologia",
     element: <PermissionRoute requiredPermission="PERM_FONOAUDIOLOGIA" />,
     children: [
-      { index: true, element: <ListaFonoaudiologia /> },
+      { index: true, element: <ListaFichasUnificadas /> },
       { path: "nuevo", ...protectedRoute("PERM_FONOAUDIOLOGIA_CREAR", <NuevaFonoaudiologia />) },
       { path: "editar/:id", ...protectedRoute("PERM_FONOAUDIOLOGIA_EDITAR", <EditarFonoaudiologia />) },
     ]
@@ -106,7 +106,7 @@ export const privateRouteObjects: RouteObject[] = [
     path: "psicologia-clinica",
     element: <PermissionRoute requiredPermission="PERM_PSICOLOGIA_CLINICA" />,
     children: [
-      { index: true, element: <ListaPsicologiaClinica /> },
+      { index: true, element: <ListaFichasUnificadas /> },
       { path: "nuevo", ...protectedRoute("PERM_PSICOLOGIA_CLINICA_CREAR", <NuevaPsicologiaClinica />) },
       { path: "editar/:id", ...protectedRoute("PERM_PSICOLOGIA_CLINICA_EDITAR", <EditarPsicologiaClinica />) },
     ]
@@ -115,7 +115,7 @@ export const privateRouteObjects: RouteObject[] = [
     path: "psicologia-educativa",
     element: <PermissionRoute requiredPermission="PERM_PSICOLOGIA_EDUCATIVA" />,
     children: [
-      { index: true, element: <ListaPsicologiaEducativa /> },
+      { index: true, element: <ListaFichasUnificadas /> },
       { path: "nuevo", ...protectedRoute("PERM_PSICOLOGIA_EDUCATIVA_CREAR", <NuevaPsicologiaEducativa />) },
       { path: "editar/:id", ...protectedRoute("PERM_PSICOLOGIA_EDUCATIVA_EDITAR", <EditarPsicologiaEducativa />) },
     ]
@@ -124,7 +124,7 @@ export const privateRouteObjects: RouteObject[] = [
     path: "historia-clinica",
     element: <PermissionRoute requiredPermission="PERM_HISTORIA_CLINICA" />,
     children: [
-      { index: true, element: <ListaHistoriaClinica /> },
+      { index: true, element: <ListaFichasUnificadas /> },
       { path: "nuevo", ...protectedRoute("PERM_HISTORIA_CLINICA_CREAR", <NuevaHistoriaClinica />) },
       { path: "editar/:id", ...protectedRoute("PERM_HISTORIA_CLINICA_EDITAR", <EditarHistoriaClinica />) },
     ]

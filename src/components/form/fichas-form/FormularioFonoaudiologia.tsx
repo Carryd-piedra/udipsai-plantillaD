@@ -261,9 +261,11 @@ export default function FormularioFonoaudiologia() {
   const handleSubmit = async () => {
     try {
       setLoading(true);
-      if (isEdit && id) {
-        await fichasService.actualizarFonoaudiologia(Number(id), formData);
+      if (isEdit && formData.id) {
+        await fichasService.actualizarFonoaudiologia(formData.id, formData);
         toast.success("Ficha actualizada exitosamente");
+      } else if (isEdit && !formData.id) {
+        toast.error("No se encontró la ficha");
       } else {
         await fichasService.crearFonoaudiologia(formData);
         toast.success("Ficha creada exitosamente");

@@ -48,28 +48,7 @@ const navItems: NavItem[] = [
   {
     name: "Fichas",
     icon: <ClipboardList size={20} />,
-    subItems: [
-      {
-        name: "Fonoaudiología",
-        path: "/fonoaudiologia",
-        requiredPermission: "PERM_FONOAUDIOLOGIA",
-      },
-      {
-        name: "Psicología Clínica",
-        path: "/psicologia-clinica",
-        requiredPermission: "PERM_PSICOLOGIA_CLINICA",
-      },
-      {
-        name: "Psicología Educativa",
-        path: "/psicologia-educativa",
-        requiredPermission: "PERM_PSICOLOGIA_EDUCATIVA",
-      },
-      {
-        name: "Historia Clínica",
-        path: "/historia-clinica",
-        requiredPermission: "PERM_HISTORIA_CLINICA",
-      },
-    ],
+    path: "/fichas",
     requiredPermission: "PERM_PACIENTES",
   },
   {
@@ -443,22 +422,6 @@ const AppSidebar: React.FC = () => {
                 )}
               </h2>
               {renderMenuItems(filteredNavItems, "main")}
-            </div>
-            <div className="">
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "Others"
-                ) : (
-                  <MoreHorizontal />
-                )}
-              </h2>
-              {renderMenuItems(othersItems, "others")}
             </div>
           </div>
         </nav>

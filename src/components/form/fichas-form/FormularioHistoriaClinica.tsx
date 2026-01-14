@@ -221,9 +221,12 @@ export default function FormularioHistoriaClinica() {
   const handleSubmit = async () => {
     try {
       setLoading(true);
-      if (isEdit && id) {
-        await fichasService.actualizarHistoriaClinica(Number(id), formData);
+      if (isEdit && formData.id) {
+        await fichasService.actualizarHistoriaClinica(formData.id, formData);
         toast.success("Ficha actualizada exitosamente");
+      } else if (isEdit && !formData.id) {
+        toast.error("Error: No se encontró el ID de la ficha");
+        return;
       } else {
         await fichasService.crearHistoriaClinica(
           formData,
