@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import ComponentCard from "../../common/ComponentCard";
 import Button from "../../ui/button/Button";
@@ -149,76 +148,75 @@ export const initialHistoriaClinicaState: HistoriaClinicaState = {
 };
 
 export default function FormularioHistoriaClinica() {
-    const navigate = useNavigate();
-    const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
 
-    const [formData, setFormData] = useState<HistoriaClinicaState>(initialHistoriaClinicaState);
-    const [genogramaFile, setGenogramaFile] = useState<File | null>(null);
-    const [loading, setLoading] = useState(false);
-  
-    // Create Mode state
-    const isEdit = !!id;
-    const [searchParams] = useSearchParams();
+  const [formData, setFormData] = useState<HistoriaClinicaState>(
+    initialHistoriaClinicaState
+  );
+  const [genogramaFile, setGenogramaFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
 
+  // Create Mode state
+  const isEdit = !!id;
+  const [searchParams] = useSearchParams();
 
-    useEffect(() => {
-        const pacienteIdParam = searchParams.get("pacienteId");
-        if (isEdit && id) {
-            loadFicha(id);
-        } else if (pacienteIdParam) {
-            loadPacienteFromUrl(pacienteIdParam);
-        }
-    }, [id, isEdit, searchParams]);
+  useEffect(() => {
+    const pacienteIdParam = searchParams.get("pacienteId");
+    if (isEdit && id) {
+      loadFicha(id);
+    } else if (pacienteIdParam) {
+      loadPacienteFromUrl(pacienteIdParam);
+    }
+  }, [id, isEdit, searchParams]);
 
-    const loadPacienteFromUrl = async (id: string) => {
-        try {
-            setLoading(true);
-            const paciente = await pacientesService.obtenerPorId(id);
-            if (paciente) {
-                setFormData(prev => ({ ...prev, pacienteId: paciente.id }));
-            }
-        } catch (error) {
-            console.error("Error loading patient from URL", error);
-            toast.error("Error al cargar datos del paciente asociado");
-        } finally {
-            setLoading(false);
-        }
-    };
+  const loadPacienteFromUrl = async (id: string) => {
+    try {
+      setLoading(true);
+      const paciente = await pacientesService.obtenerPorId(id);
+      if (paciente) {
+        setFormData((prev) => ({ ...prev, pacienteId: paciente.id }));
+      }
+    } catch (error) {
+      console.error("Error loading patient from URL", error);
+      toast.error("Error al cargar datos del paciente asociado");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-
-    const loadFicha = async (fichaId: string) => {
-        try {
-        setLoading(true);
-        const data = await fichasService.obtenerHistoriaClinica(fichaId);
-        if (data) {
-            setFormData(data);
-        } else {
-            toast.error("No se encontró la ficha");
-            navigate("/historia-clinica");
-        }
-        } catch (error) {
-        console.error("Error loading ficha:", error);
-        toast.error("Error al cargar la ficha");
+  const loadFicha = async (fichaId: string) => {
+    try {
+      setLoading(true);
+      const data = await fichasService.obtenerHistoriaClinica(fichaId);
+      if (data) {
+        setFormData(data);
+      } else {
+        toast.error("No se encontró la ficha");
         navigate("/historia-clinica");
-        } finally {
-        setLoading(false);
-        }
-    };
+      }
+    } catch (error) {
+      console.error("Error loading ficha:", error);
+      toast.error("Error al cargar la ficha");
+      navigate("/historia-clinica");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const handleNestedChange = (
-        section: keyof HistoriaClinicaState,
-        field: string,
-        value: any
-    ) => {
-        setFormData((prev) => ({
-        ...prev,
-        [section]: {
-            ...(prev[section] as object),
-            [field]: value,
-        },
-        }));
-    };
-
+  const handleNestedChange = (
+    section: keyof HistoriaClinicaState,
+    field: string,
+    value: any
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      [section]: {
+        ...(prev[section] as object),
+        [field]: value,
+      },
+    }));
+  };
 
   const handleSubmit = async () => {
     try {
@@ -227,16 +225,21 @@ export default function FormularioHistoriaClinica() {
         await fichasService.actualizarHistoriaClinica(Number(id), formData);
         toast.success("Ficha actualizada exitosamente");
       } else {
-        await fichasService.crearHistoriaClinica(formData, genogramaFile || undefined);
+        await fichasService.crearHistoriaClinica(
+          formData,
+          genogramaFile || undefined
+        );
         toast.success("Ficha creada exitosamente");
       }
       navigate("/historia-clinica");
     } catch (error: any) {
-        if (error.response?.status === 409) {
-            toast.error("Este paciente ya tiene una ficha activa.");
-        } else {
-            toast.error(isEdit ? "Error al actualizar la ficha" : "Error al crear la ficha");
-        }
+      if (error.response?.status === 409) {
+        toast.error("Este paciente ya tiene una ficha activa.");
+      } else {
+        toast.error(
+          isEdit ? "Error al actualizar la ficha" : "Error al crear la ficha"
+        );
+      }
       console.error("Error saving ficha:", error);
     } finally {
       setLoading(false);
@@ -256,7 +259,6 @@ export default function FormularioHistoriaClinica() {
 
   return (
     <div className="space-y-6">
-
       <ComponentCard title="Datos Familiares">
         <DatosFamiliaresForm
           data={formData.datosFamiliares}
@@ -335,8 +337,16 @@ export default function FormularioHistoriaClinica() {
         <Button variant="outline" onClick={() => navigate("/historia-clinica")}>
           Cancelar
         </Button>
-        <Button variant="primary" onClick={handleSubmit} disabled={loading}>
-          {loading ? "Guardando..." : isEdit ? "Actualizar Ficha" : "Guardar Ficha"}
+        <Button
+          onClick={handleSubmit}
+          disabled={loading}
+          className="dark:bg-gray-600 dark:hover:bg-gray-700"
+        >
+          {loading
+            ? "Guardando..."
+            : isEdit
+            ? "Actualizar Ficha"
+            : "Guardar Ficha"}
         </Button>
       </div>
     </div>

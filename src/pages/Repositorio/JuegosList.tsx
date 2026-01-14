@@ -51,11 +51,11 @@ export default function JuegosList() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Card 1: Entrenamiento Cognitivo (Online) */}
           <div className="bg-white dark:bg-white/[0.03] rounded-2xl border border-gray-200 dark:border-white/[0.05] p-6 flex flex-col items-center text-center hover:shadow-lg transition-all duration-300 group">
-            <div className="mb-5 p-4 bg-brand-50 dark:bg-brand-500/10 rounded-2xl text-brand-500 group-hover:scale-110 transition-transform duration-300">
+            <div className="mb-5 p-4 bg-gray-50 dark:bg-gray-500/10 rounded-2xl text-gray-500 group-hover:scale-110 transition-transform duration-300">
               <Monitor size={40} strokeWidth={1.5} />
             </div>
 
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 ">
               Estimulación Cognitiva
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
@@ -65,7 +65,7 @@ export default function JuegosList() {
 
             <div className="mt-auto w-full">
               <Link to="/juegos/estimulacion">
-                <Button className="w-full flex items-center justify-center gap-2">
+                <Button className="w-full flex items-center justify-center gap-2 dark:bg-gray-600 dark:hover:bg-gray-700 text-white">
                   <Gamepad2 size={18} />
                   Jugar Online
                 </Button>
@@ -75,7 +75,7 @@ export default function JuegosList() {
 
           {/* Card 2: Juego de Palabras */}
           <div className="bg-white dark:bg-white/[0.03] rounded-2xl border border-gray-200 dark:border-white/[0.05] p-6 flex flex-col items-center text-center hover:shadow-lg transition-all duration-300 group">
-            <div className="mb-5 p-4 bg-blue-50 dark:bg-blue-500/10 rounded-2xl text-blue-500 group-hover:scale-110 transition-transform duration-300">
+            <div className="mb-5 p-4 bg-gray-50 dark:bg-gray-500/10 rounded-2xl text-gray-500 group-hover:scale-110 transition-transform duration-300">
               <Gamepad size={40} strokeWidth={1.5} />
             </div>
 
@@ -89,7 +89,7 @@ export default function JuegosList() {
 
             <div className="mt-auto w-full">
               <Link to="/juegos/palabras">
-                <Button className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+                <Button className="w-full flex items-center justify-center gap-2 dark:bg-gray-600 dark:hover:bg-gray-700 text-white">
                   <Gamepad2 size={18} />
                   Jugar Online
                 </Button>

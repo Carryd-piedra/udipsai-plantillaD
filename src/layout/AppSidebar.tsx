@@ -106,8 +106,8 @@ const navItems: NavItem[] = [
     icon: <Calendar size={20} />,
     name: "Citas",
     path: "/citas",
-    requiredPermission: "PERM_PACIENTES",
-  }, // Using PERM_PACIENTES as common denominator
+    requiredPermission: "PERM_CITAS",
+  },
   {
     name: "Asignaciones",
     icon: <Link2 size={20} />,
@@ -186,7 +186,6 @@ const AppSidebar: React.FC = () => {
         return item;
       })
       .filter((item) => {
-        // If it's a subitem group with no visible items and no main path, hide it.
         if (item.subItems && item.subItems.length === 0 && !item.path)
           return false;
         return true;
@@ -203,10 +202,6 @@ const AppSidebar: React.FC = () => {
   );
 
   useEffect(() => {
-    // console.group("AppSidebar - Permissions Check");
-    // console.log("Current Permissions:", permissions);
-    // console.log("Filtered Nav Items:", filteredNavItems);
-    // console.groupEnd();
   }, [permissions, filteredNavItems]);
 
   useEffect(() => {
@@ -230,9 +225,6 @@ const AppSidebar: React.FC = () => {
     });
 
     if (!submenuMatched) {
-      // Only close if we are not matched and the screen is small or we want it to follow the path
-      // but strictly speaking, if path is not in any submenu, we probably want to collapse.
-      // However, we only do this when the pathname actually changes to avoid overriding manual toggles.
       setOpenSubmenu(null);
     }
   }, [location.pathname, filteredNavItems, filteredOthersItems, isActive]);
@@ -296,7 +288,7 @@ const AppSidebar: React.FC = () => {
                   className={`ml-auto w-5 h-5 transition-transform duration-200 ${
                     openSubmenu?.type === menuType &&
                     openSubmenu?.index === index
-                      ? "rotate-180 text-brand-500"
+                      ? "rotate-180 text-brand-500 dark:text-gray-200"
                       : ""
                   }`}
                 />
@@ -416,7 +408,7 @@ const AppSidebar: React.FC = () => {
                 height={40}
               />
               <img
-                className="hidden dark:block"
+                className="hidden dark:block opacity-75 transition-opacity hover:opacity-100"
                 src="/images/logo/logo-dark.png"
                 alt="Logo"
                 width={150}

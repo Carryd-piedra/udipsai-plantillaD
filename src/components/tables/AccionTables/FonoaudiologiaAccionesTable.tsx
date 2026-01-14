@@ -8,6 +8,8 @@ import {
   TableCell,
   TableHeader,
   TableRow,
+  TableLoading,
+  TableEmpty,
 } from "../../ui/table";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
@@ -116,19 +118,7 @@ export default function FonoaudiologiaAccionesTable() {
             </TableHeader>
             <TableBody className="relative min-h-[400px]">
               {loading ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={3}
-                    className="px-5 py-20 text-center"
-                  >
-                    <div className="flex flex-col items-center justify-center space-y-4">
-                      <div className="w-10 h-10 border-4 border-red-200 border-t-red-600 rounded-full animate-spin"></div>
-                      <p className="text-slate-500 font-medium animate-pulse">
-                        Cargando fichas...
-                      </p>
-                    </div>
-                  </TableCell>
-                </TableRow>
+                <TableLoading colSpan={3} message="Cargando fichas..." />
               ) : filteredFichas.length > 0 ? (
                 filteredFichas.map((ficha) => (
                   <TableRow
@@ -180,19 +170,7 @@ export default function FonoaudiologiaAccionesTable() {
                   </TableRow>
                 ))
               ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={3}
-                    className="px-5 py-10 text-center text-theme-md text-gray-500 dark:text-gray-400"
-                  >
-                    <div className="flex flex-col items-center justify-center gap-2">
-                      <span className="text-gray-400 dark:text-gray-600">
-                        {/* You might want to import Info icon here if needed, or just text */}
-                        No se encontraron registros
-                      </span>
-                    </div>
-                  </TableCell>
-                </TableRow>
+                <TableEmpty colSpan={3} message="No se encontraron registros" />
               )}
             </TableBody>
           </Table>

@@ -5,6 +5,8 @@ import {
   TableCell,
   TableHeader,
   TableRow,
+  TableLoading,
+  TableEmpty,
 } from "../../ui/table";
 
 import Badge from "../../ui/badge/Badge";
@@ -13,11 +15,9 @@ import { sedesService, SedeCriteria } from "../../../services/sedes";
 import Button from "../../ui/button/Button";
 import { DeleteModal } from "../../ui/modal/DeleteModal";
 import { useModal } from "../../../hooks/useModal";
-import { TableActionHeader } from "../../common/TableActionHeader";
-import Label from "../../form/Label";
-import Select from "../../form/Select";
+import { TableActionHeader, FilterField } from "../../common/TableActionHeader";
 import { Pagination } from "../../ui/Pagination";
-import { Pencil, Trash, Info } from "lucide-react";
+import { Pencil, Trash } from "lucide-react";
 import { SedeModal } from "../../modals/SedesModal";
 import { useAuth } from "../../../context/AuthContext";
 
@@ -36,9 +36,9 @@ export default function SedesAccionesTable() {
   const [pageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
 
+
   const [filters, setFilters] = useState<SedeCriteria>({});
-  const [tempFilters, setTempFilters] = useState<SedeCriteria>({});
-  
+
   const [sortField, setSortField] = useState("id");
   const [sortDirection, setSortDirection] = useState("desc");
 
@@ -67,17 +67,20 @@ export default function SedesAccionesTable() {
     try {
       setLoading(true);
       const sort = `${currentSortField},${currentSortDirection}`;
-      const hasFilters = Object.values(currentFilters).some(val => val !== undefined && val !== "") || !!search;
+      const hasFilters =
+        Object.values(currentFilters).some(
+          (val) => val !== undefined && val !== ""
+        ) || !!search;
 
       let data;
       if (hasFilters) {
-         const criteria: SedeCriteria = {
-            ...currentFilters,
-            search: search || undefined
-         };
-         data = await sedesService.filtrar(criteria, page, pageSize, sort);
+        const criteria: SedeCriteria = {
+          ...currentFilters,
+          search: search || undefined,
+        };
+        data = await sedesService.filtrar(criteria, page, pageSize, sort);
       } else {
-         data = await sedesService.listarActivos(page, pageSize, sort);
+        data = await sedesService.listarActivos(page, pageSize, sort);
       }
 
       if (data?.content && Array.isArray(data.content)) {
@@ -156,17 +159,52 @@ export default function SedesAccionesTable() {
     setSearchTerm(term);
     setCurrentPage(0);
   };
-  
-  const handleApplyFilters = () => {
-    setFilters(tempFilters);
+
+  const handleFiltersChange = (newFilters: any) => {
+    if (newFilters.sortField) setSortField(newFilters.sortField);
+    if (newFilters.sortDirection) setSortDirection(newFilters.sortDirection);
+
+    const { sortField: _sf, sortDirection: _sd, ...rest } = newFilters;
+    
+    const cleanedFilters: any = { ...rest };
+    if (cleanedFilters.activo === "true") cleanedFilters.activo = true;
+    else if (cleanedFilters.activo === "false") cleanedFilters.activo = false;
+    else if (cleanedFilters.activo === "") delete cleanedFilters.activo;
+
+    setFilters(cleanedFilters);
     setCurrentPage(0);
   };
 
-  const handleClearFilters = () => {
-    setTempFilters({});
-    setFilters({});
-    setCurrentPage(0);
-  };
+  const filterConfig: FilterField[] = [
+    {
+      type: "select",
+      name: "activo",
+      label: "Estado",
+      placeholder: "Todos",
+      options: [
+        { value: "true", label: "Activo" },
+        { value: "false", label: "Inactivo" },
+      ],
+    },
+    {
+      type: "select",
+      name: "sortField",
+      label: "Ordenar por",
+      options: [
+        { value: "id", label: "Registro (ID)" },
+        { value: "nombre", label: "Nombre" },
+      ],
+    },
+    {
+      type: "select",
+      name: "sortDirection",
+      label: "Dirección",
+      options: [
+        { value: "asc", label: "Ascendente" },
+        { value: "desc", label: "Descendente" },
+      ],
+    },
+  ];
 
   const handleExport = () => {
     console.log("Exporting data...");
@@ -180,191 +218,108 @@ export default function SedesAccionesTable() {
       <TableActionHeader
         title="Sedes"
         onSearchClick={handleSearch}
-        onNew={permissions.includes("PERM_SEDES_CREAR") ? handleCreate : undefined}
+        onNew={
+          permissions.includes("PERM_SEDES_CREAR") ? handleCreate : undefined
+        }
         newButtonText="Agregar"
         onExport={handleExport}
-        onFilterApply={handleApplyFilters}
-        onFilterClear={handleClearFilters}
-        filterContent={
-          <div className="space-y-4">
-            <div>
-                <Label className="mb-1.5 text-xs">Estado</Label>
-                <Select
-                  options={[
-                    { value: "true", label: "Activo" },
-                    { value: "false", label: "Inactivo" },
-                  ]}
-                  placeholder="Todos"
-                  value={
-                    tempFilters.activo === undefined
-                      ? ""
-                      : tempFilters.activo.toString()
-                  }
-                  onChange={(val) =>
-                    setTempFilters({
-                      ...tempFilters,
-                      activo: val === "" ? undefined : val === "true",
-                    })
-                  }
-                  className="h-9 text-xs"
-                />
-            </div>
-            <div>
-              <Label className="mb-1.5 text-xs">Orden</Label>
-              <div className="flex gap-2">
-                 <Select
-                  options={[
-                    { value: "id", label: "Registro (ID)" },
-                    { value: "nombre", label: "Nombre" },
-                  ]}
-                  value={sortField}
-                  onChange={(val) => setSortField(val)}
-                  className="h-9 text-xs flex-1"
-                />
-                <Select
-                  options={[
-                    { value: "asc", label: "Asc" },
-                    { value: "desc", label: "Desc" },
-                  ]}
-                  value={sortDirection}
-                  onChange={(val) => setSortDirection(val)}
-                  className="h-9 text-xs w-24"
-                />
-              </div>
-            </div>
-          </div>
-        }
+        filterConfig={filterConfig}
+        activeFilters={{
+          ...filters,
+          activo:
+            filters.activo === true
+              ? "true"
+              : filters.activo === false
+              ? "false"
+              : "",
+          sortField,
+          sortDirection,
+        }}
+        onFiltersChange={handleFiltersChange}
       />
-    <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-white/[0.05] dark:bg-white/[0.03]">
-      <div className="max-w-full overflow-x-auto">
-        <Table>
-          {/* Table Header */}
-          <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
-            <TableRow>
-              <TableCell
-                isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
-              >
-                Id de la sede
-              </TableCell>
-              <TableCell
-                isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
-              >
-                Nombre de la sede
-              </TableCell>
-              <TableCell
-                isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
-              >
-                Estado
-              </TableCell>
-              <TableCell
-                isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
-              >
-                Acciones
-              </TableCell>
-            </TableRow>
-          </TableHeader>
-          {/* Table Body */}
-          <TableBody>
-            {loading ? (
+      <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-white/[0.05] dark:bg-white/[0.03]">
+        <div className="max-w-full overflow-x-auto">
+          <Table>
+            {/* Table Header */}
+            <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
               <TableRow>
-                <TableCell
-                  colSpan={4}
-                  className="px-5 py-20 text-center"
-                >
-                  <div className="flex flex-col items-center justify-center space-y-4">
-                    <div className="w-10 h-10 border-4 border-red-200 border-t-red-600 rounded-full animate-spin"></div>
-                    <p className="text-slate-500 font-medium animate-pulse">
-                      Cargando sedes...
-                    </p>
-                  </div>
-                </TableCell>
+                <TableCell isHeader>Id de la sede</TableCell>
+                <TableCell isHeader>Nombre de la sede</TableCell>
+                <TableCell isHeader>Estado</TableCell>
+                <TableCell isHeader>Acciones</TableCell>
               </TableRow>
-            ) : sedes.length > 0 ? (
-              sedes.map((sede) => (
-                <TableRow key={sede.id}>
-                  <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
-                    {sede.id}
-                  </TableCell>
-                  <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
-                    {sede.nombre}
-                  </TableCell>
-                  <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
-                    <Badge size="sm" color={getEstadoBadge(sede.activo)}>
-                      {sede.activo ? "Activo" : "Inactivo"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
-                    <div className="flex justify-center gap-2">
-                      {permissions.includes("PERM_SEDES_EDITAR") && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEdit(sede)}
-                          className="hover:bg-white hover:text-yellow-600 p-2 text-blue-600 dark:text-blue-400"
-                          title="Editar"
-                        >
-                          <Pencil size={14} />
-                        </Button>
-                      )}
-                      {permissions.includes("PERM_SEDES_ELIMINAR") && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDelete(sede.id)}
-                          className="hover:bg-red-500 hover:text-white p-2 text-red-600 dark:text-red-400"
-                          title="Eliminar"
-                        >
-                          <Trash size={14} />
-                        </Button>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
+            </TableHeader>
+            {/* Table Body */}
+            <TableBody>
+              {loading ? (
+                <TableLoading colSpan={4} message="Cargando sedes..." />
+              ) : sedes.length > 0 ? (
+                sedes.map((sede) => (
+                  <TableRow key={sede.id}>
+                    <TableCell>{sede.id}</TableCell>
+                    <TableCell>{sede.nombre}</TableCell>
+                    <TableCell>
+                      <Badge size="sm" color={getEstadoBadge(sede.activo)}>
+                        {sede.activo ? "Activo" : "Inactivo"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex justify-center gap-2">
+                        {permissions.includes("PERM_SEDES_EDITAR") && (
+                          <Button
+                            size="sm"
+                            variant="warning"
+                            onClick={() => handleEdit(sede)}
+                            title="Editar"
+                          >
+                            <Pencil size={14} />
+                          </Button>
+                        )}
+                        {permissions.includes("PERM_SEDES_ELIMINAR") && (
+                          <Button
+                            size="sm"
+                            variant="danger"
+                            onClick={() => handleDelete(sede.id)}
+                            title="Eliminar"
+                          >
+                            <Trash size={14} />
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableEmpty
                   colSpan={4}
-                  className="px-5 py-10 text-center text-theme-md text-gray-500 dark:text-gray-400"
-                >
-                  <div className="flex flex-col items-center justify-center gap-2">
-                    <span className="text-gray-400 dark:text-gray-600">
-                      <Info size={30} strokeWidth={1} />
-                    </span>
-                    <p>No se encontraron sedes registradas</p>
-                  </div>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+                  message="No se encontraron sedes registradas"
+                />
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        <SedeModal
+          isOpen={isModalOpen}
+          onClose={closeSedeModal}
+          onSave={handleSave}
+          initialData={currentSede}
+          title={currentSede ? "Editar Sede" : "Nueva Sede"}
+        />
+
+        <DeleteModal
+          isOpen={isDeleteModalOpen}
+          onClose={closeDeleteModal}
+          onConfirm={confirmDelete}
+          title="Eliminar Sede"
+          description={`¿Estás seguro de que deseas eliminar la sede?`}
+        />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
       </div>
-
-      <SedeModal
-        isOpen={isModalOpen}
-        onClose={closeSedeModal}
-        onSave={handleSave}
-        initialData={currentSede}
-        title={currentSede ? "Editar Sede" : "Nueva Sede"}
-      />
-
-      <DeleteModal
-        isOpen={isDeleteModalOpen}
-        onClose={closeDeleteModal}
-        onConfirm={confirmDelete}
-        title="Eliminar Sede"
-        description={`¿Estás seguro de que deseas eliminar la sede?`}
-      />
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={(page) => setCurrentPage(page)}
-      />
-    </div>
     </div>
   );
 }

@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
-import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
 import { authService } from "../../services/authService";
 import { toast } from "react-toastify";
@@ -11,7 +10,6 @@ import { useNavigate } from "react-router";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const [isChecked, setIsChecked] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const { login } = useAuth();
@@ -46,7 +44,7 @@ export default function SignInForm() {
               <div className="space-y-6">
                 <div>
                   <Label>
-                    Usuario <span className="text-error-500">*</span>{" "}
+                    Usuario 
                   </Label>
                   <Input
                     placeholder="Ingrese su usuario"
@@ -56,7 +54,7 @@ export default function SignInForm() {
                 </div>
                 <div>
                   <Label>
-                    Contraseña <span className="text-error-500">*</span>{" "}
+                    Contraseña 
                   </Label>
                   <div className="relative">
                     <Input
@@ -73,16 +71,8 @@ export default function SignInForm() {
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Checkbox checked={isChecked} onChange={setIsChecked} />
-                    <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
-                      Mantener sesión iniciada
-                    </span>
-                  </div>
-                </div>
                 <div>
-                  <Button className="w-full" size="sm" type="submit">
+                  <Button className="w-full dark:bg-gray-600 dark:hover:bg-gray-700" size="sm" type="submit">
                     Ingresar
                   </Button>
                 </div>

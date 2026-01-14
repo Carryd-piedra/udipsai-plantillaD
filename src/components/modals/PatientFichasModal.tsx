@@ -232,12 +232,6 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
           </Table>
         </div>
       )}
-
-      <div className="mt-8 flex justify-end">
-        <Button variant="primary" onClick={onClose}>
-          Cerrar
-        </Button>
-      </div>
     </Modal>
   );
 };

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import ComponentCard from "../../common/ComponentCard";
 import Button from "../../ui/button/Button";
@@ -25,7 +24,6 @@ export interface FichaPsicologiaEducativaState {
     causaGustaIrInstitucion: string;
     relacionConGrupo: string;
     causaRelacionConGrupo: string;
-    
   };
   desarrollo: {
     cdi: boolean;
@@ -116,9 +114,11 @@ export default function FormularioPsicologiaEducativa() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
-  const [formData, setFormData] = useState<FichaPsicologiaEducativaState>(initialPsicologiaEducativaState);
+  const [formData, setFormData] = useState<FichaPsicologiaEducativaState>(
+    initialPsicologiaEducativaState
+  );
   const [loading, setLoading] = useState(false);
-  
+
   // Create Mode state
   const isEdit = !!id;
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
@@ -129,26 +129,25 @@ export default function FormularioPsicologiaEducativa() {
     if (isEdit && id) {
       loadFicha(id);
     } else if (pacienteIdParam) {
-        loadPacienteFromUrl(pacienteIdParam);
+      loadPacienteFromUrl(pacienteIdParam);
     }
   }, [id, isEdit, searchParams]);
 
   const loadPacienteFromUrl = async (id: string) => {
     try {
-        setLoading(true);
-        const paciente = await pacientesService.obtenerPorId(id);
-        if (paciente) {
-            setSelectedPatient(paciente);
-            setFormData(prev => ({ ...prev, pacienteId: paciente.id }));
-        }
+      setLoading(true);
+      const paciente = await pacientesService.obtenerPorId(id);
+      if (paciente) {
+        setSelectedPatient(paciente);
+        setFormData((prev) => ({ ...prev, pacienteId: paciente.id }));
+      }
     } catch (error) {
-        console.error("Error loading patient from URL", error);
-        toast.error("Error al cargar datos del paciente asociado");
+      console.error("Error loading patient from URL", error);
+      toast.error("Error al cargar datos del paciente asociado");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
-
 
   const loadFicha = async (fichaId: string) => {
     try {
@@ -169,7 +168,6 @@ export default function FormularioPsicologiaEducativa() {
     }
   };
 
-
   const handleNestedChange = (
     section: keyof FichaPsicologiaEducativaState,
     field: string,
@@ -184,7 +182,6 @@ export default function FormularioPsicologiaEducativa() {
     }));
   };
 
-
   const handleSubmit = async () => {
     try {
       setLoading(true);
@@ -197,11 +194,13 @@ export default function FormularioPsicologiaEducativa() {
       }
       navigate("/psicologia-educativa");
     } catch (error: any) {
-         if (error.response?.status === 409) {
-            toast.error("Este paciente ya tiene una ficha activa.");
-        } else {
-            toast.error(isEdit ? "Error al actualizar la ficha" : "Error al crear la ficha");
-        }
+      if (error.response?.status === 409) {
+        toast.error("Este paciente ya tiene una ficha activa.");
+      } else {
+        toast.error(
+          isEdit ? "Error al actualizar la ficha" : "Error al crear la ficha"
+        );
+      }
       console.error("Error saving ficha:", error);
     } finally {
       setLoading(false);
@@ -219,14 +218,15 @@ export default function FormularioPsicologiaEducativa() {
     );
   }
 
-
   return (
     <div className="space-y-6">
       {!isEdit && selectedPatient && (
-          <div className="flex items-center justify-between bg-blue-50 p-4 rounded-md border border-blue-100 mb-6">
-            <div>
-                <span className="font-semibold text-blue-900">Paciente:</span> {selectedPatient.nombres} {selectedPatient.apellidos} ({selectedPatient.cedula})
-            </div>
+        <div className="flex items-center justify-between bg-blue-50 p-4 rounded-md border border-blue-100 mb-6">
+          <div>
+            <span className="font-semibold text-blue-900">Paciente:</span>{" "}
+            {selectedPatient.nombres} {selectedPatient.apellidos} (
+            {selectedPatient.cedula})
+          </div>
         </div>
       )}
 
@@ -263,11 +263,22 @@ export default function FormularioPsicologiaEducativa() {
         />
       </ComponentCard>
       <div className="flex justify-end gap-4">
-        <Button variant="outline" onClick={() => navigate("/psicologia-educativa")}>
+        <Button
+          variant="outline"
+          onClick={() => navigate("/psicologia-educativa")}
+        >
           Cancelar
         </Button>
-        <Button variant="primary" onClick={handleSubmit} disabled={loading}>
-          {loading ? "Guardando..." : isEdit ? "Actualizar Ficha" : "Guardar Ficha"}
+        <Button
+          onClick={handleSubmit}
+          disabled={loading}
+          className="dark:bg-gray-600 dark:hover:bg-gray-700"
+        >
+          {loading
+            ? "Guardando..."
+            : isEdit
+            ? "Actualizar Ficha"
+            : "Guardar Ficha"}
         </Button>
       </div>
     </div>

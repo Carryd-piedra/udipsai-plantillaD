@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import ComponentCard from "../../common/ComponentCard";
 import Button from "../../ui/button/Button";
@@ -652,9 +651,11 @@ export default function FormularioPsicologiaClinica() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
-  const [formData, setFormData] = useState<FichaPsicologiaClinicaState>(initialPsicologiaClinicaState);
+  const [formData, setFormData] = useState<FichaPsicologiaClinicaState>(
+    initialPsicologiaClinicaState
+  );
   const [loading, setLoading] = useState(false);
-  
+
   // Create Mode state
   const isEdit = !!id;
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
@@ -665,26 +666,25 @@ export default function FormularioPsicologiaClinica() {
     if (isEdit && id) {
       loadFicha(id);
     } else if (pacienteIdParam) {
-        loadPacienteFromUrl(pacienteIdParam);
+      loadPacienteFromUrl(pacienteIdParam);
     }
   }, [id, isEdit, searchParams]);
 
   const loadPacienteFromUrl = async (id: string) => {
     try {
-        setLoading(true);
-        const paciente = await pacientesService.obtenerPorId(id);
-        if (paciente) {
-            setSelectedPatient(paciente);
-            setFormData(prev => ({ ...prev, pacienteId: paciente.id }));
-        }
+      setLoading(true);
+      const paciente = await pacientesService.obtenerPorId(id);
+      if (paciente) {
+        setSelectedPatient(paciente);
+        setFormData((prev) => ({ ...prev, pacienteId: paciente.id }));
+      }
     } catch (error) {
-        console.error("Error loading patient from URL", error);
-        toast.error("Error al cargar datos del paciente asociado");
+      console.error("Error loading patient from URL", error);
+      toast.error("Error al cargar datos del paciente asociado");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
-
 
   const loadFicha = async (fichaId: string) => {
     try {
@@ -719,7 +719,6 @@ export default function FormularioPsicologiaClinica() {
     }));
   };
 
-
   const handleSubmit = async () => {
     try {
       setLoading(true);
@@ -732,11 +731,13 @@ export default function FormularioPsicologiaClinica() {
       }
       navigate("/psicologia-clinica");
     } catch (error: any) {
-         if (error.response?.status === 409) {
-            toast.error("Este paciente ya tiene una ficha activa.");
-        } else {
-            toast.error(isEdit ? "Error al actualizar la ficha" : "Error al crear la ficha");
-        }
+      if (error.response?.status === 409) {
+        toast.error("Este paciente ya tiene una ficha activa.");
+      } else {
+        toast.error(
+          isEdit ? "Error al actualizar la ficha" : "Error al crear la ficha"
+        );
+      }
       console.error("Error saving ficha:", error);
     } finally {
       setLoading(false);
@@ -754,14 +755,15 @@ export default function FormularioPsicologiaClinica() {
     );
   }
 
-
   return (
     <div className="space-y-6">
       {!isEdit && selectedPatient && (
-          <div className="flex items-center justify-between bg-blue-50 p-4 rounded-md border border-blue-100 mb-6">
-            <div>
-                <span className="font-semibold text-blue-900">Paciente:</span> {selectedPatient.nombres} {selectedPatient.apellidos} ({selectedPatient.cedula})
-            </div>
+        <div className="flex items-center justify-between bg-blue-50 p-4 rounded-md border border-blue-100 mb-6">
+          <div>
+            <span className="font-semibold text-blue-900">Paciente:</span>{" "}
+            {selectedPatient.nombres} {selectedPatient.apellidos} (
+            {selectedPatient.cedula})
+          </div>
         </div>
       )}
 
@@ -786,45 +788,68 @@ export default function FormularioPsicologiaClinica() {
       <ComponentCard title="Sexualidad">
         <SexualidadForm
           data={formData.sexualidad}
-          onChange={(field, val) => handleNestedChange("sexualidad", field, val)}
+          onChange={(field, val) =>
+            handleNestedChange("sexualidad", field, val)
+          }
         />
       </ComponentCard>
       <ComponentCard title="Evaluacion Lenguaje">
         <EvaluacionLenguajeForm
           data={formData.evaluacionLenguaje}
-          onChange={(field, val) => handleNestedChange("evaluacionLenguaje", field, val)}
+          onChange={(field, val) =>
+            handleNestedChange("evaluacionLenguaje", field, val)
+          }
         />
       </ComponentCard>
       <ComponentCard title="Evaluacion Afectiva">
         <EvaluacionAfectivaForm
           data={formData.evaluacionAfectiva}
-          onChange={(field, val) => handleNestedChange("evaluacionAfectiva", field, val)}
+          onChange={(field, val) =>
+            handleNestedChange("evaluacionAfectiva", field, val)
+          }
         />
       </ComponentCard>
       <ComponentCard title="Evaluacion Cognitiva">
         <EvaluacionCognitivaForm
           data={formData.evaluacionCognitiva}
-          onChange={(field, val) => handleNestedChange("evaluacionCognitiva", field, val)}
+          onChange={(field, val) =>
+            handleNestedChange("evaluacionCognitiva", field, val)
+          }
         />
       </ComponentCard>
       <ComponentCard title="Evaluacion Pensamiento">
         <EvaluacionPensamientoForm
           data={formData.evaluacionPensamiento}
-          onChange={(field, val) => handleNestedChange("evaluacionPensamiento", field, val)}
+          onChange={(field, val) =>
+            handleNestedChange("evaluacionPensamiento", field, val)
+          }
         />
       </ComponentCard>
       <ComponentCard title="Diagnóstico">
         <DiagnosticoPsicologiaForm
           data={formData.diagnostico}
-          onChange={(field, val) => handleNestedChange("diagnostico", field, val)}
+          onChange={(field, val) =>
+            handleNestedChange("diagnostico", field, val)
+          }
         />
       </ComponentCard>
-       <div className="flex justify-end gap-4">
-        <Button variant="outline" onClick={() => navigate("/psicologia-clinica")}>
+      <div className="flex justify-end gap-4">
+        <Button
+          variant="outline"
+          onClick={() => navigate("/psicologia-clinica")}
+        >
           Cancelar
         </Button>
-        <Button variant="primary" onClick={handleSubmit} disabled={loading}>
-          {loading ? "Guardando..." : isEdit ? "Actualizar Ficha" : "Guardar Ficha"}
+        <Button
+          onClick={handleSubmit}
+          disabled={loading}
+          className="dark:bg-gray-600 dark:hover:bg-gray-700"
+        >
+          {loading
+            ? "Guardando..."
+            : isEdit
+            ? "Actualizar Ficha"
+            : "Guardar Ficha"}
         </Button>
       </div>
     </div>

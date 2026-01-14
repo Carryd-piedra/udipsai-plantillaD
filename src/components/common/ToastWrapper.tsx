@@ -8,17 +8,18 @@ export const ToastWrapper = () => {
 
   return (
     <ToastContainer
-      position="top-right"
-      autoClose={3000}
+      position="top-center"
+      autoClose={2000}
       hideProgressBar={false}
       newestOnTop={false}
       closeOnClick
       rtl={false}
       pauseOnFocusLoss
       draggable
-      pauseOnHover
+      pauseOnHover={false}
       theme={theme}
-      style={{ zIndex: 100000 }}
+      stacked
+      style={{ zIndex: 100000, top: "20px" }}
     />
   );
 };

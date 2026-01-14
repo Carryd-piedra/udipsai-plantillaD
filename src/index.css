@@ -47,7 +47,7 @@ layer(base);
   --color-brand-200: #FC8D94;
   --color-brand-300: #FB606A;
   --color-brand-400: #FA3340;
-  --color-brand-500: #FA3340;
+  --color-brand-500: #F90617;
   --color-brand-600: #E20613; 
   --color-brand-700: #9F040E;
   --color-brand-800: #72030A;
@@ -195,7 +195,7 @@ layer(base);
 }
 
 @utility menu-item-active {
-  @apply bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400;
+  @apply bg-brand-50 text-brand-500 dark:bg-gray-400/[0.12] dark:text-gray-200;
 }
 
 @utility menu-item-inactive {
@@ -207,7 +207,7 @@ layer(base);
 }
 
 @utility menu-item-icon-active {
-  @apply text-brand-500 dark:text-brand-400;
+  @apply text-brand-500 dark:text-gray-200;
 }
 
 @utility menu-item-icon-size {
@@ -237,7 +237,7 @@ layer(base);
 }
 
 @utility menu-dropdown-item-active {
-  @apply bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400;
+  @apply bg-brand-50 text-brand-500 dark:bg-gray-400/[0.12] dark:text-gray-200;
 }
 
 @utility menu-dropdown-item-inactive {
@@ -245,7 +245,7 @@ layer(base);
 }
 
 @utility menu-dropdown-badge {
-  @apply block rounded-full px-2.5 py-0.5 text-xs font-medium uppercase text-brand-500 dark:text-brand-400;
+  @apply block rounded-full px-2.5 py-0.5 text-xs font-medium uppercase text-brand-500 dark:text-gray-200;
 }
 
 @utility menu-dropdown-badge-active {
@@ -269,15 +269,19 @@ layer(base);
   }
 
   &::-webkit-scrollbar-track {
-    @apply rounded-full;
+    @apply bg-transparent;
   }
 
   &::-webkit-scrollbar-thumb {
-    @apply bg-gray-200 rounded-full dark:bg-gray-700;
+    @apply bg-gray-200 rounded-full dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors;
   }
 }
+
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #344054;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 @layer utilities {
@@ -777,7 +781,65 @@ span.flatpickr-weekday,
   @apply opacity-100;
 }
 
-/* Toastify custom z-index to be above sticky header */
+/* Toastify custom styles */
+:root {
+  --toastify-color-light: #fff;
+  --toastify-color-dark: rgba(51, 51, 51, 0.8);
+  --toastify-color-info: #0ba5ec;
+  --toastify-color-success: #0c804a;
+  --toastify-color-warning: #f79009;
+  --toastify-color-error: #be473f;
+  --toastify-text-color-light: #101828;
+  --toastify-text-color-dark: #f9f9f9;
+  --toastify-font-family: 'Outfit', sans-serif;
+}
+
+.Toastify__toast {
+  padding: 10px 16px !important;
+  min-height: 48px !important;
+  box-shadow: 0 10px 15px -3px rgba(46, 46, 46, 0.1), 0 4px 6px -2px rgba(22, 22, 22, 0.05) !important;
+  font-weight: 500 !important;
+  font-size: 0.875rem !important;
+}
+
+.Toastify__toast--light {
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .Toastify__toast--dark {
+  background: rgba(39, 39, 39, 0.85) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.Toastify__toast-body {
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 10px !important;
+}
+
+.Toastify__toast-icon {
+  width: 18px !important;
+}
+
+.Toastify__progress-bar {
+  height: 3px !important;
+}
+
+.Toastify__close-button {
+  align-self: center !important;
+  opacity: 0.6;
+}
+
+.Toastify__close-button:hover {
+  opacity: 1;
+}
+
 .Toastify__toast-container {
   z-index: 100000 !important;
+  width: auto !important;
+  min-width: 320px !important;
+  max-width: 450px !important;
 }

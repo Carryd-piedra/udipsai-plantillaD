@@ -49,7 +49,7 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
               Limpiar
             </Button>
             <Button
-              className="flex-1 h-9 text-xs"
+              className="flex-1 h-9 text-xs dark:bg-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
               onClick={() => {
                 onApply();
                 setIsOpen(false);

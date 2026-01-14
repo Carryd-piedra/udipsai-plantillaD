@@ -6,6 +6,8 @@ import {
   TableCell,
   TableHeader,
   TableRow,
+  TableLoading,
+  TableEmpty,
 } from "../../ui/table";
 
 import { Pen, Trash, Info, FileText } from "lucide-react";
@@ -21,14 +23,11 @@ import { useModal } from "../../../hooks/useModal";
 import { DeleteModal } from "../../ui/modal/DeleteModal";
 import { PatientDetailsModal } from "../../modals/PacienteDetalleModal";
 import { PatientFichasModal } from "../../modals/PatientFichasModal";
-import { TableActionHeader } from "../../common/TableActionHeader";
+import { TableActionHeader, FilterField } from "../../common/TableActionHeader";
 import { Pagination } from "../../ui/Pagination";
 import { sedesService } from "../../../services/sedes";
 import { institucionesService } from "../../../services/instituciones";
-import Label from "../../form/Label";
-import Select from "../../form/Select";
 import { useAuth } from "../../../context/AuthContext";
-import Input from "../../form/input/InputField";
 
 interface Paciente {
   id: number;
@@ -60,7 +59,6 @@ export default function PacientesAccionesTable() {
   const [totalPages, setTotalPages] = useState(0);
 
   const [filters, setFilters] = useState<PacienteCriteria>({});
-  const [tempFilters, setTempFilters] = useState<PacienteCriteria>({});
 
   const [sortField, setSortField] = useState("id");
   const [sortDirection, setSortDirection] = useState("desc");
@@ -204,16 +202,75 @@ export default function PacientesAccionesTable() {
     setCurrentPage(0);
   };
 
-  const handleApplyFilters = () => {
-    setFilters(tempFilters);
+  const handleFiltersChange = (newFilters: any) => {
+    if (newFilters.sortField) setSortField(newFilters.sortField);
+    if (newFilters.sortDirection) setSortDirection(newFilters.sortDirection);
+
+    const { sortField: _sf, sortDirection: _sd, ...rest } = newFilters;
+    
+    const cleanedFilters: any = { ...rest };
+    if (cleanedFilters.activo === "true") cleanedFilters.activo = true;
+    else if (cleanedFilters.activo === "false") cleanedFilters.activo = false;
+    else if (cleanedFilters.activo === "") delete cleanedFilters.activo;
+
+    if (cleanedFilters.sedeId) cleanedFilters.sedeId = parseInt(cleanedFilters.sedeId);
+    if (cleanedFilters.institucionEducativaId) cleanedFilters.institucionEducativaId = parseInt(cleanedFilters.institucionEducativaId);
+
+    setFilters(cleanedFilters);
     setCurrentPage(0);
   };
 
-  const handleClearFilters = () => {
-    setTempFilters({});
-    setFilters({});
-    setCurrentPage(0);
-  };
+  const filterConfig: FilterField[] = [
+    {
+      type: "select",
+      name: "sedeId",
+      label: "Sede",
+      placeholder: "Todas las sedes",
+      options: sedes.map((s) => ({ value: s.id.toString(), label: s.nombre })),
+    },
+    {
+      type: "select",
+      name: "institucionEducativaId",
+      label: "Institución Educativa",
+      placeholder: "Todas las instituciones",
+      options: instituciones.map((i) => ({ value: i.id.toString(), label: i.nombre })),
+    },
+    {
+      type: "select",
+      name: "activo",
+      label: "Estado",
+      placeholder: "Todos",
+      options: [
+        { value: "true", label: "Activo" },
+        { value: "false", label: "Inactivo" },
+      ],
+    },
+    {
+      type: "input",
+      name: "ciudad",
+      label: "Ciudad",
+      placeholder: "Ej: Quito",
+    },
+    {
+      type: "select",
+      name: "sortField",
+      label: "Ordenar por",
+      options: [
+        { value: "id", label: "Registro (ID)" },
+        { value: "nombresApellidos", label: "Nombre" },
+        { value: "cedula", label: "Cédula" },
+      ],
+    },
+    {
+      type: "select",
+      name: "sortDirection",
+      label: "Dirección",
+      options: [
+        { value: "asc", label: "Ascendente" },
+        { value: "desc", label: "Descendente" },
+      ],
+    },
+  ];
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -230,109 +287,28 @@ export default function PacientesAccionesTable() {
       <TableActionHeader
         title="Lista de pacientes"
         onSearchClick={handleSearch}
-        onNew={permissions.includes("PERM_PACIENTES_CREAR") ? () => navigate("/pacientes/nuevo") : undefined}
+        onNew={
+          permissions.includes("PERM_PACIENTES_CREAR")
+            ? () => navigate("/pacientes/nuevo")
+            : undefined
+        }
         newButtonText="Agregar"
         onExport={handleExport}
-        onFilterApply={handleApplyFilters}
-        onFilterClear={handleClearFilters}
-        filterContent={
-          <div className="space-y-4">
-            <div>
-              <Label className="mb-1.5 text-xs">Sede</Label>
-              <Select
-                options={sedes.map((s) => ({
-                  value: s.id.toString(),
-                  label: s.nombre,
-                }))}
-                placeholder="Todas las sedes"
-                value={tempFilters.sedeId?.toString() || ""}
-                onChange={(val) =>
-                  setTempFilters({
-                    ...tempFilters,
-                    sedeId: val ? parseInt(val) : undefined,
-                  })
-                }
-                className="h-9 text-xs"
-              />
-            </div>
-            <div>
-              <Label className="mb-1.5 text-xs">Institución Educativa</Label>
-              <Select
-                options={instituciones.map((i) => ({
-                  value: i.id.toString(),
-                  label: i.nombre,
-                }))}
-                placeholder="Todas las instituciones"
-                value={tempFilters.institucionEducativaId?.toString() || ""}
-                onChange={(val) =>
-                  setTempFilters({
-                    ...tempFilters,
-                    institucionEducativaId: val ? parseInt(val) : undefined,
-                  })
-                }
-                className="h-9 text-xs"
-              />
-            </div>
-            <div>
-              <Label className="mb-1.5 text-xs">Estado</Label>
-              <Select
-                options={[
-                  { value: "true", label: "Activo" },
-                  { value: "false", label: "Inactivo" },
-                ]}
-                placeholder="Todos"
-                value={
-                  tempFilters.activo === undefined
-                    ? ""
-                    : tempFilters.activo.toString()
-                }
-                onChange={(val) =>
-                  setTempFilters({
-                    ...tempFilters,
-                    activo: val === "" ? undefined : val === "true",
-                  })
-                }
-                className="h-9 text-xs"
-              />
-            </div>
-            <div>
-              <Label className="mb-1.5 text-xs">Ciudad</Label>
-              <Input
-                placeholder="Ej: Quito"
-                value={tempFilters.ciudad || ""}
-                onChange={(e) =>
-                  setTempFilters({ ...tempFilters, ciudad: e.target.value })
-                }
-                className="h-9 text-xs"
-              />
-            </div>
-
-            <div>
-              <Label className="mb-1.5 text-xs">Orden</Label>
-              <div className="flex gap-2">
-                <Select
-                  options={[
-                    { value: "id", label: "Registro (ID)" },
-                    { value: "nombresApellidos", label: "Nombre" },
-                    { value: "cedula", label: "Cédula" },
-                  ]}
-                  value={sortField}
-                  onChange={(val) => setSortField(val)}
-                  className="h-9 text-xs flex-1"
-                />
-                <Select
-                  options={[
-                    { value: "asc", label: "Asc" },
-                    { value: "desc", label: "Desc" },
-                  ]}
-                  value={sortDirection}
-                  onChange={(val) => setSortDirection(val)}
-                  className="h-9 text-xs w-24"
-                />
-              </div>
-            </div>
-          </div>
-        }
+        filterConfig={filterConfig}
+        activeFilters={{
+          ...filters,
+          activo:
+            filters.activo === true
+              ? "true"
+              : filters.activo === false
+              ? "false"
+              : "",
+          sortField,
+          sortDirection,
+          sedeId: filters.sedeId?.toString(),
+          institucionEducativaId: filters.institucionEducativaId?.toString(),
+        }}
+        onFiltersChange={handleFiltersChange}
       />
       <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-white/[0.05] dark:bg-white/[0.03]">
         <div className="max-w-full overflow-x-auto">
@@ -340,105 +316,49 @@ export default function PacientesAccionesTable() {
             {/* Table Header */}
             <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
               <TableRow>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
-                >
-                  Número de ficha
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
-                >
-                  Nombre del paciente
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
-                >
-                  Cédula
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
-                >
-                  Celular
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
-                >
-                  Sede
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
-                >
-                  Estado
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
-                >
-                  Acciones
-                </TableCell>
+                <TableCell isHeader>Número de ficha</TableCell>
+                <TableCell isHeader>Nombre del paciente</TableCell>
+                <TableCell isHeader>Cédula</TableCell>
+                <TableCell isHeader>Celular</TableCell>
+                <TableCell isHeader>Sede</TableCell>
+                <TableCell isHeader>Estado</TableCell>
+                <TableCell isHeader>Acciones</TableCell>
               </TableRow>
             </TableHeader>
             {/* Table Body */}
             <TableBody className="relative min-h-[400px]">
               {loading ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="px-5 py-20 text-center">
-                    <div className="flex flex-col items-center justify-center space-y-4">
-                      <div className="w-10 h-10 border-4 border-red-200 border-t-red-600 rounded-full animate-spin"></div>
-                      <p className="text-slate-500 font-medium animate-pulse">
-                        Cargando pacientes...
-                      </p>
-                    </div>
-                  </TableCell>
-                </TableRow>
+                <TableLoading colSpan={7} message="Cargando pacientes..." />
               ) : pacientes.length > 0 ? (
                 pacientes.map((paciente) => (
                   <TableRow
                     key={paciente.id}
                     className="hover:bg-gray-50 dark:hover:bg-white/[0.05]"
                   >
-                    <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
-                      {paciente.id}
-                    </TableCell>
-                    <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
-                      {paciente.nombresApellidos}
-                    </TableCell>
-                    <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
-                      {paciente.cedula}
-                    </TableCell>
-                    <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
-                      {paciente.numeroCelular}
-                    </TableCell>
-                    <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
-                      {paciente.sede?.nombre || "Cuenca"}
-                    </TableCell>
-                    <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
+                    <TableCell>{paciente.id}</TableCell>
+                    <TableCell>{paciente.nombresApellidos}</TableCell>
+                    <TableCell>{paciente.cedula}</TableCell>
+                    <TableCell>{paciente.numeroCelular}</TableCell>
+                    <TableCell>{paciente.sede?.nombre || "Cuenca"}</TableCell>
+                    <TableCell>
                       <Badge size="sm" color={getEstadoBadge(paciente.activo)}>
                         {paciente.activo ? "Activo" : "Inactivo"}
                       </Badge>
                     </TableCell>
-                    <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
+                    <TableCell>
                       <div className="flex justify-center gap-2">
                         <Button
                           size="sm"
-                          variant="outline"
+                          variant="info"
                           onClick={() => handleDetailsClick(paciente)}
-                          className="hover:bg-white hover:text-blue-600 p-2 text-center text-dark dark:text-white-400 dark:hover:text-blue-600"
                           title="Detalles"
                         >
                           <Info size={14} />
                         </Button>
                         <Button
                           size="sm"
-                          variant="outline"
+                          variant="success"
                           onClick={() => handleFichasClick(paciente)}
-                          className="hover:bg-white hover:text-green-600 p-2 text-center text-dark dark:text-white-400 dark:hover:text-green-600"
                           title="Fichas"
                         >
                           <FileText size={14} />
@@ -446,9 +366,8 @@ export default function PacientesAccionesTable() {
                         {permissions.includes("PERM_PACIENTES_EDITAR") && (
                           <Button
                             size="sm"
-                            variant="outline"
+                            variant="warning"
                             onClick={() => handleEdit(paciente.id)}
-                            className="hover:bg-white hover:text-yellow-600 p-2 text-center text-dark dark:text-white-400 dark:hover:text-yellow-600"
                             title="Editar"
                           >
                             <Pen size={14} />
@@ -457,9 +376,8 @@ export default function PacientesAccionesTable() {
                         {permissions.includes("PERM_PACIENTES_ELIMINAR") && (
                           <Button
                             size="sm"
-                            variant="outline"
+                            variant="danger"
                             onClick={() => handleDeleteClick(paciente)}
-                            className="hover:bg-red-500 hover:text-white p-2 text-center text-red-600 dark:text-red-400 dark:hover:text-red-400"
                             title="Eliminar"
                           >
                             <Trash size={14} />
@@ -470,19 +388,10 @@ export default function PacientesAccionesTable() {
                   </TableRow>
                 ))
               ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="px-5 py-10 text-center text-theme-md text-gray-500 dark:text-gray-400"
-                  >
-                    <div className="flex flex-col items-center justify-center gap-2">
-                      <span className="text-gray-400 dark:text-gray-600">
-                        <Info size={30} strokeWidth={1} />
-                      </span>
-                      <p>No se encontraron pacientes registrados</p>
-                    </div>
-                  </TableCell>
-                </TableRow>
+                <TableEmpty
+                  colSpan={7}
+                  message="No se encontraron pacientes registrados"
+                />
               )}
             </TableBody>
           </Table>

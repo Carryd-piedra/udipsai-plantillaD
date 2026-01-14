@@ -1,6 +1,5 @@
 import React from "react";
 import { Modal } from "../ui/modal";
-import Button from "../ui/button/Button";
 import { SeguimientoContainer } from "../seguimiento/SeguimientoContainer";
 
 interface Paciente {
@@ -181,12 +180,6 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
       ) : (
         <SeguimientoContainer pacienteId={paciente.id} />
       )}
-
-      <div className="mt-8 flex justify-end">
-        <Button variant="primary" onClick={onClose}>
-          Cerrar
-        </Button>
-      </div>
     </Modal>
   );
 };

@@ -106,12 +106,14 @@ export default function FormularioPasantes() {
               especialistas: data.permisos.especialistas || false,
               especialistasCrear: data.permisos.especialistasCrear || false,
               especialistasEditar: data.permisos.especialistasEditar || false,
-              especialistasEliminar: data.permisos.especialistasEliminar || false,
+              especialistasEliminar:
+                data.permisos.especialistasEliminar || false,
 
               especialidades: data.permisos.especialidades || false,
               especialidadesCrear: data.permisos.especialidadesCrear || false,
               especialidadesEditar: data.permisos.especialidadesEditar || false,
-              especialidadesEliminar: data.permisos.especialidadesEliminar || false,
+              especialidadesEliminar:
+                data.permisos.especialidadesEliminar || false,
 
               asignaciones: data.permisos.asignaciones || false,
               asignacionesCrear: data.permisos.asignacionesCrear || false,
@@ -123,30 +125,43 @@ export default function FormularioPasantes() {
               recursosEditar: data.permisos.recursosEditar || false,
               recursosEliminar: data.permisos.recursosEliminar || false,
 
-              institucionesEducativas: data.permisos.institucionesEducativas || false,
-              institucionesEducativasCrear: data.permisos.institucionesEducativasCrear || false,
-              institucionesEducativasEditar: data.permisos.institucionesEducativasEditar || false,
-              institucionesEducativasEliminar: data.permisos.institucionesEducativasEliminar || false,
+              institucionesEducativas:
+                data.permisos.institucionesEducativas || false,
+              institucionesEducativasCrear:
+                data.permisos.institucionesEducativasCrear || false,
+              institucionesEducativasEditar:
+                data.permisos.institucionesEducativasEditar || false,
+              institucionesEducativasEliminar:
+                data.permisos.institucionesEducativasEliminar || false,
 
               historiaClinica: data.permisos.historiaClinica || false,
               historiaClinicaCrear: data.permisos.historiaClinicaCrear || false,
-              historiaClinicaEditar: data.permisos.historiaClinicaEditar || false,
-              historiaClinicaEliminar: data.permisos.historiaClinicaEliminar || false,
+              historiaClinicaEditar:
+                data.permisos.historiaClinicaEditar || false,
+              historiaClinicaEliminar:
+                data.permisos.historiaClinicaEliminar || false,
 
               fonoAudiologia: data.permisos.fonoAudiologia || false,
               fonoAudiologiaCrear: data.permisos.fonoAudiologiaCrear || false,
               fonoAudiologiaEditar: data.permisos.fonoAudiologiaEditar || false,
-              fonoAudiologiaEliminar: data.permisos.fonoAudiologiaEliminar || false,
+              fonoAudiologiaEliminar:
+                data.permisos.fonoAudiologiaEliminar || false,
 
               psicologiaClinica: data.permisos.psicologiaClinica || false,
-              psicologiaClinicaCrear: data.permisos.psicologiaClinicaCrear || false,
-              psicologiaClinicaEditar: data.permisos.psicologiaClinicaEditar || false,
-              psicologiaClinicaEliminar: data.permisos.psicologiaClinicaEliminar || false,
+              psicologiaClinicaCrear:
+                data.permisos.psicologiaClinicaCrear || false,
+              psicologiaClinicaEditar:
+                data.permisos.psicologiaClinicaEditar || false,
+              psicologiaClinicaEliminar:
+                data.permisos.psicologiaClinicaEliminar || false,
 
               psicologiaEducativa: data.permisos.psicologiaEducativa || false,
-              psicologiaEducativaCrear: data.permisos.psicologiaEducativaCrear || false,
-              psicologiaEducativaEditar: data.permisos.psicologiaEducativaEditar || false,
-              psicologiaEducativaEliminar: data.permisos.psicologiaEducativaEliminar || false,
+              psicologiaEducativaCrear:
+                data.permisos.psicologiaEducativaCrear || false,
+              psicologiaEducativaEditar:
+                data.permisos.psicologiaEducativaEditar || false,
+              psicologiaEducativaEliminar:
+                data.permisos.psicologiaEducativaEliminar || false,
             });
           }
 
@@ -172,11 +187,13 @@ export default function FormularioPasantes() {
 
   const loadData = async () => {
     try {
-      const [sedesRes, especialistasRes, especialidadesRes] = await Promise.all([
-        sedesService.listarActivos(0, 100),
-        especialistasService.listarActivos(0, 100),
-        especialidadesService.listarActivos(0, 100),
-      ]);
+      const [sedesRes, especialistasRes, especialidadesRes] = await Promise.all(
+        [
+          sedesService.listarActivos(0, 100),
+          especialistasService.listarActivos(0, 100),
+          especialidadesService.listarActivos(0, 100),
+        ]
+      );
       setSedes(sedesRes?.content || []);
       setEspecialistas(especialistasRes?.content || []);
       setEspecialidades(especialidadesRes?.content || []);
@@ -470,7 +487,11 @@ export default function FormularioPasantes() {
         <Button variant="outline" onClick={() => navigate("/pasantes")}>
           Cancelar
         </Button>
-        <Button onClick={handleSubmit} disabled={loading}>
+        <Button
+          onClick={handleSubmit}
+          disabled={loading}
+          className="dark:bg-gray-600 dark:hover:bg-gray-700"
+        >
           {loading ? "Guardando..." : "Guardar Pasante"}
         </Button>
       </div>

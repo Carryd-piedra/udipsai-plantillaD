@@ -52,10 +52,15 @@ export const Modal: React.FC<ModalProps> = ({
 
   const contentClasses = isFullscreen
     ? "w-full h-full"
-    : "relative w-full rounded-3xl bg-white/70 dark:bg-gray-900/70 backdrop-blur-lg border border-white/20 shadow-2xl transition-all duration-300 transform scale-100";
+    : "relative w-full rounded-3xl bg-white/70 dark:bg-gray-900/70 backdrop-blur-lg border border-white/20 shadow-2xl transition-all duration-300 transform scale-100 flex flex-col overflow-hidden max-h-[90vh]";
+
+  // Separate padding from other classes to move it inside the scrollable area
+  const paddingRegex = /\bp[xyzbtr]?-[^ ]+/g;
+  const paddingClasses = className?.match(paddingRegex)?.join(" ") || "p-6";
+  const shellClasses = className?.replace(paddingRegex, "").trim() || "";
 
   return createPortal(
-    <div className="fixed inset-0 flex items-center justify-center overflow-y-auto p-4 modal z-99999">
+    <div className="fixed inset-0 flex items-center justify-center p-4 modal z-[99999]">
       {!isFullscreen && (
         <div
           className="fixed inset-0 h-full w-full bg-gray-900/20 backdrop-blur-sm transition-opacity duration-300"
@@ -64,13 +69,13 @@ export const Modal: React.FC<ModalProps> = ({
       )}
       <div
         ref={modalRef}
-        className={`${contentClasses} ${className} mt-auto mb-auto max-h-[90vh] overflow-y-auto`}
+        className={`${contentClasses} ${shellClasses} mt-auto mb-auto transition-all duration-300 transform scale-100`}
         onClick={(e) => e.stopPropagation()}
       >
         {showCloseButton && (
           <button
             onClick={onClose}
-            className="absolute right-3 top-3 z-999 flex h-9.5 w-9.5 items-center justify-center rounded-full bg-gray-100 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white sm:right-6 sm:top-6 sm:h-11 sm:w-11"
+            className="absolute right-4 top-4 z-[1000] flex h-9.5 w-9.5 items-center justify-center rounded-full bg-gray-100/80 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-700 backdrop-blur-sm dark:bg-gray-800/80 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white sm:right-6 sm:top-6 sm:h-11 sm:w-11"
           >
             <svg
               width="24"
@@ -88,7 +93,11 @@ export const Modal: React.FC<ModalProps> = ({
             </svg>
           </button>
         )}
-        <div className="p-1">{children}</div>
+        <div className="flex-1 overflow-y-auto custom-scrollbar overscroll-contain">
+          <div className={`${paddingClasses} pr-7 sm:pr-9`}>
+            {children}
+          </div>
+        </div>
       </div>
     </div>,
     document.body

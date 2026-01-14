@@ -291,7 +291,7 @@ export default function FormularioEspecialistas() {
         <Button variant="outline" onClick={() => navigate("/especialistas")}>
           Cancelar
         </Button>
-        <Button onClick={handleSubmit} disabled={loading}>
+        <Button onClick={handleSubmit} disabled={loading} className="dark:bg-gray-600 dark:hover:bg-gray-700">
           {loading ? "Guardando..." : "Guardar Especialista"}
         </Button>
       </div>

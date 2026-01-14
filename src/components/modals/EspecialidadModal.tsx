@@ -5,8 +5,8 @@ import Input from "../form/input/InputField";
 import Label from "../form/Label";
 
 interface Especialidad {
-    id: number;
-    area: string;
+  id: number;
+  area: string;
 }
 
 interface EspecialidadModalProps {
@@ -31,7 +31,7 @@ export const EspecialidadModal: React.FC<EspecialidadModalProps> = ({
   useEffect(() => {
     if (initialData) {
       setFormData({
-        area: initialData.area
+        area: initialData.area,
       });
     } else {
       setFormData({
@@ -71,13 +71,17 @@ export const EspecialidadModal: React.FC<EspecialidadModalProps> = ({
             onChange={handleChange}
           />
         </div>
-
       </div>
       <div className="mt-6 flex justify-end gap-3">
         <Button variant="outline" onClick={onClose}>
           Cancelar
         </Button>
-        <Button onClick={handleSubmit}>Guardar</Button>
+        <Button
+          onClick={handleSubmit}
+          className="dark:bg-gray-600 dark:hover:bg-gray-700"
+        >
+          Guardar
+        </Button>
       </div>
     </Modal>
   );

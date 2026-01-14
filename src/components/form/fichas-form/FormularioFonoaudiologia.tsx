@@ -353,7 +353,7 @@ export default function FormularioFonoaudiologia() {
         <Button variant="outline" onClick={() => navigate("/fonoaudiologia")}>
           Cancelar
         </Button>
-        <Button variant="primary" onClick={handleSubmit} disabled={loading}>
+        <Button onClick={handleSubmit} disabled={loading} className="dark:bg-gray-600 dark:hover:bg-gray-700">
           {loading
             ? "Guardando..."
             : isEdit

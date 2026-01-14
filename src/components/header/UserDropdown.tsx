@@ -35,7 +35,7 @@ export default function UserDropdown() {
           </span>
         </span>
         
-        <div className={`h-10 w-10 rounded-full flex items-center justify-center border-2 ${isEspecialista ? 'border-brand-100 bg-brand-50 text-brand-600' : 'border-blue-light-100 bg-blue-light-50 text-blue-light-600'}`}>
+        <div className={`h-10 w-10 rounded-full flex items-center justify-center border-2 ${isEspecialista ? 'border-brand-100 bg-brand-50 text-brand-600 dark:border-gray-800 dark:bg-gray-600 dark:text-brand-300'  : 'border-blue-light-100 bg-blue-light-50 text-blue-light-600 dark:border-gray-800 dark:bg-gray-600 dark:text-blue-light-300'}`}>
           <span className="text-lg font-bold">
             {userName?.charAt(0).toUpperCase()}
           </span>
@@ -81,8 +81,8 @@ export default function UserDropdown() {
         <div className="px-3 pb-3">
              <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
                 isEspecialista 
-                  ? "bg-brand-100 text-brand-800 dark:bg-brand-500/10 dark:text-brand-400" 
-                  : "bg-blue-light-100 text-blue-light-800 dark:bg-blue-light-500/10 dark:text-blue-light-400"
+                  ? "text-brand-600 dark:text-brand-300" 
+                  : "text-blue-light-600 dark:text-blue-light-300"
              }`}>
                 {isEspecialista ? <Shield className="w-3 h-3 mr-1" /> : <User className="w-3 h-3 mr-1" />}
                 {formattedRole}
@@ -108,7 +108,7 @@ export default function UserDropdown() {
                   logout();
               }}
               to="#"
-              className="flex items-center gap-3 px-3 py-2 mt-1 font-medium text-red-600 rounded-lg group text-theme-sm hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-500/10 dark:hover:text-red-300"
+              className="flex items-center gap-3 px-3 py-2 mt-1 font-medium rounded-lg group text-theme-sm hover:bg-red-50 hover:text-red-700 dark:text-gray-400 dark:hover:bg-gray-500/10 dark:hover:text-red-400"
             >
               <svg
                 className="fill-current"

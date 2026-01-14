@@ -6,22 +6,23 @@ import {
   TableCell,
   TableHeader,
   TableRow,
+  TableLoading,
+  TableEmpty,
 } from "../../ui/table";
-import { Pen, Trash, Info } from "lucide-react";
+import { Pen, Trash, UserPlus } from "lucide-react";
 import Badge from "../../ui/badge/Badge";
 import { toast } from "react-toastify";
 import { PasanteCriteria, pasantesService } from "../../../services/pasantes";
 import Button from "../../ui/button/Button";
-import Label from "../../form/Label";
-import Select from "../../form/Select";
-import Input from "../../form/input/InputField";
 import { Pagination } from "../../ui/Pagination";
 
 import { useModal } from "../../../hooks/useModal";
 import { DeleteModal } from "../../ui/modal/DeleteModal";
-import { TableActionHeader } from "../../common/TableActionHeader";
+import { TableActionHeader, FilterField } from "../../common/TableActionHeader";
 import { especialistasService, sedesService } from "../../../services";
 import { useAuth } from "../../../context/AuthContext";
+import { AsignacionesModal } from "../../modals/AsignacionesModal";
+import { especialidadesService } from "../../../services/especialidades";
 
 interface Pasante {
   id: number;
@@ -52,13 +53,13 @@ export default function PasantesAccionesTable() {
   const [totalPages, setTotalPages] = useState(0);
 
   const [filters, setFilters] = useState<PasanteCriteria>({});
-  const [tempFilters, setTempFilters] = useState<PasanteCriteria>({});
 
   const [sortField, setSortField] = useState("id");
   const [sortDirection, setSortDirection] = useState("desc");
 
   const [sedes, setSedes] = useState<any[]>([]);
-  const [instituciones, setInstituciones] = useState<any[]>([]);
+  const [especialistas, setEspecialistas] = useState<any[]>([]);
+  const [especialidades, setEspecialidades] = useState<any[]>([]);
 
   const navigate = useNavigate();
 
@@ -120,16 +121,20 @@ export default function PasantesAccionesTable() {
   useEffect(() => {
     const loadFilterData = async () => {
       try {
-        const [sedesResponse, especialistasResponse] = await Promise.all([
-          sedesService.listarActivos(0, 100),
-          especialistasService.listarActivos(0, 100),
-        ]);
+        const [sedesResponse, especialistasResponse, especialidadesResponse] =
+          await Promise.all([
+            sedesService.listarActivos(0, 100),
+            especialistasService.listarActivos(0, 100),
+            especialidadesService.listarActivos(0, 100),
+          ]);
 
         const sedesData = sedesResponse?.content || [];
         const especialistasData = especialistasResponse?.content || [];
+        const especialidadesData = especialidadesResponse?.content || [];
 
         setSedes(sedesData);
-        setInstituciones(especialistasData);
+        setEspecialistas(especialistasData);
+        setEspecialidades(especialidadesData);
       } catch (error) {
         console.error("Error al cargar datos de filtros:", error);
       }
@@ -174,130 +179,150 @@ export default function PasantesAccionesTable() {
     setCurrentPage(0);
   };
 
-  const handleApplyFilters = () => {
-    setFilters(tempFilters);
+  const handleFiltersChange = (newFilters: any) => {
+    // Separate sort parameters from filter criteria
+    if (newFilters.sortField) setSortField(newFilters.sortField);
+    if (newFilters.sortDirection) setSortDirection(newFilters.sortDirection);
+
+    const { sortField: _sf, sortDirection: _sd, ...rest } = newFilters;
+
+    const cleanedFilters: any = { ...rest };
+
+    if (cleanedFilters.activo === "true") cleanedFilters.activo = true;
+    else if (cleanedFilters.activo === "false") cleanedFilters.activo = false;
+    else if (cleanedFilters.activo === "") delete cleanedFilters.activo;
+
+    if (cleanedFilters.sedeId === "") delete cleanedFilters.sedeId;
+    else if (cleanedFilters.sedeId)
+      cleanedFilters.sedeId = parseInt(cleanedFilters.sedeId);
+
+    if (cleanedFilters.especialistaId === "")
+      delete cleanedFilters.especialistaId;
+    else if (cleanedFilters.especialistaId)
+      cleanedFilters.especialistaId = parseInt(cleanedFilters.especialistaId);
+
+    if (cleanedFilters.especialidadId === "")
+      delete cleanedFilters.especialidadId;
+    else if (cleanedFilters.especialidadId)
+      cleanedFilters.especialidadId = parseInt(cleanedFilters.especialidadId);
+
+    setFilters(cleanedFilters);
     setCurrentPage(0);
   };
-
-  const handleClearFilters = () => {
-    setTempFilters({});
-    setFilters({});
-    setCurrentPage(0);
-  };
-
   const handleExport = () => {
     console.log("Exporting data...");
   };
 
+  const filterConfig: FilterField[] = [
+    {
+      type: "select",
+      name: "activo",
+      label: "Estado",
+      placeholder: "Todos",
+      options: [
+        { value: "true", label: "Activo" },
+        { value: "false", label: "Inactivo" },
+      ],
+    },
+    {
+      type: "select",
+      name: "sortField",
+      label: "Ordenar por",
+      options: [
+        { value: "id", label: "Registro (ID)" },
+        { value: "nombresApellidos", label: "Nombres" },
+      ],
+    },
+    {
+      type: "select",
+      name: "sortDirection",
+      label: "Dirección",
+      options: [
+        { value: "asc", label: "Ascendente" },
+        { value: "desc", label: "Descendente" },
+      ],
+    },
+    {
+      type: "select",
+      name: "sedeId",
+      label: "Sede",
+      placeholder: "Todas las sedes",
+      options: sedes.map((sede) => ({
+        value: String(sede.id),
+        label: sede.nombre,
+      })),
+    },
+    {
+      type: "select",
+      name: "especialistaId",
+      label: "Tutor (Especialista)",
+      placeholder: "Todos los especialistas",
+      options: especialistas.map((esp) => ({
+        value: String(esp.id),
+        label: esp.nombresApellidos,
+      })),
+    },
+    {
+      type: "select",
+      name: "especialidadId",
+      label: "Especialidad",
+      placeholder: "Todas las especialidades",
+      options: especialidades.map((esp) => ({
+        value: String(esp.id),
+        label: esp.area,
+      })),
+    },
+    {
+      type: "input",
+      name: "ciudad",
+      label: "Ciudad",
+      placeholder: "Ej: Quito",
+    },
+  ];
+
   const { permissions } = useAuth();
+
+  const [isAsignacionModalOpen, setIsAsignacionModalOpen] = useState(false);
+  const [pasanteParaAsignar, setPasanteParaAsignar] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
+
+  const handleOpenAsignaciones = (pasante: Pasante) => {
+    setPasanteParaAsignar({ id: pasante.id, name: pasante.nombresApellidos });
+    setIsAsignacionModalOpen(true);
+  };
+
+  const handleCloseAsignaciones = () => {
+    setIsAsignacionModalOpen(false);
+    setPasanteParaAsignar(null);
+  };
 
   return (
     <div>
       <TableActionHeader
         title="Pasantes"
         onSearchClick={handleSearch}
-        onNew={permissions.includes("PERM_PASANTES_CREAR") ? () => navigate("/pasantes/nuevo") : undefined}
+        onNew={
+          permissions.includes("PERM_PASANTES_CREAR")
+            ? () => navigate("/pasantes/nuevo")
+            : undefined
+        }
         newButtonText="Agregar"
         onExport={handleExport}
-        onFilterApply={handleApplyFilters}
-        onFilterClear={handleClearFilters}
-        filterContent={
-          <div className="space-y-4">
-            <div>
-              <Label className="mb-1.5 text-xs">Tutor (Especialista)</Label>
-              <Select
-                options={instituciones.map((i) => ({
-                  value: i.id.toString(),
-                  label: i.nombresApellidos,
-                }))}
-                placeholder="Todos los tutores"
-                value={tempFilters.especialistaId?.toString() || ""}
-                onChange={(val) =>
-                  setTempFilters({
-                    ...tempFilters,
-                    especialistaId: val ? parseInt(val) : undefined,
-                  })
-                }
-                className="h-9 text-xs"
-              />
-            </div>
-            <div>
-              <Label className="mb-1.5 text-xs">Sede</Label>
-              <Select
-                options={sedes.map((s) => ({
-                  value: s.id.toString(),
-                  label: s.nombre,
-                }))}
-                placeholder="Todas las sedes"
-                value={tempFilters.sedeId?.toString() || ""}
-                onChange={(val) =>
-                  setTempFilters({
-                    ...tempFilters,
-                    sedeId: val ? parseInt(val) : undefined,
-                  })
-                }
-                className="h-9 text-xs"
-              />
-            </div>
-            <div>
-              <Label className="mb-1.5 text-xs">Estado</Label>
-              <Select
-                options={[
-                  { value: "true", label: "Activo" },
-                  { value: "false", label: "Inactivo" },
-                ]}
-                placeholder="Todos"
-                value={
-                  tempFilters.activo === undefined
-                    ? ""
-                    : tempFilters.activo.toString()
-                }
-                onChange={(val) =>
-                  setTempFilters({
-                    ...tempFilters,
-                    activo: val === "" ? undefined : val === "true",
-                  })
-                }
-                className="h-9 text-xs"
-              />
-            </div>
-            <div>
-              <Label className="mb-1.5 text-xs">Ciudad</Label>
-              <Input
-                placeholder="Ej: Quito"
-                value={tempFilters.ciudad || ""}
-                onChange={(e) =>
-                  setTempFilters({ ...tempFilters, ciudad: e.target.value })
-                }
-                className="h-9 text-xs"
-              />
-            </div>
-            <div>
-              <Label className="mb-1.5 text-xs">Orden</Label>
-              <div className="flex gap-2">
-                <Select
-                  options={[
-                    { value: "id", label: "Registro (ID)" },
-                    { value: "nombresApellidos", label: "Nombre" },
-                    { value: "cedula", label: "Cédula" },
-                  ]}
-                  value={sortField}
-                  onChange={(val) => setSortField(val)}
-                  className="h-9 text-xs flex-1"
-                />
-                <Select
-                  options={[
-                    { value: "asc", label: "Asc" },
-                    { value: "desc", label: "Desc" },
-                  ]}
-                  value={sortDirection}
-                  onChange={(val) => setSortDirection(val)}
-                  className="h-9 text-xs w-24"
-                />
-              </div>
-            </div>
-          </div>
-        }
+        filterConfig={filterConfig}
+        activeFilters={{
+          ...filters,
+          activo:
+            filters.activo === true
+              ? "true"
+              : filters.activo === false
+              ? "false"
+              : "",
+          sortField,
+          sortDirection,
+        }}
+        onFiltersChange={handleFiltersChange}
       />
       <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-white/[0.05] dark:bg-white/[0.03]">
         <div className="max-w-full overflow-x-auto">
@@ -305,94 +330,51 @@ export default function PasantesAccionesTable() {
             {/* Table Header */}
             <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
               <TableRow>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
-                >
-                  Cédula
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
-                >
-                  Nombres
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
-                >
-                  Inicio Pasantía
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
-                >
-                  Fin Pasantía
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
-                >
-                  Tutor
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
-                >
-                  Estado
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
-                >
-                  Acciones
-                </TableCell>
+                <TableCell isHeader>Cédula</TableCell>
+                <TableCell isHeader>Nombres</TableCell>
+                <TableCell isHeader>Inicio Pasantía</TableCell>
+                <TableCell isHeader>Fin Pasantía</TableCell>
+                <TableCell isHeader>Tutor</TableCell>
+                <TableCell isHeader>Estado</TableCell>
+                <TableCell isHeader>Acciones</TableCell>
               </TableRow>
             </TableHeader>
             {/* Table Body */}
             <TableBody>
               {loading ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="px-5 py-20 text-center">
-                    <div className="flex flex-col items-center justify-center space-y-4">
-                      <div className="w-10 h-10 border-4 border-red-200 border-t-red-600 rounded-full animate-spin"></div>
-                      <p className="text-slate-500 font-medium animate-pulse">
-                        Cargando pasantes...
-                      </p>
-                    </div>
-                  </TableCell>
-                </TableRow>
+                <TableLoading colSpan={7} message="Cargando pasantes..." />
               ) : pasantes.length > 0 ? (
                 pasantes.map((pasante) => (
                   <TableRow key={pasante.id}>
-                    <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
-                      {pasante.cedula}
-                    </TableCell>
-                    <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
-                      {pasante.nombresApellidos}
-                    </TableCell>
-                    <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
-                      {pasante.inicioPasantia || "N/A"}
-                    </TableCell>
-                    <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
-                      {pasante.finPasantia || "N/A"}
-                    </TableCell>
-                    <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
+                    <TableCell>{pasante.cedula}</TableCell>
+                    <TableCell>{pasante.nombresApellidos}</TableCell>
+                    <TableCell>{pasante.inicioPasantia || "N/A"}</TableCell>
+                    <TableCell>{pasante.finPasantia || "N/A"}</TableCell>
+                    <TableCell>
                       {pasante.especialista?.nombresApellidos || "N/A"}
                     </TableCell>
-                    <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
+                    <TableCell>
                       <Badge size="sm" color={getEstadoBadge(pasante.activo)}>
                         {pasante.activo ? "Activo" : "Inactivo"}
                       </Badge>
                     </TableCell>
-                    <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
+                    <TableCell>
                       <div className="flex justify-center gap-2">
+                        {permissions.includes("PERM_ASIGNACIONES_CREAR") && (
+                          <Button
+                            size="sm"
+                            variant="success"
+                            onClick={() => handleOpenAsignaciones(pasante)}
+                            title="Asignar Pacientes"
+                          >
+                            <UserPlus size={14} />
+                          </Button>
+                        )}
                         {permissions.includes("PERM_PASANTES_EDITAR") && (
                           <Button
                             size="sm"
-                            variant="outline"
+                            variant="warning"
                             onClick={() => handleEdit(pasante.id)}
-                            className="hover:bg-white hover:text-yellow-600 p-2 text-blue-600 dark:text-blue-400"
                             title="Editar"
                           >
                             <Pen size={14} />
@@ -401,9 +383,8 @@ export default function PasantesAccionesTable() {
                         {permissions.includes("PERM_PASANTES_ELIMINAR") && (
                           <Button
                             size="sm"
-                            variant="outline"
+                            variant="danger"
                             onClick={() => handleDeleteClick(pasante)}
-                            className="hover:bg-red-500 hover:text-white p-2 text-red-600 dark:text-red-400"
                             title="Eliminar"
                           >
                             <Trash size={14} />
@@ -414,19 +395,10 @@ export default function PasantesAccionesTable() {
                   </TableRow>
                 ))
               ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="px-5 py-10 text-center text-theme-md text-gray-500 dark:text-gray-400"
-                  >
-                    <div className="flex flex-col items-center justify-center gap-2">
-                      <span className="text-gray-400 dark:text-gray-600">
-                        <Info size={30} strokeWidth={1} stroke="currentColor" />
-                      </span>
-                      <p>No se encontraron pasantes registrados</p>
-                    </div>
-                  </TableCell>
-                </TableRow>
+                <TableEmpty
+                  colSpan={7}
+                  message="No se encontraron pasantes registrados"
+                />
               )}
             </TableBody>
           </Table>
@@ -437,7 +409,15 @@ export default function PasantesAccionesTable() {
           onClose={closeDeleteModal}
           onConfirm={handleConfirmDelete}
           title="Eliminar Pasante"
-          description={`¿Estás seguro de que deseas eliminar al pasante ${selectedPasante?.nombresApellidos}? Esta acción no se puede deshacer.`}
+          description={`¿Estás seguro de que deseas eliminar al pasante 
+            ${selectedPasante?.nombresApellidos}? Esta acción no se puede deshacer.`}
+        />
+
+        <AsignacionesModal
+          isOpen={isAsignacionModalOpen}
+          onClose={handleCloseAsignaciones}
+          pasanteId={pasanteParaAsignar?.id || null}
+          pasanteName={pasanteParaAsignar?.name || ""}
         />
 
         <Pagination

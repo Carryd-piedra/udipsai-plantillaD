@@ -21,10 +21,10 @@ export const asignacionesService = {
     }
   },
 
-  crear: async (pacienteId: number | string, pasanteId: number | string) => {
+  crear: async (pacienteIds: number[], pasanteId: number | string) => {
     try {
       const response = await api.post("/asignaciones", {
-        pacienteId,
+        pacienteIds,
         pasanteId,
       });
       return response.data;
