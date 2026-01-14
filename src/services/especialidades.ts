@@ -76,4 +76,17 @@ export const especialidadesService = {
       throw error;
     }
   },
+
+  exportarExcel: async (criteria: EspecialidadCriteria) => {
+    try {
+      const response = await api.get("/especialidades/export/excel", {
+        params: criteria,
+        responseType: "blob",
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error al exportar Excel de especialidades:", error);
+      throw error;
+    }
+  },
 };

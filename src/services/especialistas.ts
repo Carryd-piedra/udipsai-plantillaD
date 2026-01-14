@@ -127,4 +127,17 @@ export const especialistasService = {
       throw error;
     }
   },
+
+  exportarExcel: async (criteria: EspecialistaCriteria) => {
+    try {
+      const response = await api.get("/especialistas/export/excel", {
+        params: criteria,
+        responseType: "blob",
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error al exportar Excel de especialistas:", error);
+      throw error;
+    }
+  },
 };

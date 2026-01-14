@@ -276,8 +276,28 @@ export default function PacientesAccionesTable() {
     setCurrentPage(page);
   };
 
-  const handleExport = () => {
-    console.log("Exporting data...");
+  const handleExport = async () => {
+    try {
+      toast.info("Generando reporte Excel...");
+      const criteria: PacienteCriteria = {
+        ...filters,
+        search: searchTerm || undefined,
+      };
+      
+      const blob = await pacientesService.exportarExcel(criteria);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `pacientes_${new Date().toLocaleDateString()}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success("Reporte generado correctamente");
+    } catch (error) {
+      console.error("Error al exportar Excel:", error);
+      toast.error("Error al generar el reporte Excel");
+    }
   };
 
   const { permissions } = useAuth();

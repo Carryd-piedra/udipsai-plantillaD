@@ -9,7 +9,7 @@ import {
   TableLoading,
   TableEmpty,
 } from "../../ui/table";
-import { Pen, Trash, UserPlus } from "lucide-react";
+import { Pen, Trash, UserPlus, Info } from "lucide-react";
 import Badge from "../../ui/badge/Badge";
 import { toast } from "react-toastify";
 import { PasanteCriteria, pasantesService } from "../../../services/pasantes";
@@ -23,6 +23,7 @@ import { especialistasService, sedesService } from "../../../services";
 import { useAuth } from "../../../context/AuthContext";
 import { AsignacionesModal } from "../../modals/AsignacionesModal";
 import { especialidadesService } from "../../../services/especialidades";
+import { PasanteDetalleModal } from "../../modals/PasanteDetalleModal";
 
 interface Pasante {
   id: number;
@@ -40,6 +41,7 @@ interface Pasante {
   numeroCelular: string;
   inicioPasantia: string;
   finPasantia: string;
+  email: string;
 }
 
 export default function PasantesAccionesTable() {
@@ -69,6 +71,19 @@ export default function PasantesAccionesTable() {
     closeModal: closeDeleteModal,
   } = useModal();
 
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [pasanteDetail, setPasanteDetail] = useState<Pasante | null>(null);
+
+  const handleOpenDetail = (pasante: Pasante) => {
+      setPasanteDetail(pasante);
+      setIsDetailModalOpen(true);
+  };
+
+  const handleCloseDetail = () => {
+    setIsDetailModalOpen(false);
+    setPasanteDetail(null);
+  };
+   
   const fetchPasantes = async (
     page = currentPage,
     search = searchTerm,
@@ -209,8 +224,30 @@ export default function PasantesAccionesTable() {
     setFilters(cleanedFilters);
     setCurrentPage(0);
   };
-  const handleExport = () => {
-    console.log("Exporting data...");
+  const handleExport = async () => {
+    try {
+      const toastId = toast.info("Generando reporte Excel...", { autoClose: false });
+      const criteria: PasanteCriteria = {
+          ...filters,
+          search: searchTerm || undefined,
+      };
+      
+      const blob = await pasantesService.exportarExcel(criteria);
+      
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `pasantes_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      
+      toast.dismiss(toastId);
+      toast.success("Reporte descargado correctamente");
+    } catch (error) {
+      toast.error("Error al exportar reporte");
+      console.error(error);
+    }
   };
 
   const filterConfig: FilterField[] = [
@@ -360,6 +397,14 @@ export default function PasantesAccionesTable() {
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-center gap-2">
+                        <Button
+                            size="sm"
+                            variant="info"
+                            onClick={() => handleOpenDetail(pasante)}
+                            title="Ver Detalles"
+                          >
+                            <Info size={14} />
+                          </Button>
                         {permissions.includes("PERM_ASIGNACIONES_CREAR") && (
                           <Button
                             size="sm"
@@ -418,6 +463,12 @@ export default function PasantesAccionesTable() {
           onClose={handleCloseAsignaciones}
           pasanteId={pasanteParaAsignar?.id || null}
           pasanteName={pasanteParaAsignar?.name || ""}
+        />
+
+        <PasanteDetalleModal
+            isOpen={isDetailModalOpen}
+            onClose={handleCloseDetail}
+            pasante={pasanteDetail}
         />
 
         <Pagination

@@ -130,4 +130,29 @@ export const pasantesService = {
       throw error;
     }
   },
+
+  exportarExcel: async (criteria: PasanteCriteria) => {
+    try {
+      const response = await api.get("/pasantes/export/excel", {
+        params: criteria,
+        responseType: "blob",
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error al exportar Excel de pasantes:", error);
+      throw error;
+    }
+  },
+
+  exportarPdf: async (id: number | string) => {
+    try {
+      const response = await api.get(`/pasantes/${id}/export/pdf`, {
+        responseType: "blob",
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error al exportar PDF de pasante:", error);
+      throw error;
+    }
+  },
 };

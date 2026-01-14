@@ -126,4 +126,29 @@ export const pacientesService = {
       throw error;
     }
   },
+
+  exportarExcel: async (criteria: PacienteCriteria): Promise<Blob> => {
+    try {
+      const response = await api.get("/pacientes/export/excel", {
+        params: criteria,
+        responseType: "blob",
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error al exportar Excel:", error);
+      throw error;
+    }
+  },
+
+  exportarPdf: async (id: number | string): Promise<Blob> => {
+    try {
+      const response = await api.get(`/pacientes/${id}/export/pdf`, {
+        responseType: "blob",
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error al exportar PDF:", error);
+      throw error;
+    }
+  },
 };

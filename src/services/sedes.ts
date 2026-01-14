@@ -76,4 +76,17 @@ export const sedesService = {
       throw error;
     }
   },
+
+  exportarExcel: async (criteria: SedeCriteria) => {
+    try {
+      const response = await api.get("/sedes/export/excel", {
+        params: criteria,
+        responseType: "blob",
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error al exportar Excel de sedes:", error);
+      throw error;
+    }
+  },
 };

@@ -221,9 +221,30 @@ export default function InstitucionesTable() {
     },
   ];
 
-  const handleExport = () => {
-    console.log("Exporting data...");
-    // Implement export logic here
+  const handleExport = async () => {
+    try {
+      const toastId = toast.info("Generando reporte Excel...", { autoClose: false });
+      const criteria: InstitucionEducativaCriteria = {
+          ...filters,
+          search: searchTerm || undefined,
+      };
+      
+      const blob = await institucionesService.exportarExcel(criteria);
+      
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `instituciones_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      
+      toast.dismiss(toastId);
+      toast.success("Reporte descargado correctamente");
+    } catch (error) {
+      toast.error("Error al exportar reporte");
+      console.error(error);
+    }
   };
 
   const { permissions } = useAuth();

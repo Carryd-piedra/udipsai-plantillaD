@@ -1,32 +1,32 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Modal } from "../ui/modal";
-import { SeguimientoContainer } from "../seguimiento/SeguimientoContainer";
 import { FileDown } from "lucide-react";
 import Button from "../ui/button/Button";
-import { pacientesService } from "../../services/pacientes";
+import { pasantesService } from "../../services/pasantes";
 import { toast } from "react-toastify";
 
-interface Paciente {
+interface Pasante {
   id: number;
   nombresApellidos: string;
   cedula: string;
   fechaNacimiento: string;
-  fechaApertura: string;
+  email: string;
   activo: boolean;
   ciudad: string;
   domicilio: string;
   numeroTelefono: string;
   numeroCelular: string;
-  institucionEducativa: { id: number; nombre: string };
+  especialidad: { id: number; area: string };
+  especialista: { id: number; nombresApellidos: string };
   sede: { id: number; nombre: string };
-  motivoConsulta: string;
-  observaciones: string;
+  inicioPasantia: string;
+  finPasantia: string;
 }
 
-interface PatientDetailsModalProps {
+interface PasanteDetalleModalProps {
   isOpen: boolean;
   onClose: () => void;
-  paciente: Paciente | null;
+  pasante: Pasante | null;
 }
 
 const calcularEdad = (fechaNacimiento: string) => {
@@ -44,30 +44,23 @@ const calcularEdad = (fechaNacimiento: string) => {
   return edad;
 };
 
-export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
+export const PasanteDetalleModal: React.FC<PasanteDetalleModalProps> = ({
   isOpen,
   onClose,
-  paciente,
+  pasante,
 }) => {
-  const [activeTab, setActiveTab] = useState<'details' | 'seguimiento'>('details');
   const [isExporting, setIsExporting] = useState(false);
 
-  useEffect(() => {
-    if (isOpen) {
-      setActiveTab('details');
-    }
-  }, [isOpen]);
-
   const handleExportPdf = async () => {
-    if (!paciente) return;
+    if (!pasante) return;
     try {
       setIsExporting(true);
       toast.info("Generando reporte PDF...");
-      const blob = await pacientesService.exportarPdf(paciente.id);
+      const blob = await pasantesService.exportarPdf(pasante.id);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `detalle_paciente_${paciente.cedula}.pdf`);
+      link.setAttribute("download", `detalle_pasante_${pasante.cedula}.pdf`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -81,17 +74,17 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
     }
   };
 
-  if (!paciente) return null;
+  if (!pasante) return null;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-[800px] p-6" showCloseButton={false}>
       <div className="mb-6 flex items-start justify-between">
         <div>
           <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-            {paciente.nombresApellidos}
+            {pasante.nombresApellidos}
           </h3>
           <p className="text-gray-500 dark:text-gray-400">
-            {paciente.cedula}
+            {pasante.cedula}
           </p>
         </div>
         <Button 
@@ -106,52 +99,34 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
         </Button>
       </div>
 
-      <div className="flex border-b border-gray-200 dark:border-gray-700 mb-6">
-        <button
-          onClick={() => setActiveTab('details')}
-          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-            activeTab === 'details'
-              ? 'border-brand-500 text-brand-600 dark:text-brand-400'
-              : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-          }`}
-        >
-          Información General
-        </button>
-        <button
-          onClick={() => setActiveTab('seguimiento')}
-          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-            activeTab === 'seguimiento'
-              ? 'border-brand-500 text-brand-600 dark:text-brand-400'
-              : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-          }`}
-        >
-          Seguimiento
-        </button>
-      </div>
-
-      {activeTab === 'details' ? (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-4">
             <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Nombres y Apellidos
                 </label>
                 <p className="text-gray-900 dark:text-white">
-                {paciente.nombresApellidos}
+                {pasante.nombresApellidos}
                 </p>
             </div>
             <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Cédula
                 </label>
-                <p className="text-gray-900 dark:text-white">{paciente.cedula}</p>
+                <p className="text-gray-900 dark:text-white">{pasante.cedula}</p>
+            </div>
+             <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Email
+                </label>
+                <p className="text-gray-900 dark:text-white">{pasante.email}</p>
             </div>
             <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Fecha de Nacimiento
                 </label>
                 <p className="text-gray-900 dark:text-white">
-                {paciente.fechaNacimiento || "N/A"}
+                {pasante.fechaNacimiento || "N/A"}
                 </p>
             </div>
             <div>
@@ -159,7 +134,7 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
                 Edad
                 </label>
                 <p className="text-gray-900 dark:text-white">
-                {calcularEdad(paciente.fechaNacimiento)}
+                {calcularEdad(pasante.fechaNacimiento)}
                 </p>
             </div>
             </div>
@@ -170,7 +145,7 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
                 Teléfono / Celular
                 </label>
                 <p className="text-gray-900 dark:text-white">
-                {paciente.numeroTelefono} / {paciente.numeroCelular}
+                {pasante.numeroTelefono} / {pasante.numeroCelular}
                 </p>
             </div>
             <div>
@@ -178,7 +153,7 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
                 Ciudad / Domicilio
                 </label>
                 <p className="text-gray-900 dark:text-white">
-                {paciente.ciudad} - {paciente.domicilio}
+                {pasante.ciudad} - {pasante.domicilio}
                 </p>
             </div>
             <div>
@@ -186,41 +161,47 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
                 Sede
                 </label>
                 <p className="text-gray-900 dark:text-white">
-                {paciente.sede?.nombre}
+                {pasante.sede?.nombre}
                 </p>
             </div>
-            <div>
+             <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Institución Educativa
+                Especialidad
                 </label>
                 <p className="text-gray-900 dark:text-white">
-                {paciente.institucionEducativa?.nombre || "N/A"}
+                {pasante.especialidad?.area || "N/A"}
                 </p>
             </div>
-            </div>
-
-            <div className="col-span-1 md:col-span-2 space-y-4">
-            <div>
+             <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Motivo de Consulta
+                Tutor (Especialista)
                 </label>
                 <p className="text-gray-900 dark:text-white">
-                {paciente.motivoConsulta || "N/A"}
+                {pasante.especialista?.nombresApellidos || "N/A"}
                 </p>
             </div>
-            <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Observaciones
-                </label>
-                <p className="text-gray-900 dark:text-white">
-                {paciente.observaciones || "N/A"}
-                </p>
             </div>
+             <div className="col-span-1 md:col-span-2 space-y-4">
+                <div className="flex gap-4">
+                    <div className="flex-1">
+                        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Fecha Inicio Pasantía
+                        </label>
+                        <p className="text-gray-900 dark:text-white">
+                        {pasante.inicioPasantia || "N/A"}
+                        </p>
+                    </div>
+                     <div className="flex-1">
+                        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Fecha Fin Pasantía
+                        </label>
+                        <p className="text-gray-900 dark:text-white">
+                        {pasante.finPasantia || "N/A"}
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
-      ) : (
-        <SeguimientoContainer pacienteId={paciente.id} />
-      )}
     </Modal>
   );
 };
