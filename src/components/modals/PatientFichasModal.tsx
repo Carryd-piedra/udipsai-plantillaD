@@ -93,14 +93,14 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
 
   const handleAction = (action: string, fileType: string, internalName: string) => {
     if (action === "Crear") {
-      navigate(`/${fileType}/nuevo?pacienteId=${paciente.id}`);
+      navigate(`/fichas/${fileType}/nuevo?pacienteId=${paciente.id}`);
       onClose();
       return;
     }
     if (action === "Editar") {
       const fichaId = resumen?.fichas?.[internalName];
       if (fichaId) {
-        navigate(`/${fileType}/editar/${fichaId}`);
+        navigate(`/fichas/${fileType}/editar/${fichaId}`);
         onClose();
       } else {
         toast.error("No se pudo obtener el ID de la ficha");

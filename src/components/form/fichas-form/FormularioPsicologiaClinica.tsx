@@ -5,6 +5,9 @@ import { useNavigate, useParams, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
 import { fichasService } from "../../../services/fichas";
 import { pacientesService } from "../../../services/pacientes";
+import PatientSelector from "../../common/PatientSelector";
+import { User } from "lucide-react";
+import PageBreadcrumb from "../../common/PageBreadCrumb";
 
 import AnamnesisForm from "./sections/PsicologiaClinica.tsx/AnamnesisForm";
 import SuenioForm from "./sections/PsicologiaClinica.tsx/SuenioForm";
@@ -656,9 +659,15 @@ export default function FormularioPsicologiaClinica() {
   );
   const [loading, setLoading] = useState(false);
 
+  // Patient Selection State
+  const [selectedPatient, setSelectedPatient] = useState<{
+    nombresApellidos: string;
+    cedula: string;
+  } | null>(null);
+  const [showSelector, setShowSelector] = useState(false);
+
   // Create Mode state
   const isEdit = !!id;
-  const [selectedPatient, setSelectedPatient] = useState<any>(null);
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
@@ -667,6 +676,8 @@ export default function FormularioPsicologiaClinica() {
       loadFicha(id);
     } else if (pacienteIdParam) {
       loadPacienteFromUrl(pacienteIdParam);
+    } else {
+        setShowSelector(true);
     }
   }, [id, isEdit, searchParams]);
 
@@ -677,6 +688,7 @@ export default function FormularioPsicologiaClinica() {
       if (paciente) {
         setSelectedPatient(paciente);
         setFormData((prev) => ({ ...prev, pacienteId: paciente.id }));
+        setShowSelector(false);
       }
     } catch (error) {
       console.error("Error loading patient from URL", error);
@@ -692,14 +704,22 @@ export default function FormularioPsicologiaClinica() {
       const data = await fichasService.obtenerPsicologiaClinica(fichaId);
       if (data) {
         setFormData(data);
+        if (data.pacienteId) {
+            try {
+                const paciente = await pacientesService.obtenerPorId(data.pacienteId);
+                setSelectedPatient(paciente);
+            } catch (pError) {
+                console.warn("Could not load patient details", pError);
+            }
+        }
       } else {
         toast.error("No se encontró la ficha");
-        navigate("/psicologia-clinica");
+        navigate("/fichas");
       }
     } catch (error) {
       console.error("Error loading ficha:", error);
       toast.error("Error al cargar la ficha");
-      navigate("/psicologia-clinica");
+      navigate("/fichas");
     } finally {
       setLoading(false);
     }
@@ -720,6 +740,11 @@ export default function FormularioPsicologiaClinica() {
   };
 
   const handleSubmit = async () => {
+    if (!formData.pacienteId) {
+        toast.error("Debe seleccionar un paciente");
+        return;
+    }
+
     try {
       setLoading(true);
       if (isEdit && formData.id) {
@@ -727,11 +752,12 @@ export default function FormularioPsicologiaClinica() {
         toast.success("Ficha actualizada exitosamente");
       } else if (isEdit && !formData.id) {
         toast.error("No se encontró la ficha");
+        return;
       } else {
         await fichasService.crearPsicologiaClinica(formData);
         toast.success("Ficha creada exitosamente");
       }
-      navigate("/psicologia-clinica");
+      navigate("/fichas");
     } catch (error: any) {
       if (error.response?.status === 409) {
         toast.error("Este paciente ya tiene una ficha activa.");
@@ -745,6 +771,12 @@ export default function FormularioPsicologiaClinica() {
       setLoading(false);
     }
   };
+  
+  const handlePatientSelect = (paciente: any) => {
+    setFormData((prev) => ({ ...prev, pacienteId: paciente.id }));
+    setSelectedPatient(paciente);
+    setShowSelector(false);
+  };
 
   if (loading && isEdit) {
     return (
@@ -756,16 +788,49 @@ export default function FormularioPsicologiaClinica() {
       </div>
     );
   }
+  
+  if (showSelector) {
+    return (
+      <div className="space-y-6">
+          <PageBreadcrumb
+            pageTitle="Fichas de Psicología Clínica"
+            items={[
+              { label: "Inicio", path: "/" },
+              { label: "Fichas", path: "/fichas" },
+              { label: "Seleccionar Paciente" },
+            ]}
+          />
+        <PatientSelector onSelect={handlePatientSelect} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {!isEdit && selectedPatient && (
-        <div className="flex items-center justify-between bg-blue-50 p-4 rounded-md border border-blue-100 mb-6">
-          <div>
-            <span className="font-semibold text-blue-900">Paciente:</span>{" "}
-            {selectedPatient.nombres} {selectedPatient.apellidos} (
-            {selectedPatient.cedula})
+      {selectedPatient && (
+        <div className="bg-red-50 dark:bg-gray-800 p-4 rounded-lg flex items-center justify-between border border-red-100 dark:border-gray-700">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-red-100 dark:bg-gray-900 rounded-full text-red-600 dark:text-gray-300">
+              <User size={20} />
+            </div>
+            <div>
+              <h4 className="font-bold text-red-700 dark:text-gray-100">
+                {selectedPatient.nombresApellidos}
+              </h4>
+              <p className="text-sm text-red-600 dark:text-gray-300">
+                CI: {selectedPatient.cedula}
+              </p>
+            </div>
           </div>
+          {!isEdit && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => setShowSelector(true)}
+            >
+              Cambiar Paciente
+            </Button>
+          )}
         </div>
       )}
 
@@ -838,7 +903,7 @@ export default function FormularioPsicologiaClinica() {
       <div className="flex justify-end gap-4">
         <Button
           variant="outline"
-          onClick={() => navigate("/psicologia-clinica")}
+          onClick={() => navigate("/fichas")}
         >
           Cancelar
         </Button>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router";
+import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { Pencil, Trash, FileText, Activity, Brain, Ear } from "lucide-react";
 
@@ -62,8 +62,8 @@ export default function FichasUnificadasTable() {
       icon: FileText,
       fetch: fichasService.listarHistoriaClinica,
       delete: fichasService.eliminarHistoriaClinica,
-      editPath: "/historia-clinica/editar",
-      createPath: "/historia-clinica/nuevo",
+      editPath: "/fichas/historia-clinica/editar",
+      createPath: "/fichas/historia-clinica/nuevo",
       permEdit: "PERM_HISTORIA_CLINICA_EDITAR",
       permCreate: "PERM_HISTORIA_CLINICA_CREAR",
       permDelete: "PERM_HISTORIA_CLINICA_ELIMINAR",
@@ -75,8 +75,8 @@ export default function FichasUnificadasTable() {
       icon: Activity,
       fetch: fichasService.listarPsicologiaEducativa,
       delete: fichasService.eliminarPsicologiaEducativa,
-      editPath: "/psicologia-educativa/editar",
-      createPath: "/psicologia-educativa/nuevo",
+      editPath: "/fichas/psicologia-educativa/editar",
+      createPath: "/fichas/psicologia-educativa/nuevo",
       permEdit: "PERM_PSICOLOGIA_EDUCATIVA_EDITAR", 
       permCreate: "PERM_PSICOLOGIA_EDUCATIVA_CREAR",
       permDelete: "PERM_PSICOLOGIA_EDUCATIVA_ELIMINAR",
@@ -88,8 +88,8 @@ export default function FichasUnificadasTable() {
       icon: Brain,
       fetch: fichasService.listarPsicologiaClinica,
       delete: fichasService.eliminarPsicologiaClinica,
-      editPath: "/psicologia-clinica/editar",
-      createPath: "/psicologia-clinica/nuevo",
+      editPath: "/fichas/psicologia-clinica/editar",
+      createPath: "/fichas/psicologia-clinica/nuevo",
       permEdit: "PERM_PSICOLOGIA_CLINICA_EDITAR",
       permCreate: "PERM_PSICOLOGIA_CLINICA_CREAR",
       permDelete: "PERM_PSICOLOGIA_CLINICA_ELIMINAR",
@@ -101,8 +101,8 @@ export default function FichasUnificadasTable() {
       icon: Ear,
       fetch: fichasService.listarFonoaudiologia,
       delete: fichasService.eliminarFonoaudiologia,
-      editPath: "/fonoaudiologia/editar",
-      createPath: "/fonoaudiologia/nuevo",
+      editPath: "/fichas/fonoaudiologia/editar",
+      createPath: "/fichas/fonoaudiologia/nuevo",
       permEdit: "PERM_FONOAUDIOLOGIA_EDITAR",
       permCreate: "PERM_FONOAUDIOLOGIA_CREAR",
       permDelete: "PERM_FONOAUDIOLOGIA_ELIMINAR",
@@ -110,16 +110,7 @@ export default function FichasUnificadasTable() {
     },
   ];
 
-  const location = useLocation();
   const [activeTabKey, setActiveTabKey] = useState<TabKey>("historia_clinica");
-
-  useEffect(() => {
-    const path = location.pathname;
-    if (path.includes("psicologia-educativa")) setActiveTabKey("psicologia_educativa");
-    else if (path.includes("psicologia-clinica")) setActiveTabKey("psicologia_clinica");
-    else if (path.includes("fonoaudiologia")) setActiveTabKey("fonoaudiologia");
-    else setActiveTabKey("historia_clinica"); // Default
-  }, [location.pathname]);
 
   const [fichas, setFichas] = useState<FichaListDTO[]>([]);
   const [loading, setLoading] = useState(false);
@@ -130,13 +121,7 @@ export default function FichasUnificadasTable() {
   const activeTab = tabs.find((t) => t.key === activeTabKey) || tabs[0];
 
   const handleTabChange = (key: TabKey) => {
-      const routeMap: Record<TabKey, string> = {
-          historia_clinica: "/historia-clinica",
-          psicologia_educativa: "/psicologia-educativa",
-          psicologia_clinica: "/psicologia-clinica",
-          fonoaudiologia: "/fonoaudiologia"
-      };
-      navigate(routeMap[key]);
+    setActiveTabKey(key);
   };
 
   useEffect(() => {
@@ -271,7 +256,7 @@ export default function FichasUnificadasTable() {
                           <Button
                             size="sm"
                             variant="warning"
-                            onClick={() => handleEditClick(ficha.id)}
+                            onClick={() => handleEditClick(ficha.paciente.id)}
                             title="Editar"
                           >
                             <Pencil size={14} />

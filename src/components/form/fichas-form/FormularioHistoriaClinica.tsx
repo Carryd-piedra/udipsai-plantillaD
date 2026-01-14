@@ -13,6 +13,9 @@ import { useNavigate, useParams, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
 import { fichasService } from "../../../services/fichas";
 import { pacientesService } from "../../../services/pacientes";
+import PatientSelector from "../../common/PatientSelector";
+import { User } from "lucide-react";
+import PageBreadcrumb from "../../common/PageBreadCrumb";
 
 export interface HistoriaClinicaState {
   id?: number;
@@ -157,6 +160,13 @@ export default function FormularioHistoriaClinica() {
   const [genogramaFile, setGenogramaFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Patient Selection State
+  const [selectedPatient, setSelectedPatient] = useState<{
+    nombresApellidos: string;
+    cedula: string;
+  } | null>(null);
+  const [showSelector, setShowSelector] = useState(false);
+
   // Create Mode state
   const isEdit = !!id;
   const [searchParams] = useSearchParams();
@@ -167,6 +177,9 @@ export default function FormularioHistoriaClinica() {
       loadFicha(id);
     } else if (pacienteIdParam) {
       loadPacienteFromUrl(pacienteIdParam);
+    } else {
+      // New ficha with no URL param -> Show selector
+      setShowSelector(true);
     }
   }, [id, isEdit, searchParams]);
 
@@ -176,6 +189,8 @@ export default function FormularioHistoriaClinica() {
       const paciente = await pacientesService.obtenerPorId(id);
       if (paciente) {
         setFormData((prev) => ({ ...prev, pacienteId: paciente.id }));
+        setSelectedPatient(paciente);
+        setShowSelector(false); // Ensure selector is hidden
       }
     } catch (error) {
       console.error("Error loading patient from URL", error);
@@ -191,14 +206,26 @@ export default function FormularioHistoriaClinica() {
       const data = await fichasService.obtenerHistoriaClinica(fichaId);
       if (data) {
         setFormData(data);
+        if (data.pacienteId) {
+          // Fetch patient details for display
+          try {
+            const paciente = await pacientesService.obtenerPorId(
+              data.pacienteId
+            );
+            setSelectedPatient(paciente);
+          } catch (pError) {
+            console.warn("Could not load patient details", pError);
+          }
+        }
       } else {
         toast.error("No se encontró la ficha");
-        navigate("/historia-clinica");
+        navigate("/fichas");
       }
     } catch (error) {
+      // If error is 404, etc.
       console.error("Error loading ficha:", error);
       toast.error("Error al cargar la ficha");
-      navigate("/historia-clinica");
+      navigate("/fichas");
     } finally {
       setLoading(false);
     }
@@ -219,6 +246,11 @@ export default function FormularioHistoriaClinica() {
   };
 
   const handleSubmit = async () => {
+    if (!formData.pacienteId) {
+      toast.error("Debe seleccionar un paciente");
+      return;
+    }
+
     try {
       setLoading(true);
       if (isEdit && formData.id) {
@@ -249,6 +281,12 @@ export default function FormularioHistoriaClinica() {
     }
   };
 
+  const handlePatientSelect = (paciente: any) => {
+    setFormData((prev) => ({ ...prev, pacienteId: paciente.id }));
+    setSelectedPatient(paciente);
+    setShowSelector(false);
+  };
+
   if (loading && isEdit) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
@@ -260,8 +298,52 @@ export default function FormularioHistoriaClinica() {
     );
   }
 
+  // If selecting patient
+  if (showSelector) {
+    return (
+      <div className="space-y-6">
+          <PageBreadcrumb
+            pageTitle="Fichas de Historia Clinica"
+            items={[
+              { label: "Inicio", path: "/" },
+              { label: "Fichas", path: "/fichas" },
+              { label: "Seleccionar Paciente" },
+            ]}
+          />
+        <PatientSelector onSelect={handlePatientSelect} />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
+      {selectedPatient && (
+        <div className="bg-red-50 dark:bg-gray-800 p-4 rounded-lg flex items-center justify-between border border-red-100 dark:border-gray-700">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-red-100 dark:bg-gray-900 rounded-full text-red-600 dark:text-gray-300">
+              <User size={20} />
+            </div>
+            <div>
+              <h4 className="font-bold text-red-700 dark:text-gray-100">
+                {selectedPatient.nombresApellidos}
+              </h4>
+              <p className="text-sm text-red-600 dark:text-gray-300">
+                CI: {selectedPatient.cedula}
+              </p>
+            </div>
+          </div>
+          {!isEdit && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => setShowSelector(true)}
+            >
+              Cambiar Paciente
+            </Button>
+          )}
+        </div>
+      )}
+
       <ComponentCard title="Datos Familiares">
         <DatosFamiliaresForm
           data={formData.datosFamiliares}
@@ -337,7 +419,7 @@ export default function FormularioHistoriaClinica() {
       </ComponentCard>
 
       <div className="flex justify-end gap-4">
-        <Button variant="outline" onClick={() => navigate("/historia-clinica")}>
+        <Button variant="outline" onClick={() => navigate("/fichas")}>
           Cancelar
         </Button>
         <Button

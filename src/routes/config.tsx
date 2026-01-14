@@ -25,10 +25,8 @@ const EditarPasantes = lazy(() => import("../pages/Pasantes/EditarPasantes"));
 const ListaEspecialidades = lazy(() => import("../pages/Especialidades/ListaEspecialidades"));
 
 // Fichas
-// Fichas
 const ListaFichasUnificadas = lazy(() => import("../pages/Fichas/ListaFichasUnificadas"));
 
-// Sub-components kept for Edit/New pages which might still be specific
 const NuevaFonoaudiologia = lazy(() => import("../pages/Fichas/Fonoaudiologia/NuevaFonoaudiologia"));
 const EditarFonoaudiologia = lazy(() => import("../pages/Fichas/Fonoaudiologia/EditarFonoaudiologia"));
 const NuevaPsicologiaClinica = lazy(() => import("../pages/Fichas/PsicologiaClinica/NuevaPsicologiaClinica"));
@@ -38,9 +36,6 @@ const EditarPsicologiaEducativa = lazy(() => import("../pages/Fichas/PsicologiaE
 const NuevaHistoriaClinica = lazy(() => import("../pages/Fichas/HistoriaClinica/NuevaHistoriaClinica"));
 const EditarHistoriaClinica = lazy(() => import("../pages/Fichas/HistoriaClinica/EditarHistoriaClinica"));
 
-// ...
-
-// Helper to wrap with permission
 const protectedRoute = (permission: string, element: ReactNode, children?: RouteObject[]): RouteObject => ({
   element: <PermissionRoute requiredPermission={permission} />,
   children: [
@@ -51,7 +46,7 @@ const protectedRoute = (permission: string, element: ReactNode, children?: Route
 
 export const privateRouteObjects: RouteObject[] = [
   { index: true, element: <Home /> },
-  
+
   // Pacientes
   {
     path: "pacientes",
@@ -92,41 +87,25 @@ export const privateRouteObjects: RouteObject[] = [
   { path: "sedes", ...protectedRoute("PERM_SEDES", <ListaSedes />) },
   { path: "especialidades", ...protectedRoute("PERM_ESPECIALIDADES", <ListaEspecialidades />) },
 
-  // Fichas
+  // Fichas Unificadas
   {
-    path: "fonoaudiologia",
-    element: <PermissionRoute requiredPermission="PERM_FONOAUDIOLOGIA" />,
+    path: "fichas",
+    element: <PermissionRoute requiredPermission="PERM_PACIENTES" />,
     children: [
       { index: true, element: <ListaFichasUnificadas /> },
-      { path: "nuevo", ...protectedRoute("PERM_FONOAUDIOLOGIA_CREAR", <NuevaFonoaudiologia />) },
-      { path: "editar/:id", ...protectedRoute("PERM_FONOAUDIOLOGIA_EDITAR", <EditarFonoaudiologia />) },
-    ]
-  },
-  {
-    path: "psicologia-clinica",
-    element: <PermissionRoute requiredPermission="PERM_PSICOLOGIA_CLINICA" />,
-    children: [
-      { index: true, element: <ListaFichasUnificadas /> },
-      { path: "nuevo", ...protectedRoute("PERM_PSICOLOGIA_CLINICA_CREAR", <NuevaPsicologiaClinica />) },
-      { path: "editar/:id", ...protectedRoute("PERM_PSICOLOGIA_CLINICA_EDITAR", <EditarPsicologiaClinica />) },
-    ]
-  },
-  {
-    path: "psicologia-educativa",
-    element: <PermissionRoute requiredPermission="PERM_PSICOLOGIA_EDUCATIVA" />,
-    children: [
-      { index: true, element: <ListaFichasUnificadas /> },
-      { path: "nuevo", ...protectedRoute("PERM_PSICOLOGIA_EDUCATIVA_CREAR", <NuevaPsicologiaEducativa />) },
-      { path: "editar/:id", ...protectedRoute("PERM_PSICOLOGIA_EDUCATIVA_EDITAR", <EditarPsicologiaEducativa />) },
-    ]
-  },
-  {
-    path: "historia-clinica",
-    element: <PermissionRoute requiredPermission="PERM_HISTORIA_CLINICA" />,
-    children: [
-      { index: true, element: <ListaFichasUnificadas /> },
-      { path: "nuevo", ...protectedRoute("PERM_HISTORIA_CLINICA_CREAR", <NuevaHistoriaClinica />) },
-      { path: "editar/:id", ...protectedRoute("PERM_HISTORIA_CLINICA_EDITAR", <EditarHistoriaClinica />) },
+      
+      // Sub-rutas específicas para Crear/Editar
+      { path: "historia-clinica/nuevo", ...protectedRoute("PERM_HISTORIA_CLINICA_CREAR", <NuevaHistoriaClinica />) },
+      { path: "historia-clinica/editar/:id", ...protectedRoute("PERM_HISTORIA_CLINICA_EDITAR", <EditarHistoriaClinica />) },
+
+      { path: "fonoaudiologia/nuevo", ...protectedRoute("PERM_FONOAUDIOLOGIA_CREAR", <NuevaFonoaudiologia />) },
+      { path: "fonoaudiologia/editar/:id", ...protectedRoute("PERM_FONOAUDIOLOGIA_EDITAR", <EditarFonoaudiologia />) },
+
+      { path: "psicologia-clinica/nuevo", ...protectedRoute("PERM_PSICOLOGIA_CLINICA_CREAR", <NuevaPsicologiaClinica />) },
+      { path: "psicologia-clinica/editar/:id", ...protectedRoute("PERM_PSICOLOGIA_CLINICA_EDITAR", <EditarPsicologiaClinica />) },
+
+      { path: "psicologia-educativa/nuevo", ...protectedRoute("PERM_PSICOLOGIA_EDUCATIVA_CREAR", <NuevaPsicologiaEducativa />) },
+      { path: "psicologia-educativa/editar/:id", ...protectedRoute("PERM_PSICOLOGIA_EDUCATIVA_EDITAR", <EditarPsicologiaEducativa />) },
     ]
   },
 
