@@ -7,7 +7,6 @@ import { fichasService } from "../../../services/fichas";
 import { pacientesService } from "../../../services/pacientes";
 import PatientSelector from "../../common/PatientSelector";
 import { User } from "lucide-react";
-import PageBreadcrumb from "../../common/PageBreadCrumb";
 
 import AnamnesisForm from "./sections/PsicologiaClinica.tsx/AnamnesisForm";
 import SuenioForm from "./sections/PsicologiaClinica.tsx/SuenioForm";
@@ -703,10 +702,15 @@ export default function FormularioPsicologiaClinica() {
       setLoading(true);
       const data = await fichasService.obtenerPsicologiaClinica(fichaId);
       if (data) {
-        setFormData(data);
-        if (data.pacienteId) {
+        const loadedData = {
+            ...data,
+            pacienteId: data.pacienteId || data.paciente?.id
+        };
+        setFormData(loadedData);
+
+        if (data.paciente) {
             try {
-                const paciente = await pacientesService.obtenerPorId(data.pacienteId);
+                const paciente = await pacientesService.obtenerPorId(data.paciente.id);
                 setSelectedPatient(paciente);
             } catch (pError) {
                 console.warn("Could not load patient details", pError);
@@ -792,14 +796,6 @@ export default function FormularioPsicologiaClinica() {
   if (showSelector) {
     return (
       <div className="space-y-6">
-          <PageBreadcrumb
-            pageTitle="Fichas de Psicología Clínica"
-            items={[
-              { label: "Inicio", path: "/" },
-              { label: "Fichas", path: "/fichas" },
-              { label: "Seleccionar Paciente" },
-            ]}
-          />
         <PatientSelector onSelect={handlePatientSelect} />
       </div>
     );

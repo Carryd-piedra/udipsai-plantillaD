@@ -15,7 +15,6 @@ import { fichasService } from "../../../services/fichas";
 import { pacientesService } from "../../../services/pacientes";
 import PatientSelector from "../../common/PatientSelector";
 import { User } from "lucide-react";
-import PageBreadcrumb from "../../common/PageBreadCrumb";
 
 export interface HistoriaClinicaState {
   id?: number;
@@ -205,12 +204,16 @@ export default function FormularioHistoriaClinica() {
       setLoading(true);
       const data = await fichasService.obtenerHistoriaClinica(fichaId);
       if (data) {
-        setFormData(data);
-        if (data.pacienteId) {
-          // Fetch patient details for display
+        const loadedData = {
+            ...data,
+            pacienteId: data.pacienteId || data.paciente?.id
+        };
+        setFormData(loadedData);
+
+        if (data.paciente) {
           try {
             const paciente = await pacientesService.obtenerPorId(
-              data.pacienteId
+              data.paciente.id
             );
             setSelectedPatient(paciente);
           } catch (pError) {
@@ -222,7 +225,6 @@ export default function FormularioHistoriaClinica() {
         navigate("/fichas");
       }
     } catch (error) {
-      // If error is 404, etc.
       console.error("Error loading ficha:", error);
       toast.error("Error al cargar la ficha");
       navigate("/fichas");
@@ -302,14 +304,6 @@ export default function FormularioHistoriaClinica() {
   if (showSelector) {
     return (
       <div className="space-y-6">
-          <PageBreadcrumb
-            pageTitle="Fichas de Historia Clinica"
-            items={[
-              { label: "Inicio", path: "/" },
-              { label: "Fichas", path: "/fichas" },
-              { label: "Seleccionar Paciente" },
-            ]}
-          />
         <PatientSelector onSelect={handlePatientSelect} />
       </div>
     );

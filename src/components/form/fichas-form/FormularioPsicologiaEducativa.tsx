@@ -7,7 +7,6 @@ import { fichasService } from "../../../services/fichas";
 import { pacientesService } from "../../../services/pacientes";
 import PatientSelector from "../../common/PatientSelector";
 import { User } from "lucide-react";
-import PageBreadcrumb from "../../common/PageBreadCrumb";
 
 import HistoriaEscolarForm from "./sections/PsicologiaEducativa.tsx/HistoriaEscolarForm";
 import DesarrolloForm from "./sections/PsicologiaEducativa.tsx/DesarrolloForm";
@@ -166,10 +165,16 @@ export default function FormularioPsicologiaEducativa() {
       setLoading(true);
       const data = await fichasService.obtenerPsicologiaEducativa(fichaId);
       if (data) {
-        setFormData(data);
-        if (data.pacienteId) {
+        // Ensure pacienteId is explicitly set from the nested patient object
+        const loadedData = {
+            ...data,
+            pacienteId: data.pacienteId || data.paciente?.id
+        };
+        setFormData(loadedData);
+
+        if (data.paciente) {
             try {
-                const paciente = await pacientesService.obtenerPorId(data.pacienteId);
+                const paciente = await pacientesService.obtenerPorId(data.paciente.id);
                 setSelectedPatient(paciente);
             } catch (pError) {
                 console.warn("Could not load patient details", pError);
@@ -203,6 +208,7 @@ export default function FormularioPsicologiaEducativa() {
   };
 
   const handleSubmit = async () => {
+    console.log(formData);
     if (!formData.pacienteId) {
         toast.error("Debe seleccionar un paciente");
         return;
@@ -255,14 +261,6 @@ export default function FormularioPsicologiaEducativa() {
   if (showSelector) {
     return (
       <div className="space-y-6">
-          <PageBreadcrumb
-            pageTitle="Fichas de Psicología Educativa"
-            items={[
-              { label: "Inicio", path: "/" },
-              { label: "Fichas", path: "/fichas" },
-              { label: "Seleccionar Paciente" },
-            ]}
-          />
         <PatientSelector onSelect={handlePatientSelect} />
       </div>
     );

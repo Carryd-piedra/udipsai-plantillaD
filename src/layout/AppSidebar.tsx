@@ -8,7 +8,6 @@ import {
   MoreHorizontal,
   PieChart,
   Building2,
-  Link2,
   Users,
   MapPin,
   Gamepad2,
@@ -86,12 +85,6 @@ const navItems: NavItem[] = [
     name: "Citas",
     path: "/citas",
     requiredPermission: "PERM_CITAS",
-  },
-  {
-    name: "Asignaciones",
-    icon: <Link2 size={20} />,
-    path: "/asignaciones",
-    requiredPermission: "PERM_ASIGNACIONES",
   },
 
   {

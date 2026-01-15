@@ -6,8 +6,8 @@ export default function SignIn() {
   return (
     <>
       <PageMeta
-        title="SignIn Dashboard | Udipsai"
-        description="This is React.js SignIn Dashboard page for Udipsai - React.js Tailwind CSS Admin Dashboard Template"
+        title="Iniciar sesión | Udipsai"
+        description="Sistema de diagnóstico, investigación psicopedagógica y apoyo a la inclusión"
       />
       <AuthLayout>
         <SignInForm />

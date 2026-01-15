@@ -2,7 +2,11 @@ import api from "../api/api";
 
 export interface SeguimientoDTO {
   id: number;
-  especialista: { id: number; nombresApellidos: string; especialidad: string };
+  especialista: { 
+    id: number; 
+    nombresApellidos: string; 
+    especialidad: any; // Can be string or object { id, area, permisos }
+  };
   paciente: { id: number; nombresApellidos: string };
   fecha: string;
   observacion: string;

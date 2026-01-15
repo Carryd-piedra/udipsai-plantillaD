@@ -7,7 +7,6 @@ import { fichasService } from "../../../services/fichas";
 import { pacientesService } from "../../../services/pacientes";
 import PatientSelector from "../../common/PatientSelector";
 import { User } from "lucide-react";
-import PageBreadcrumb from "../../common/PageBreadCrumb";
 
 import HablaForm from "./sections/Fonoaudiologia/HablaForm";
 import AudicionForm from "./sections/Fonoaudiologia/AudicionForm";
@@ -242,11 +241,17 @@ export default function FormularioFonoaudiologia() {
       setLoading(true);
       const data = await fichasService.obtenerFonoaudiologia(fichaId);
       if (data) {
-        setFormData(data);
-        if (data.pacienteId) {
+        // Ensure pacienteId is explicitly set from the nested patient object
+        const loadedData = {
+            ...data,
+            pacienteId: data.pacienteId || data.paciente?.id
+        };
+        setFormData(loadedData);
+
+        if (data.paciente) {
           try {
             const paciente = await pacientesService.obtenerPorId(
-              data.pacienteId
+              data.paciente.id
             );
             setSelectedPatient(paciente);
           } catch (pError) {
@@ -333,14 +338,6 @@ export default function FormularioFonoaudiologia() {
   if (showSelector) {
     return (
       <div className="space-y-6">
-        <PageBreadcrumb
-          pageTitle="Fichas de Fonoaudiología"
-          items={[
-            { label: "Inicio", path: "/" },
-            { label: "Fichas", path: "/fichas" },
-            { label: "Seleccionar Paciente" },
-          ]}
-        />
         <PatientSelector onSelect={handlePatientSelect} />
       </div>
     );

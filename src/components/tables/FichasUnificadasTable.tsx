@@ -194,7 +194,7 @@ export default function FichasUnificadasTable() {
             ? () => navigate(activeTab.createPath)
             : undefined
         }
-        newButtonText="Agregar Ficha"
+        newButtonText="Agregar"
       />
 
       <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-white/[0.05] dark:bg-white/[0.03]">
