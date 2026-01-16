@@ -47,7 +47,17 @@ export default function FormularioPacientes() {
 
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [fichaCompromisoFile, setFichaCompromisoFile] = useState<File | null>(
+    null
+  );
+  const [fichaDeteccionFile, setFichaDeteccionFile] = useState<File | null>(
+    null
+  );
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [existingFichas, setExistingFichas] = useState({
+    compromiso: false,
+    deteccion: false,
+  });
 
   useEffect(() => {
     if (isEditing) {
@@ -61,6 +71,17 @@ export default function FormularioPacientes() {
             institucionEducativaId: data.institucionEducativa?.id || 0,
             sedeId: data.sede?.id || 0,
           });
+
+          if (data.documentos) {
+            const compromiso = data.documentos.some(
+              (d: any) => d.nombre === "Ficha Compromiso"
+            );
+            const deteccion = data.documentos.some(
+              (d: any) => d.nombre === "Ficha Detección"
+            );
+            setExistingFichas({ compromiso, deteccion });
+          }
+
           if (data.fotoUrl) {
             const fotoUrl = await pacientesService.obtenerFoto(data.fotoUrl);
             setPreviewUrl(fotoUrl);
@@ -112,6 +133,8 @@ export default function FormularioPacientes() {
       const { fotoUrl, ...rest } = formData;
       const payload = {
         ...rest,
+        // Eliminamos 'documentos' del payload si existe, ya que es readonly en el DTO y se maneja por archivos
+        documentos: undefined,
         fechaNacimiento: rest.fechaNacimiento.split("T")[0],
         institucionEducativaId: Number(rest.institucionEducativaId),
         sedeId: Number(rest.sedeId),
@@ -120,11 +143,18 @@ export default function FormularioPacientes() {
         await pacientesService.actualizar(
           id,
           payload,
-          selectedFile || undefined
+          selectedFile || undefined,
+          fichaCompromisoFile || undefined,
+          fichaDeteccionFile || undefined
         );
         toast.success("Paciente actualizado exitosamente");
       } else {
-        await pacientesService.crear(payload, selectedFile || undefined);
+        await pacientesService.crear(
+          payload,
+          selectedFile || undefined,
+          fichaCompromisoFile || undefined,
+          fichaDeteccionFile || undefined
+        );
         toast.success("Paciente creado exitosamente");
       }
       navigate("/pacientes");
@@ -237,6 +267,44 @@ export default function FormularioPacientes() {
                   className="mt-2 h-20 w-20 object-cover rounded-full"
                 />
               )}
+            </div>
+            <div>
+              <Label htmlFor="fichaCompromiso">
+                Ficha de Compromiso (PDF)
+                {existingFichas.compromiso && (
+                  <span className="ml-2 text-xs font-semibold text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-2 py-0.5 rounded-full">
+                    Documento cargado
+                  </span>
+                )}
+              </Label>
+              <input
+                id="fichaCompromiso"
+                type="file"
+                accept="application/pdf"
+                onChange={(e) =>
+                  setFichaCompromisoFile(e.target.files?.[0] || null)
+                }
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
+              />
+            </div>
+            <div>
+              <Label htmlFor="fichaDeteccion">
+                Ficha de Detección (PDF)
+                {existingFichas.deteccion && (
+                  <span className="ml-2 text-xs font-semibold text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-2 py-0.5 rounded-full">
+                    Documento cargado
+                  </span>
+                )}
+              </Label>
+              <input
+                id="fichaDeteccion"
+                type="file"
+                accept="application/pdf"
+                onChange={(e) =>
+                  setFichaDeteccionFile(e.target.files?.[0] || null)
+                }
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
+              />
             </div>
             <div>
               <Label htmlFor="nombresApellidos">Nombre Completo</Label>

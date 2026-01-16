@@ -35,21 +35,37 @@ const FILE_TYPES = [
     id: "historia-clinica",
     label: "Historia Clínica",
     internalName: "Historia Clínica",
+    type: "ficha",
   },
   {
     id: "psicologia-educativa",
     label: "Psicología Educativa",
     internalName: "Psicología Educativa",
+    type: "ficha",
   },
   {
     id: "psicologia-clinica",
     label: "Psicología Clínica",
     internalName: "Psicología Clínica",
+    type: "ficha",
   },
   {
     id: "fonoaudiologia",
     label: "Fonoaudiología",
     internalName: "Fonoaudiología",
+    type: "ficha",
+  },
+  {
+    id: "ficha-compromiso",
+    label: "Ficha de Compromiso",
+    internalName: "Ficha Compromiso",
+    type: "documento",
+  },
+  {
+    id: "ficha-deteccion",
+    label: "Ficha de Detección",
+    internalName: "Ficha Detección",
+    type: "documento",
   },
 ];
 
@@ -91,15 +107,74 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
     );
   };
 
-  const handleAction = (action: string, fileType: string, internalName: string) => {
+  const handleAction = async (action: string, fileType: string, internalName: string, type: string) => {
+    const fichaId = resumen?.fichas?.[internalName];
+
     if (action === "Crear") {
-      navigate(`/fichas/${fileType}/nuevo?pacienteId=${paciente.id}`);
+      if (type === "documento") {
+          navigate(`/pacientes/editar/${paciente.id}`);
+          toast.info("Por favor suba el documento en la edición del paciente");
+      } else {
+          try {
+             navigate(`/fichas/${fileType}/nuevo?pacienteId=${paciente.id}`);
+          } catch (e) {
+             console.error(e);
+             toast.error("Error al navegar a creación de ficha");
+          }
+      }
       onClose();
       return;
     }
+    
+    if (action === "Ver") {
+        if (type === "documento") {
+             return;
+        }
+    }
+    
+    if (action === "Exportar") {
+        if (type === "documento" && fichaId) {
+             try {
+                const blob = await pacientesService.descargarDocumento(fichaId);
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', `${internalName}.pdf`);
+                document.body.appendChild(link);
+                link.click();
+                link.parentNode?.removeChild(link);
+            } catch (error) {
+                console.error("Error downloading document", error);
+                toast.error("Error al descargar el documento");
+            }
+            return;
+        }
+    }
+
+    if (action === "Eliminar") {
+        if (type === "documento" && fichaId) {
+             try {
+                await pacientesService.eliminarDocumento(fichaId);
+                toast.success("Documento eliminado");
+                fetchResumen(); // Refresh list
+            } catch (error) {
+                console.error("Error deleting document", error);
+                toast.error("Error al eliminar el documento");
+            }
+            return;
+        }
+       if (type !== "documento" && fichaId) {
+            console.log("Delete ficha logic needed");
+       }
+    }
+
     if (action === "Editar") {
-      const fichaId = resumen?.fichas?.[internalName];
       if (fichaId) {
+        if (type === "documento") {
+             navigate(`/pacientes/editar/${paciente.id}`);
+             onClose();
+             return;
+        }
         navigate(`/fichas/${fileType}/editar/${paciente.id}`);
         onClose();
       } else {
@@ -157,6 +232,7 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
             <TableBody>
               {FILE_TYPES.map((file) => {
                 const exists = getFileStatus(file.internalName);
+                const isDocument = file.type === "documento";
                 return (
                   <TableRow key={file.id}>
                     <TableCell className="px-4 py-4 text-sm text-gray-700 dark:text-gray-300">
@@ -167,26 +243,28 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                     </TableCell>
                     <TableCell className="px-4 py-4">
                       <Badge color={exists ? "success" : "warning"}>
-                        {exists ? "Completada" : "Pendiente"}
+                        {exists ? (isDocument ? "Subido" : "Completada") : (isDocument ? "Sin subir" : "Pendiente")}
                       </Badge>
                     </TableCell>
                     <TableCell className="px-4 py-4">
                       <div className="flex items-center gap-2">
                         {exists ? (
                           <>
+                            {!isDocument && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleAction("Ver", file.id, file.internalName, file.type)}
+                                className="hover:bg-white hover:text-blue-600 p-2 text-dark dark:text-white-400 dark:hover:text-blue-600"
+                                title="Ver"
+                              >
+                                <Eye size={14} />
+                              </Button>
+                            )}
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleAction("Ver", file.id, file.internalName)}
-                              className="hover:bg-white hover:text-blue-600 p-2 text-dark dark:text-white-400 dark:hover:text-blue-600"
-                              title="Ver"
-                            >
-                              <Eye size={14} />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleAction("Editar", file.id, file.internalName)}
+                              onClick={() => handleAction("Editar", file.id, file.internalName, file.type)}
                               className="hover:bg-white hover:text-yellow-600 p-2 text-dark dark:text-white-400 dark:hover:text-yellow-600"
                               title="Editar"
                             >
@@ -196,7 +274,7 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleAction("Exportar", file.id, file.internalName)}
+                              onClick={() => handleAction("Exportar", file.id, file.internalName, file.type)}
                               className="hover:bg-white hover:text-green-600 p-2 text-dark dark:text-white-400 dark:hover:text-green-600"
                               title="Exportar"
                             >
@@ -205,7 +283,7 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleAction("Eliminar", file.id, file.internalName)}
+                              onClick={() => handleAction("Eliminar", file.id, file.internalName, file.type)}
                               className="hover:bg-red-500 hover:text-white p-2 text-red-600 dark:text-red-400 dark:hover:text-red-400"
                               title="Eliminar"
                             >
@@ -216,11 +294,11 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleAction("Crear", file.id, file.internalName)}
+                            onClick={() => handleAction("Crear", file.id, file.internalName, file.type)}
                             className="hover:bg-white hover:text-green-600 p-2 text-dark dark:text-white-400 dark:hover:text-green-600"
                           >
                             <Plus size={14} />
-                            Crear ficha
+                            {isDocument ? "Subir documento" : "Crear ficha"}
                           </Button>
                         )}
                       </div>

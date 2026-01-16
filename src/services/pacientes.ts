@@ -51,16 +51,33 @@ export const pacientesService = {
     }
   },
 
-  crear: async (data: any, file?: File) => {
+  crear: async (
+    data: any,
+    file?: File,
+    fichaCompromiso?: File,
+    fichaDeteccion?: File
+  ) => {
     try {
       const formData = new FormData();
-      formData.append("data", JSON.stringify(data));
-
+      formData.append(
+        "data",
+        new Blob([JSON.stringify(data)], { type: "application/json" })
+      );
       if (file) {
         formData.append("file", file);
       }
+      if (fichaCompromiso) {
+        formData.append("fichaCompromiso", fichaCompromiso);
+      }
+      if (fichaDeteccion) {
+        formData.append("fichaDeteccion", fichaDeteccion);
+      }
 
-      const response = await api.post("/pacientes", formData);
+      const response = await api.post("/pacientes", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       return response.data;
     } catch (error) {
       console.error("Error al crear paciente:", error);
@@ -68,16 +85,35 @@ export const pacientesService = {
     }
   },
 
-  actualizar: async (id: number | string, data: any, file?: File) => {
+  actualizar: async (
+    id: number | string,
+    data: any,
+    file?: File,
+    fichaCompromiso?: File,
+    fichaDeteccion?: File
+  ) => {
     try {
       const formData = new FormData();
-      formData.append("data", JSON.stringify(data));
+      formData.append(
+        "data",
+        new Blob([JSON.stringify(data)], { type: "application/json" })
+      );
 
       if (file) {
         formData.append("file", file);
       }
+      if (fichaCompromiso) {
+        formData.append("fichaCompromiso", fichaCompromiso);
+      }
+      if (fichaDeteccion) {
+        formData.append("fichaDeteccion", fichaDeteccion);
+      }
 
-      const response = await api.put(`/pacientes/${id}`, formData);
+      const response = await api.put(`/pacientes/${id}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       return response.data;
     } catch (error) {
       console.error("Error al actualizar paciente:", error);
@@ -148,6 +184,28 @@ export const pacientesService = {
       return response.data;
     } catch (error) {
       console.error("Error al exportar PDF:", error);
+      throw error;
+    }
+  },
+
+  descargarDocumento: async (id: number | string): Promise<Blob> => {
+    try {
+      const response = await api.get(`/pacientes/documentos/${id}`, {
+        responseType: "blob",
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error al descargar documento:", error);
+      throw error;
+    }
+  },
+
+  eliminarDocumento: async (id: number | string) => {
+    try {
+      const response = await api.delete(`/pacientes/documentos/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error al eliminar documento:", error);
       throw error;
     }
   },

@@ -38,7 +38,7 @@ const Button: React.FC<ButtonProps> = ({
     outline:
       "bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03] dark:hover:text-gray-300",
     danger:
-      "ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:text-white p-2 text-center text-red-500 dark:text-red-400 dark:hover:text-red-500",
+      "ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-red-500 hover:text-white p-2 text-center text-red-500 dark:text-red-400 dark:hover:text-red-500",
     warning:
       "ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:text-yellow-600 p-2 text-center text-gray-600 dark:text-gray-400 dark:hover:text-yellow-600",
     success:
