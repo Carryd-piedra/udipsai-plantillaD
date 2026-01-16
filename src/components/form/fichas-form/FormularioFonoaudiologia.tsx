@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { fichasService } from "../../../services/fichas";
 import { pacientesService } from "../../../services/pacientes";
 import PatientSelector from "../../common/PatientSelector";
-import { User } from "lucide-react";
+import { User, Ear, MessageSquare } from "lucide-react";
 
 import HablaForm from "./sections/Fonoaudiologia/HablaForm";
 import AudicionForm from "./sections/Fonoaudiologia/AudicionForm";
@@ -14,6 +14,7 @@ import FonacionForm from "./sections/Fonoaudiologia/FonacionForm";
 import HistoriaAuditivaForm from "./sections/Fonoaudiologia/HistoriaAuditivaForm";
 import VestibularForm from "./sections/Fonoaudiologia/VestibularForm";
 import OtoscopiaForm from "./sections/Fonoaudiologia/OtoscopiaForm";
+import Switch from "../switch/Switch";
 
 export interface FonoaudiologiaState {
   id?: number;
@@ -196,6 +197,17 @@ export default function FormularioFonoaudiologia() {
     initialFonoaudiologiaState
   );
   const [loading, setLoading] = useState(false);
+  const [verSeccionHabla, setVerSeccionHabla] = useState(false);
+  const [verSeccionAudicion, setVerSeccionAudicion] = useState(false);
+  const [verSeccionFonacion, setVerSeccionFonacion] = useState(false);
+  const [verSeccionVestibular, setVerSeccionVestibular] = useState(false);
+  const [verSeccionOtoscopia, setVerSeccionOtoscopia] = useState(false);
+  const [verSeccionHistoriaAuditiva, setVerSeccionHistoriaAuditiva] =
+    useState(false);
+
+  // Categorías principales
+  const [areaAudicion, setAreaAudicion] = useState(false);
+  const [areaLenguaje, setAreaLenguaje] = useState(false);
 
   // Patient Selection State
   const [selectedPatient, setSelectedPatient] = useState<{
@@ -243,8 +255,8 @@ export default function FormularioFonoaudiologia() {
       if (data) {
         // Ensure pacienteId is explicitly set from the nested patient object
         const loadedData = {
-            ...data,
-            pacienteId: data.pacienteId || data.paciente?.id
+          ...data,
+          pacienteId: data.pacienteId || data.paciente?.id,
         };
         setFormData(loadedData);
 
@@ -346,16 +358,16 @@ export default function FormularioFonoaudiologia() {
   return (
     <div className="space-y-6">
       {selectedPatient && (
-        <div className="bg-red-50 dark:bg-gray-800 p-4 rounded-lg flex items-center justify-between border border-red-100 dark:border-gray-700">
+        <div className="bg-red-50/20 dark:bg-gray-800 p-4 rounded-3xl flex items-center justify-between border-2 border-brand-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-100 dark:bg-gray-900 rounded-full text-red-600 dark:text-gray-300">
+            <div className="p-2 bg-brand-400 dark:bg-gray-500 rounded-full text-white font-bold dark:text-gray-200">
               <User size={20} />
             </div>
             <div>
-              <h4 className="font-bold text-red-700 dark:text-gray-100">
+              <h4 className="font-bold text-gray-800 dark:text-gray-100">
                 {selectedPatient.nombresApellidos}
               </h4>
-              <p className="text-sm text-red-600 dark:text-gray-300">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
                 CI: {selectedPatient.cedula}
               </p>
             </div>
@@ -372,57 +384,233 @@ export default function FormularioFonoaudiologia() {
         </div>
       )}
 
-      <ComponentCard title="Habla / Lenguaje">
-        <HablaForm
-          data={formData.habla}
-          onChange={(field, val) => handleNestedChange("habla", field, val)}
-        />
-      </ComponentCard>
+      {/* Selectores de Área Principales */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div
+          onClick={() => setAreaAudicion(!areaAudicion)}
+          className={`cursor-pointer group relative overflow-hidden p-6 rounded-3xl border-2 transition-all duration-500 ${
+            areaAudicion
+              ? "border-brand-100 bg-brand-50/20 dark:border-gray-600 dark:bg-gray-800 scale-[1.02]"
+              : "border-gray-100 bg-white dark:border-gray-800 dark:bg-white/[0.03] dark:hover:border-gray-600"
+          }`}
+        >
+          <div className="flex items-center gap-5">
+            <div
+              className={`p-4 rounded-2xl transition-all duration-500 ${
+                areaAudicion
+                  ? "bg-brand-400 text-white rotate-12 dark:bg-gray-500 dark:text-gray-200"
+                  : "bg-brand-50 text-brand-500 dark:bg-gray-800 dark:text-gray-300"
+              }`}
+            >
+              <Ear size={32} />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+                Evaluación de Audición
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Historia, Otoscopia, Vestibular
+              </p>
+            </div>
+            <div
+              className={`ml-auto transition-transform duration-500 ${
+                areaAudicion ? "rotate-180" : ""
+              }`}
+            >
+              <Switch
+                label=""
+                checked={areaAudicion}
+                onChange={(v) => setAreaAudicion(v)}
+              />
+            </div>
+          </div>
+        </div>
 
-      <ComponentCard title="Audición">
-        <AudicionForm
-          data={formData.audicion}
-          onChange={(field, val) => handleNestedChange("audicion", field, val)}
-        />
-      </ComponentCard>
+        <div
+          onClick={() => setAreaLenguaje(!areaLenguaje)}
+          className={`cursor-pointer group relative overflow-hidden p-6 rounded-3xl border-2 transition-all duration-500 ${
+            areaLenguaje
+              ? "border-brand-100 bg-brand-50/20 dark:border-gray-600 dark:bg-gray-800 scale-[1.02]"
+              : "border-gray-100 bg-white dark:border-gray-800 dark:bg-white/[0.03] dark:hover:border-gray-600"
+          }`}
+        >
+          <div className="flex items-center gap-5">
+            <div
+              className={`p-4 rounded-2xl transition-all duration-500 ${
+                areaLenguaje
+                  ? "bg-brand-400 text-white rotate-12 dark:bg-gray-500 dark:text-gray-200"
+                  : "bg-brand-50 text-brand-500 dark:bg-gray-800 dark:text-gray-300"
+              }`}
+            >
+              <MessageSquare size={32} />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+                Evaluación de Lenguaje
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Habla, Fonación y Voz
+              </p>
+            </div>
+            <div
+              className={`ml-auto transition-transform duration-500 ${
+                areaLenguaje ? "rotate-180" : ""
+              }`}
+            >
+              <Switch
+                label=""
+                checked={areaLenguaje}
+                onChange={(v) => setAreaLenguaje(v)}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Secciones de Lenguaje */}
+      {areaLenguaje && (
+        <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500 fill-mode-both">
+          <div className="flex items-center gap-2 px-2">
+            <MessageSquare size={18} className="text-brand-500 dark:text-gray-300" />
+            <span className="text-sm font-bold uppercase tracking-widest text-brand-600/70 dark:text-gray-300">
+              Módulos de Lenguaje
+            </span>
+          </div>
 
-      <ComponentCard title="Fonación / Voz">
-        <FonacionForm
-          data={formData.fonacion}
-          onChange={(field, val) => handleNestedChange("fonacion", field, val)}
-        />
-      </ComponentCard>
+          <ComponentCard
+            title="Habla / Lenguaje"
+            action={
+              <Switch
+                label=""
+                checked={verSeccionHabla}
+                onChange={(val) => setVerSeccionHabla(val)}
+              />
+            }
+            bodyDisabled={!verSeccionHabla}
+          >
+            <HablaForm
+              data={formData.habla}
+              onChange={(field, val) => handleNestedChange("habla", field, val)}
+            />
+          </ComponentCard>
 
-      <ComponentCard title="Historia Auditiva">
-        <HistoriaAuditivaForm
-          data={formData.historiaAuditiva}
-          onChange={(field, val) =>
-            handleNestedChange("historiaAuditiva", field, val)
-          }
-        />
-      </ComponentCard>
+          <ComponentCard
+            title="Fonación / Voz"
+            action={
+              <Switch
+                label=""
+                checked={verSeccionFonacion}
+                onChange={(val) => setVerSeccionFonacion(val)}
+              />
+            }
+            bodyDisabled={!verSeccionFonacion}
+          >
+            <FonacionForm
+              data={formData.fonacion}
+              onChange={(field, val) =>
+                handleNestedChange("fonacion", field, val)
+              }
+            />
+          </ComponentCard>
+        </div>
+      )}
 
-      <ComponentCard title="Vestibular / Equilibrio">
-        <VestibularForm
-          data={formData.vestibular}
-          onChange={(field, val) =>
-            handleNestedChange("vestibular", field, val)
-          }
-        />
-      </ComponentCard>
+      {/* Secciones de Audición */}
+      {areaAudicion && (
+        <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500 fill-mode-both delay-100">
+          <div className="flex items-center gap-2 px-2 ">
+            <Ear size={18} className="text-brand-500 dark:text-gray-300" />
+            <span className="text-sm font-bold uppercase tracking-widest text-brand-600/70 dark:text-gray-300">
+              Módulos de Audición
+            </span>
+          </div>
 
-      <ComponentCard title="Otoscopia">
-        <OtoscopiaForm
-          data={formData.otoscopia}
-          onChange={(field, val) => handleNestedChange("otoscopia", field, val)}
-        />
-      </ComponentCard>
+          <ComponentCard
+            title="Audición"
+            action={
+              <Switch
+                label=""
+                checked={verSeccionAudicion}
+                onChange={(val) => setVerSeccionAudicion(val)}
+              />
+            }
+            bodyDisabled={!verSeccionAudicion}
+          >
+            <AudicionForm
+              data={formData.audicion}
+              onChange={(field, val) =>
+                handleNestedChange("audicion", field, val)
+              }
+            />
+          </ComponentCard>
+
+          <ComponentCard
+            title="Historia Auditiva"
+            action={
+              <Switch
+                label=""
+                checked={verSeccionHistoriaAuditiva}
+                onChange={(val) => setVerSeccionHistoriaAuditiva(val)}
+              />
+            }
+            bodyDisabled={!verSeccionHistoriaAuditiva}
+          >
+            <HistoriaAuditivaForm
+              data={formData.historiaAuditiva}
+              onChange={(field, val) =>
+                handleNestedChange("historiaAuditiva", field, val)
+              }
+            />
+          </ComponentCard>
+
+          <ComponentCard
+            title="Vestibular / Equilibrio"
+            action={
+              <Switch
+                label=""
+                checked={verSeccionVestibular}
+                onChange={(val) => setVerSeccionVestibular(val)}
+              />
+            }
+            bodyDisabled={!verSeccionVestibular}
+          >
+            <VestibularForm
+              data={formData.vestibular}
+              onChange={(field, val) =>
+                handleNestedChange("vestibular", field, val)
+              }
+            />
+          </ComponentCard>
+
+          <ComponentCard
+            title="Otoscopia"
+            action={
+              <Switch
+                label=""
+                checked={verSeccionOtoscopia}
+                onChange={(val) => setVerSeccionOtoscopia(val)}
+              />
+            }
+            bodyDisabled={!verSeccionOtoscopia}
+          >
+            <OtoscopiaForm
+              data={formData.otoscopia}
+              onChange={(field, val) =>
+                handleNestedChange("otoscopia", field, val)
+              }
+            />
+          </ComponentCard>
+        </div>
+      )}
 
       <div className="flex justify-end gap-4">
         <Button variant="outline" onClick={() => navigate("/fichas")}>
           Cancelar
         </Button>
-        <Button onClick={handleSubmit} disabled={loading} className="dark:bg-gray-600 dark:hover:bg-gray-700">
+        <Button
+          onClick={handleSubmit}
+          disabled={loading}
+          className="dark:bg-gray-600 dark:hover:bg-gray-700"
+        >
           {loading
             ? "Guardando..."
             : isEdit
