@@ -17,6 +17,8 @@ import EvaluacionAfectivaForm from "./sections/PsicologiaClinica.tsx/EvaluacionA
 import EvaluacionCognitivaForm from "./sections/PsicologiaClinica.tsx/EvaluacionCognitivaForm";
 import EvaluacionPensamientoForm from "./sections/PsicologiaClinica.tsx/EvaluacionPensamientoForm";
 import DiagnosticoPsicologiaForm from "./sections/PsicologiaClinica.tsx/DiagnosticoPsicologiaForm";
+import Switch from "../switch/Switch";
+import { Brain, ClipboardList, Activity } from "lucide-react";
 
 export interface FichaPsicologiaClinicaState {
   id?: number;
@@ -658,6 +660,21 @@ export default function FormularioPsicologiaClinica() {
   );
   const [loading, setLoading] = useState(false);
 
+  // Section Visibility State
+  const [verAnamnesis, setVerAnamnesis] = useState(false);
+  const [verSuenio, setVerSuenio] = useState(false);
+  const [verConducta, setVerConducta] = useState(false);
+  const [verSexualidad, setVerSexualidad] = useState(false);
+  const [verEvaluacionLenguaje, setVerEvaluacionLenguaje] = useState(false);
+  const [verEvaluacionAfectiva, setVerEvaluacionAfectiva] = useState(false);
+  const [verEvaluacionCognitiva, setVerEvaluacionCognitiva] = useState(false);
+  const [verEvaluacionPensamiento, setVerEvaluacionPensamiento] = useState(false);
+  const [verDiagnostico, setVerDiagnostico] = useState(false);
+
+  // Group Visibility State
+  const [areaHistoria, setAreaHistoria] = useState(false);
+  const [areaEvaluacion, setAreaEvaluacion] = useState(false);
+
   // Patient Selection State
   const [selectedPatient, setSelectedPatient] = useState<{
     nombresApellidos: string;
@@ -804,16 +821,16 @@ export default function FormularioPsicologiaClinica() {
   return (
     <div className="space-y-6">
       {selectedPatient && (
-        <div className="bg-red-50 dark:bg-gray-800 p-4 rounded-lg flex items-center justify-between border border-red-100 dark:border-gray-700">
+        <div className="bg-red-50/20 dark:bg-gray-800 p-4 rounded-3xl flex items-center justify-between border-2 border-brand-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-100 dark:bg-gray-900 rounded-full text-red-600 dark:text-gray-300">
+            <div className="p-2 bg-brand-400 dark:bg-gray-500 rounded-full text-white font-bold dark:text-gray-200">
               <User size={20} />
             </div>
             <div>
-              <h4 className="font-bold text-red-700 dark:text-gray-100">
+              <h4 className="font-bold text-gray-800 dark:text-gray-100">
                 {selectedPatient.nombresApellidos}
               </h4>
-              <p className="text-sm text-red-600 dark:text-gray-300">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
                 CI: {selectedPatient.cedula}
               </p>
             </div>
@@ -830,77 +847,290 @@ export default function FormularioPsicologiaClinica() {
         </div>
       )}
 
-      <ComponentCard title="Anamnesis">
-        <AnamnesisForm
-          data={formData.anamnesis}
-          onChange={(field, val) => handleNestedChange("anamnesis", field, val)}
-        />
-      </ComponentCard>
-      <ComponentCard title="Sueño">
-        <SuenioForm
-          data={formData.suenio}
-          onChange={(field, val) => handleNestedChange("suenio", field, val)}
-        />
-      </ComponentCard>
-      <ComponentCard title="Conducta">
-        <ConductaForm
-          data={formData.conducta}
-          onChange={(field, val) => handleNestedChange("conducta", field, val)}
-        />
-      </ComponentCard>
-      <ComponentCard title="Sexualidad">
-        <SexualidadForm
-          data={formData.sexualidad}
-          onChange={(field, val) =>
-            handleNestedChange("sexualidad", field, val)
-          }
-        />
-      </ComponentCard>
-      <ComponentCard title="Evaluacion Lenguaje">
-        <EvaluacionLenguajeForm
-          data={formData.evaluacionLenguaje}
-          onChange={(field, val) =>
-            handleNestedChange("evaluacionLenguaje", field, val)
-          }
-        />
-      </ComponentCard>
-      <ComponentCard title="Evaluacion Afectiva">
-        <EvaluacionAfectivaForm
-          data={formData.evaluacionAfectiva}
-          onChange={(field, val) =>
-            handleNestedChange("evaluacionAfectiva", field, val)
-          }
-        />
-      </ComponentCard>
-      <ComponentCard title="Evaluacion Cognitiva">
-        <EvaluacionCognitivaForm
-          data={formData.evaluacionCognitiva}
-          onChange={(field, val) =>
-            handleNestedChange("evaluacionCognitiva", field, val)
-          }
-        />
-      </ComponentCard>
-      <ComponentCard title="Evaluacion Pensamiento">
-        <EvaluacionPensamientoForm
-          data={formData.evaluacionPensamiento}
-          onChange={(field, val) =>
-            handleNestedChange("evaluacionPensamiento", field, val)
-          }
-        />
-      </ComponentCard>
-      <ComponentCard title="Diagnóstico">
-        <DiagnosticoPsicologiaForm
-          data={formData.diagnostico}
-          onChange={(field, val) =>
-            handleNestedChange("diagnostico", field, val)
-          }
-        />
-      </ComponentCard>
-      <div className="flex justify-end gap-4">
-        <Button
-          variant="outline"
-          onClick={() => navigate("/fichas")}
+      {/* Selectores de Área Principales */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div
+          onClick={() => setAreaHistoria(!areaHistoria)}
+          className={`cursor-pointer group relative overflow-hidden p-6 rounded-3xl border-2 transition-all duration-500 ${
+            areaHistoria
+              ? "border-brand-100 bg-brand-50/20 dark:border-gray-600 dark:bg-gray-800 scale-[1.02]"
+              : "border-gray-100 bg-white dark:border-gray-800 dark:bg-white/[0.03] dark:hover:border-gray-600"
+          }`}
         >
+          <div className="flex items-center gap-5">
+            <div
+              className={`p-4 rounded-2xl transition-all duration-500 ${
+                areaHistoria
+                  ? "bg-brand-400 text-white rotate-12 dark:bg-gray-500 dark:text-gray-200"
+                  : "bg-brand-50 text-brand-500 dark:bg-gray-800 dark:text-gray-300"
+              }`}
+            >
+              <ClipboardList size={32} />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+                Historia y Hábitos
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Anamnesis, Sueño, Sexualidad
+              </p>
+            </div>
+            <div
+              className={`ml-auto transition-transform duration-500 ${
+                areaHistoria ? "rotate-180" : ""
+              }`}
+            >
+              <Switch
+                label=""
+                checked={areaHistoria}
+                onChange={(v) => setAreaHistoria(v)}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div
+          onClick={() => setAreaEvaluacion(!areaEvaluacion)}
+          className={`cursor-pointer group relative overflow-hidden p-6 rounded-3xl border-2 transition-all duration-500 ${
+            areaEvaluacion
+              ? "border-brand-100 bg-brand-50/20 dark:border-gray-600 dark:bg-gray-800 scale-[1.02]"
+              : "border-gray-100 bg-white dark:border-gray-800 dark:bg-white/[0.03] dark:hover:border-gray-600"
+          }`}
+        >
+          <div className="flex items-center gap-5">
+            <div
+              className={`p-4 rounded-2xl transition-all duration-500 ${
+                areaEvaluacion
+                  ? "bg-brand-400 text-white rotate-12 dark:bg-gray-500 dark:text-gray-200"
+                  : "bg-brand-50 text-brand-500 dark:bg-gray-800 dark:text-gray-300"
+              }`}
+            >
+              <Brain size={32} />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+                Evaluación Psicológica
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Cognitiva, Afectiva, Pensamiento
+              </p>
+            </div>
+            <div
+              className={`ml-auto transition-transform duration-500 ${
+                areaEvaluacion ? "rotate-180" : ""
+              }`}
+            >
+              <Switch
+                label=""
+                checked={areaEvaluacion}
+                onChange={(v) => setAreaEvaluacion(v)}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Historia y Hábitos */}
+      {areaHistoria && (
+        <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500 fill-mode-both">
+          <div className="flex items-center gap-2 px-2">
+            <ClipboardList size={18} className="text-brand-500 dark:text-gray-300" />
+            <span className="text-sm font-bold uppercase tracking-widest text-brand-600/70 dark:text-gray-300">
+              Módulos de Historia
+            </span>
+          </div>
+
+          <ComponentCard
+            title="Anamnesis"
+            action={
+              <Switch
+                label=""
+                checked={verAnamnesis}
+                onChange={(val) => setVerAnamnesis(val)}
+              />
+            }
+            bodyDisabled={!verAnamnesis}
+          >
+            <AnamnesisForm
+              data={formData.anamnesis}
+              onChange={(field, val) => handleNestedChange("anamnesis", field, val)}
+            />
+          </ComponentCard>
+
+          <ComponentCard
+            title="Sueño"
+            action={
+              <Switch
+                label=""
+                checked={verSuenio}
+                onChange={(val) => setVerSuenio(val)}
+              />
+            }
+            bodyDisabled={!verSuenio}
+          >
+            <SuenioForm
+              data={formData.suenio}
+              onChange={(field, val) => handleNestedChange("suenio", field, val)}
+            />
+          </ComponentCard>
+
+          <ComponentCard
+            title="Conducta"
+            action={
+              <Switch
+                label=""
+                checked={verConducta}
+                onChange={(val) => setVerConducta(val)}
+              />
+            }
+            bodyDisabled={!verConducta}
+          >
+            <ConductaForm
+              data={formData.conducta}
+              onChange={(field, val) => handleNestedChange("conducta", field, val)}
+            />
+          </ComponentCard>
+
+          <ComponentCard
+            title="Sexualidad"
+            action={
+              <Switch
+                label=""
+                checked={verSexualidad}
+                onChange={(val) => setVerSexualidad(val)}
+              />
+            }
+            bodyDisabled={!verSexualidad}
+          >
+            <SexualidadForm
+              data={formData.sexualidad}
+              onChange={(field, val) =>
+                handleNestedChange("sexualidad", field, val)
+              }
+            />
+          </ComponentCard>
+        </div>
+      )}
+
+      {/* Evaluación Psicológica */}
+      {areaEvaluacion && (
+        <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500 fill-mode-both delay-100">
+          <div className="flex items-center gap-2 px-2">
+            <Brain size={18} className="text-brand-500 dark:text-gray-300" />
+            <span className="text-sm font-bold uppercase tracking-widest text-brand-600/70 dark:text-gray-300">
+              Módulos de Evaluación
+            </span>
+          </div>
+
+          <ComponentCard
+            title="Evaluación Lenguaje"
+            action={
+              <Switch
+                label=""
+                checked={verEvaluacionLenguaje}
+                onChange={(val) => setVerEvaluacionLenguaje(val)}
+              />
+            }
+            bodyDisabled={!verEvaluacionLenguaje}
+          >
+            <EvaluacionLenguajeForm
+              data={formData.evaluacionLenguaje}
+              onChange={(field, val) =>
+                handleNestedChange("evaluacionLenguaje", field, val)
+              }
+            />
+          </ComponentCard>
+
+          <ComponentCard
+            title="Evaluación Afectiva"
+            action={
+              <Switch
+                label=""
+                checked={verEvaluacionAfectiva}
+                onChange={(val) => setVerEvaluacionAfectiva(val)}
+              />
+            }
+            bodyDisabled={!verEvaluacionAfectiva}
+          >
+            <EvaluacionAfectivaForm
+              data={formData.evaluacionAfectiva}
+              onChange={(field, val) =>
+                handleNestedChange("evaluacionAfectiva", field, val)
+              }
+            />
+          </ComponentCard>
+
+          <ComponentCard
+            title="Evaluación Cognitiva"
+            action={
+              <Switch
+                label=""
+                checked={verEvaluacionCognitiva}
+                onChange={(val) => setVerEvaluacionCognitiva(val)}
+              />
+            }
+            bodyDisabled={!verEvaluacionCognitiva}
+          >
+            <EvaluacionCognitivaForm
+              data={formData.evaluacionCognitiva}
+              onChange={(field, val) =>
+                handleNestedChange("evaluacionCognitiva", field, val)
+              }
+            />
+          </ComponentCard>
+
+          <ComponentCard
+            title="Evaluación Pensamiento"
+            action={
+              <Switch
+                label=""
+                checked={verEvaluacionPensamiento}
+                onChange={(val) => setVerEvaluacionPensamiento(val)}
+              />
+            }
+            bodyDisabled={!verEvaluacionPensamiento}
+          >
+            <EvaluacionPensamientoForm
+              data={formData.evaluacionPensamiento}
+              onChange={(field, val) =>
+                handleNestedChange("evaluacionPensamiento", field, val)
+              }
+            />
+          </ComponentCard>
+        </div>
+      )}
+
+      {/* Diagnóstico */}
+      <div className="space-y-6">
+        <div className="flex items-center gap-2 px-2">
+          <Activity size={18} className="text-brand-500 dark:text-gray-300" />
+          <span className="text-sm font-bold uppercase tracking-widest text-brand-600/70 dark:text-gray-300">
+            Cierre y Diagnóstico
+          </span>
+        </div>
+
+        <ComponentCard
+          title="Diagnóstico"
+          action={
+            <Switch
+              label=""
+              checked={verDiagnostico}
+              onChange={(val) => setVerDiagnostico(val)}
+            />
+          }
+          bodyDisabled={!verDiagnostico}
+        >
+          <DiagnosticoPsicologiaForm
+            data={formData.diagnostico}
+            onChange={(field, val) =>
+              handleNestedChange("diagnostico", field, val)
+            }
+          />
+        </ComponentCard>
+      </div>
+
+      <div className="flex justify-end gap-4">
+        <Button variant="outline" onClick={() => navigate("/fichas")}>
           Cancelar
         </Button>
         <Button

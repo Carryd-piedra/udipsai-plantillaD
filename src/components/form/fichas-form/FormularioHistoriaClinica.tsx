@@ -9,6 +9,8 @@ import HistoriaPostnatalForm from "./sections/HistoriaClinica.tsx/HistoriaPostna
 import DesarrolloMotorForm from "./sections/HistoriaClinica.tsx/DesarrolloMotorForm";
 import AlimentacionForm from "./sections/HistoriaClinica.tsx/AlimentacionForm";
 import AntecedentesMedicosForm from "./sections/HistoriaClinica.tsx/AntecedentesMedicosForm";
+import Switch from "../switch/Switch";
+import { Baby, Activity, FileText, HeartPulse } from "lucide-react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
 import { fichasService } from "../../../services/fichas";
@@ -159,6 +161,20 @@ export default function FormularioHistoriaClinica() {
   const [genogramaFile, setGenogramaFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Section Visibility State
+  const [verDatosFamiliares, setVerDatosFamiliares] = useState(false);
+  const [verHistoriaPrenatal, setVerHistoriaPrenatal] = useState(false);
+  const [verHistoriaNatal, setVerHistoriaNatal] = useState(false);
+  const [verHistoriaPostnatal, setVerHistoriaPostnatal] = useState(false);
+  const [verDesarrolloMotor, setVerDesarrolloMotor] = useState(false);
+  const [verAlimentacion, setVerAlimentacion] = useState(false);
+  const [verAntecedentesMedicos, setVerAntecedentesMedicos] = useState(false);
+  const [verGenograma, setVerGenograma] = useState(false);
+
+  // Group Visibility State
+  const [areaNacimiento, setAreaNacimiento] = useState(false);
+  const [areaDesarrollo, setAreaDesarrollo] = useState(false);
+
   // Patient Selection State
   const [selectedPatient, setSelectedPatient] = useState<{
     nombresApellidos: string;
@@ -268,7 +284,7 @@ export default function FormularioHistoriaClinica() {
         );
         toast.success("Ficha creada exitosamente");
       }
-      navigate("/historia-clinica");
+      navigate("/fichas");
     } catch (error: any) {
       if (error.response?.status === 409) {
         toast.error("Este paciente ya tiene una ficha activa.");
@@ -312,16 +328,16 @@ export default function FormularioHistoriaClinica() {
   return (
     <div className="space-y-6">
       {selectedPatient && (
-        <div className="bg-red-50 dark:bg-gray-800 p-4 rounded-lg flex items-center justify-between border border-red-100 dark:border-gray-700">
+        <div className="bg-red-50/20 dark:bg-gray-800 p-4 rounded-3xl flex items-center justify-between border-2 border-brand-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-100 dark:bg-gray-900 rounded-full text-red-600 dark:text-gray-300">
+            <div className="p-2 bg-brand-400 dark:bg-gray-500 rounded-full text-white font-bold dark:text-gray-200">
               <User size={20} />
             </div>
             <div>
-              <h4 className="font-bold text-red-700 dark:text-gray-100">
+              <h4 className="font-bold text-gray-800 dark:text-gray-100">
                 {selectedPatient.nombresApellidos}
               </h4>
-              <p className="text-sm text-red-600 dark:text-gray-300">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
                 CI: {selectedPatient.cedula}
               </p>
             </div>
@@ -338,7 +354,18 @@ export default function FormularioHistoriaClinica() {
         </div>
       )}
 
-      <ComponentCard title="Datos Familiares">
+      {/* Datos Familiares Siempre Visible o con Switch Propio */}
+      <ComponentCard
+        title="Datos Familiares"
+        action={
+          <Switch
+            label=""
+            checked={verDatosFamiliares}
+            onChange={(val) => setVerDatosFamiliares(val)}
+          />
+        }
+        bodyDisabled={!verDatosFamiliares}
+      >
         <DatosFamiliaresForm
           data={formData.datosFamiliares}
           onChange={(field, val) =>
@@ -347,70 +374,257 @@ export default function FormularioHistoriaClinica() {
         />
       </ComponentCard>
 
-      <ComponentCard title="Historia Prenatal">
-        <HistoriaPrenatalForm
-          data={formData.historiaPrenatal}
-          onChange={(field, val) =>
-            handleNestedChange("historiaPrenatal", field, val)
-          }
-        />
-      </ComponentCard>
-
-      <ComponentCard title="Historia Natal">
-        <HistoriaNatalForm
-          data={formData.historiaNatal}
-          onChange={(field, val) =>
-            handleNestedChange("historiaNatal", field, val)
-          }
-        />
-      </ComponentCard>
-
-      <ComponentCard title="Historia Postnatal">
-        <HistoriaPostnatalForm
-          data={formData.historiaPostnatal}
-          onChange={(field, val) =>
-            handleNestedChange("historiaPostnatal", field, val)
-          }
-        />
-      </ComponentCard>
-
-      <ComponentCard title="Desarrollo Motor">
-        <DesarrolloMotorForm
-          data={formData.desarrolloMotor}
-          onChange={(field, val) =>
-            handleNestedChange("desarrolloMotor", field, val)
-          }
-        />
-      </ComponentCard>
-
-      <ComponentCard title="Alimentación y Hábitos">
-        <AlimentacionForm
-          data={formData.alimentacion}
-          onChange={(field, val) =>
-            handleNestedChange("alimentacion", field, val)
-          }
-        />
-      </ComponentCard>
-
-      <ComponentCard title="Antecedentes Médicos">
-        <AntecedentesMedicosForm
-          data={formData.antecedentesMedicos}
-          onChange={(field, val) =>
-            handleNestedChange("antecedentesMedicos", field, val)
-          }
-        />
-      </ComponentCard>
-
-      <ComponentCard title="Genograma">
-        <div className="space-y-2">
-          <Label>Archivo de Genograma (Imagen/PDF)</Label>
-          <input
-            type="file"
-            onChange={(e) => setGenogramaFile(e.target.files?.[0] || null)}
-            className="block w-full text-sm text-gray-500"
-          />
+      {/* Selectores de Área Principales */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div
+          onClick={() => setAreaNacimiento(!areaNacimiento)}
+          className={`cursor-pointer group relative overflow-hidden p-6 rounded-3xl border-2 transition-all duration-500 ${
+            areaNacimiento
+              ? "border-brand-100 bg-brand-50/20 dark:border-gray-600 dark:bg-gray-800 scale-[1.02]"
+              : "border-gray-100 bg-white dark:border-gray-800 dark:bg-white/[0.03] dark:hover:border-gray-600"
+          }`}
+        >
+          <div className="flex items-center gap-5">
+            <div
+              className={`p-4 rounded-2xl transition-all duration-500 ${
+                areaNacimiento
+                  ? "bg-brand-400 text-white rotate-12 dark:bg-gray-500 dark:text-gray-200"
+                  : "bg-brand-50 text-brand-500 dark:bg-gray-800 dark:text-gray-300"
+              }`}
+            >
+              <Baby size={32} />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+                Antecedentes de Nacimiento
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Prenatal, Natal, Postnatal
+              </p>
+            </div>
+            <div
+              className={`ml-auto transition-transform duration-500 ${
+                areaNacimiento ? "rotate-180" : ""
+              }`}
+            >
+              <Switch
+                label=""
+                checked={areaNacimiento}
+                onChange={(v) => setAreaNacimiento(v)}
+              />
+            </div>
+          </div>
         </div>
-      </ComponentCard>
+
+        <div
+          onClick={() => setAreaDesarrollo(!areaDesarrollo)}
+          className={`cursor-pointer group relative overflow-hidden p-6 rounded-3xl border-2 transition-all duration-500 ${
+            areaDesarrollo
+              ? "border-brand-100 bg-brand-50/20 dark:border-gray-600 dark:bg-gray-800 scale-[1.02]"
+              : "border-gray-100 bg-white dark:border-gray-800 dark:bg-white/[0.03] dark:hover:border-gray-600"
+          }`}
+        >
+          <div className="flex items-center gap-5">
+            <div
+              className={`p-4 rounded-2xl transition-all duration-500 ${
+                areaDesarrollo
+                  ? "bg-brand-400 text-white rotate-12 dark:bg-gray-500 dark:text-gray-200"
+                  : "bg-brand-50 text-brand-500 dark:bg-gray-800 dark:text-gray-300"
+              }`}
+            >
+              <HeartPulse size={32} />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+                Desarrollo y Salud
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Motor, Alimentación, Médicos
+              </p>
+            </div>
+            <div
+              className={`ml-auto transition-transform duration-500 ${
+                areaDesarrollo ? "rotate-180" : ""
+              }`}
+            >
+              <Switch
+                label=""
+                checked={areaDesarrollo}
+                onChange={(v) => setAreaDesarrollo(v)}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Antecedentes de Nacimiento */}
+      {areaNacimiento && (
+        <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500 fill-mode-both">
+          <div className="flex items-center gap-2 px-2">
+            <Baby size={18} className="text-brand-500 dark:text-gray-300" />
+            <span className="text-sm font-bold uppercase tracking-widest text-brand-600/70 dark:text-gray-300">
+              Módulos de Nacimiento
+            </span>
+          </div>
+
+          <ComponentCard
+            title="Historia Prenatal"
+            action={
+              <Switch
+                label=""
+                checked={verHistoriaPrenatal}
+                onChange={(val) => setVerHistoriaPrenatal(val)}
+              />
+            }
+            bodyDisabled={!verHistoriaPrenatal}
+          >
+            <HistoriaPrenatalForm
+              data={formData.historiaPrenatal}
+              onChange={(field, val) =>
+                handleNestedChange("historiaPrenatal", field, val)
+              }
+            />
+          </ComponentCard>
+
+          <ComponentCard
+            title="Historia Natal"
+            action={
+              <Switch
+                label=""
+                checked={verHistoriaNatal}
+                onChange={(val) => setVerHistoriaNatal(val)}
+              />
+            }
+            bodyDisabled={!verHistoriaNatal}
+          >
+            <HistoriaNatalForm
+              data={formData.historiaNatal}
+              onChange={(field, val) =>
+                handleNestedChange("historiaNatal", field, val)
+              }
+            />
+          </ComponentCard>
+
+          <ComponentCard
+            title="Historia Postnatal"
+            action={
+              <Switch
+                label=""
+                checked={verHistoriaPostnatal}
+                onChange={(val) => setVerHistoriaPostnatal(val)}
+              />
+            }
+            bodyDisabled={!verHistoriaPostnatal}
+          >
+            <HistoriaPostnatalForm
+              data={formData.historiaPostnatal}
+              onChange={(field, val) =>
+                handleNestedChange("historiaPostnatal", field, val)
+              }
+            />
+          </ComponentCard>
+        </div>
+      )}
+
+      {/* Desarrollo y Salud */}
+      {areaDesarrollo && (
+        <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500 fill-mode-both delay-100">
+          <div className="flex items-center gap-2 px-2">
+            <Activity size={18} className="text-brand-500 dark:text-gray-300" />
+            <span className="text-sm font-bold uppercase tracking-widest text-brand-600/70 dark:text-gray-300">
+              Módulos de Desarrollo
+            </span>
+          </div>
+
+          <ComponentCard
+            title="Desarrollo Motor"
+            action={
+              <Switch
+                label=""
+                checked={verDesarrolloMotor}
+                onChange={(val) => setVerDesarrolloMotor(val)}
+              />
+            }
+            bodyDisabled={!verDesarrolloMotor}
+          >
+            <DesarrolloMotorForm
+              data={formData.desarrolloMotor}
+              onChange={(field, val) =>
+                handleNestedChange("desarrolloMotor", field, val)
+              }
+            />
+          </ComponentCard>
+
+          <ComponentCard
+            title="Alimentación y Hábitos"
+            action={
+              <Switch
+                label=""
+                checked={verAlimentacion}
+                onChange={(val) => setVerAlimentacion(val)}
+              />
+            }
+            bodyDisabled={!verAlimentacion}
+          >
+            <AlimentacionForm
+              data={formData.alimentacion}
+              onChange={(field, val) =>
+                handleNestedChange("alimentacion", field, val)
+              }
+            />
+          </ComponentCard>
+
+          <ComponentCard
+            title="Antecedentes Médicos"
+            action={
+              <Switch
+                label=""
+                checked={verAntecedentesMedicos}
+                onChange={(val) => setVerAntecedentesMedicos(val)}
+              />
+            }
+            bodyDisabled={!verAntecedentesMedicos}
+          >
+            <AntecedentesMedicosForm
+              data={formData.antecedentesMedicos}
+              onChange={(field, val) =>
+                handleNestedChange("antecedentesMedicos", field, val)
+              }
+            />
+          </ComponentCard>
+        </div>
+      )}
+
+      {/* Genograma */}
+      <div className="space-y-6">
+        <div className="flex items-center gap-2 px-2">
+          <FileText size={18} className="text-brand-500 dark:text-gray-300" />
+          <span className="text-sm font-bold uppercase tracking-widest text-brand-600/70 dark:text-gray-300">
+            Documentación Extra
+          </span>
+        </div>
+
+        <ComponentCard
+          title="Genograma"
+          action={
+            <Switch
+              label=""
+              checked={verGenograma}
+              onChange={(val) => setVerGenograma(val)}
+            />
+          }
+          bodyDisabled={!verGenograma}
+        >
+          <div className="space-y-2">
+            <Label>Archivo de Genograma (Imagen/PDF)</Label>
+            <input
+              type="file"
+              onChange={(e) => setGenogramaFile(e.target.files?.[0] || null)}
+              className="block w-full text-sm text-gray-500"
+            />
+          </div>
+        </ComponentCard>
+      </div>
 
       <div className="flex justify-end gap-4">
         <Button variant="outline" onClick={() => navigate("/fichas")}>
