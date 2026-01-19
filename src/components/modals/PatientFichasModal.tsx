@@ -13,6 +13,7 @@ import { pacientesService } from "../../services/pacientes";
 import { FileText, Plus, Eye, Pen, Trash, Download } from "lucide-react";
 import { toast } from "react-toastify";
 import Badge from "../ui/badge/Badge";
+import { useAuth } from "../../context/AuthContext";
 
 interface Paciente {
   id: number;
@@ -36,36 +37,72 @@ const FILE_TYPES = [
     label: "Historia Clínica",
     internalName: "Historia Clínica",
     type: "ficha",
+    permissions: {
+      create: "PERM_HISTORIA_CLINICA_CREAR",
+      edit: "PERM_HISTORIA_CLINICA_EDITAR",
+      delete: "PERM_HISTORIA_CLINICA_ELIMINAR",
+      view: "PERM_HISTORIA_CLINICA_LEER",
+    },
   },
   {
     id: "psicologia-educativa",
     label: "Psicología Educativa",
     internalName: "Psicología Educativa",
     type: "ficha",
+    permissions: {
+      create: "PERM_PSICOLOGIA_EDUCATIVA_CREAR",
+      edit: "PERM_PSICOLOGIA_EDUCATIVA_EDITAR",
+      delete: "PERM_PSICOLOGIA_EDUCATIVA_ELIMINAR",
+      view: "PERM_PSICOLOGIA_EDUCATIVA_LEER",
+    },
   },
   {
     id: "psicologia-clinica",
     label: "Psicología Clínica",
     internalName: "Psicología Clínica",
     type: "ficha",
+    permissions: {
+      create: "PERM_PSICOLOGIA_CLINICA_CREAR",
+      edit: "PERM_PSICOLOGIA_CLINICA_EDITAR",
+      delete: "PERM_PSICOLOGIA_CLINICA_ELIMINAR",
+      view: "PERM_PSICOLOGIA_CLINICA_LEER",
+    },
   },
   {
     id: "fonoaudiologia",
     label: "Fonoaudiología",
     internalName: "Fonoaudiología",
     type: "ficha",
+    permissions: {
+      create: "PERM_FONOAUDIOLOGIA_CREAR",
+      edit: "PERM_FONOAUDIOLOGIA_EDITAR",
+      delete: "PERM_FONOAUDIOLOGIA_ELIMINAR",
+      view: "PERM_FONOAUDIOLOGIA_LEER",
+    },
   },
   {
     id: "ficha-compromiso",
     label: "Ficha de Compromiso",
     internalName: "Ficha Compromiso",
     type: "documento",
+    permissions: {
+      create: "PERM_PACIENTES_EDITAR", // Upload is part of edit
+      edit: "PERM_PACIENTES_EDITAR", // Re-upload
+      delete: "PERM_PACIENTES_ELIMINAR", // Delete doc
+      view: "PERM_PACIENTES_LEER",
+    },
   },
   {
     id: "ficha-deteccion",
     label: "Ficha de Detección",
     internalName: "Ficha Detección",
     type: "documento",
+    permissions: {
+      create: "PERM_PACIENTES_EDITAR",
+      edit: "PERM_PACIENTES_EDITAR",
+      delete: "PERM_PACIENTES_ELIMINAR",
+      view: "PERM_PACIENTES_LEER",
+    },
   },
 ];
 
@@ -77,6 +114,7 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
   const navigate = useNavigate();
   const [resumen, setResumen] = useState<FichaResumen | null>(null);
   const [loading, setLoading] = useState(true);
+  const { hasPermission } = useAuth();
 
   const fetchResumen = async () => {
     if (!paciente) return;
@@ -250,7 +288,7 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                       <div className="flex items-center gap-2">
                         {exists ? (
                           <>
-                            {!isDocument && (
+                            {!isDocument && hasPermission(file.permissions.view) && (
                               <Button
                                 size="sm"
                                 variant="outline"
@@ -261,45 +299,54 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                                 <Eye size={14} />
                               </Button>
                             )}
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleAction("Editar", file.id, file.internalName, file.type)}
-                              className="hover:bg-white hover:text-yellow-600 p-2 text-dark dark:text-white-400 dark:hover:text-yellow-600"
-                              title="Editar"
-                            >
-                              <Pen size={14} />
-                            </Button>
-
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleAction("Exportar", file.id, file.internalName, file.type)}
-                              className="hover:bg-white hover:text-green-600 p-2 text-dark dark:text-white-400 dark:hover:text-green-600"
-                              title="Exportar"
-                            >
-                              <Download size={14} />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleAction("Eliminar", file.id, file.internalName, file.type)}
-                              className="hover:bg-red-500 hover:text-white p-2 text-red-600 dark:text-red-400 dark:hover:text-red-400"
-                              title="Eliminar"
-                            >
-                              <Trash size={14} />
-                            </Button>
+                            {hasPermission(file.permissions.edit) && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleAction("Editar", file.id, file.internalName, file.type)}
+                                className="hover:bg-white hover:text-yellow-600 p-2 text-dark dark:text-white-400 dark:hover:text-yellow-600"
+                                title="Editar"
+                              >
+                                <Pen size={14} />
+                              </Button>
+                            )}
+                            
+                            {hasPermission(file.permissions.view) && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleAction("Exportar", file.id, file.internalName, file.type)}
+                                className="hover:bg-white hover:text-green-600 p-2 text-dark dark:text-white-400 dark:hover:text-green-600"
+                                title="Exportar"
+                              >
+                                <Download size={14} />
+                              </Button>
+                            )}
+                            
+                            {hasPermission(file.permissions.delete) && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleAction("Eliminar", file.id, file.internalName, file.type)}
+                                className="hover:bg-red-500 hover:text-white p-2 text-red-600 dark:text-red-400 dark:hover:text-red-400"
+                                title="Eliminar"
+                              >
+                                <Trash size={14} />
+                              </Button>
+                            )}
                           </>
                         ) : (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleAction("Crear", file.id, file.internalName, file.type)}
-                            className="hover:bg-white hover:text-green-600 p-2 text-dark dark:text-white-400 dark:hover:text-green-600"
-                          >
-                            <Plus size={14} />
-                            {isDocument ? "Subir documento" : "Crear ficha"}
-                          </Button>
+                          hasPermission(file.permissions.create) && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleAction("Crear", file.id, file.internalName, file.type)}
+                              className="hover:bg-white hover:text-green-600 p-2 text-dark dark:text-white-400 dark:hover:text-green-600"
+                            >
+                              <Plus size={14} />
+                              {isDocument ? "Subir documento" : "Crear ficha"}
+                            </Button>
+                          )
                         )}
                       </div>
                     </TableCell>

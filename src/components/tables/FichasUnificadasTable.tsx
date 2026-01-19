@@ -195,11 +195,8 @@ export default function FichasUnificadasTable() {
       <TableActionHeader
         title={activeTab.title}
         onSearchClick={setSearchTerm}
-        onNew={
-          hasPermission(activeTab.permCreate)
-            ? () => navigate(activeTab.createPath)
-            : undefined
-        }
+        onNew={() => navigate(activeTab.createPath)}
+        createPermission={activeTab.permCreate}
         newButtonText="Agregar"
       />
 

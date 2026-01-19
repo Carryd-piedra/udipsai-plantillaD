@@ -307,11 +307,8 @@ export default function PacientesAccionesTable() {
       <TableActionHeader
         title="Lista de pacientes"
         onSearchClick={handleSearch}
-        onNew={
-          permissions.includes("PERM_PACIENTES_CREAR")
-            ? () => navigate("/pacientes/nuevo")
-            : undefined
-        }
+        onNew={() => navigate("/pacientes/nuevo")}
+        createPermission="PERM_PACIENTES_CREAR"
         newButtonText="Agregar"
         onExport={handleExport}
         filterConfig={filterConfig}

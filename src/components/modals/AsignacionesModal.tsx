@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { Trash, UserPlus, X } from "lucide-react";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
+import { useAuth } from "../../context/AuthContext";
 import {
   Table,
   TableBody,
@@ -44,9 +45,12 @@ export const AsignacionesModal = ({
   onClose,
   pasanteId,
   pasanteName,
-}: AsignacionesModalProps) => {
+  permCreate = "PERM_ASIGNACIONES_CREAR",
+  permDelete = "PERM_ASIGNACIONES_ELIMINAR",
+}: AsignacionesModalProps & { permCreate?: string; permDelete?: string }) => {
   const [asignaciones, setAsignaciones] = useState<Asignacion[]>([]);
   const [loading, setLoading] = useState(false);
+  const { hasPermission } = useAuth();
 
   // Search state
   const [searchTerm, setSearchTerm] = useState("");
@@ -162,43 +166,47 @@ export const AsignacionesModal = ({
       </div>
       <div className="space-y-6">
         <div className="bg-gray-50 dark:bg-white/5 p-4 rounded-lg space-y-3">
-          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-200 flex items-center gap-2">
-            <UserPlus size={16} />
-            Agregar Pacientes
-          </h4>
+          {hasPermission(permCreate) && (
+            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-200 flex items-center gap-2">
+              <UserPlus size={16} />
+              Agregar Pacientes
+            </h4>
+          )}
 
-          <div className="relative">
-            <Input
-              placeholder="Buscar paciente por nombre o cédula..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full"
-            />
-            {isSearching && (
-              <div className="absolute right-3 top-2.5">
-                <div className="animate-spin h-4 w-4 border-2 border-blue-500 rounded-full border-t-transparent"></div>
-              </div>
-            )}
+          {hasPermission(permCreate) && (
+            <div className="relative">
+              <Input
+                placeholder="Buscar paciente por nombre o cédula..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full"
+              />
+              {isSearching && (
+                <div className="absolute right-3 top-2.5">
+                  <div className="animate-spin h-4 w-4 border-2 border-blue-500 rounded-full border-t-transparent"></div>
+                </div>
+              )}
 
-            {searchResults.length > 0 && (
-              <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg max-h-48 overflow-y-auto custom-scrollbar">
-                {searchResults.map((patient) => (
-                  <div
-                    key={patient.id}
-                    onClick={() => handleSelectPatient(patient)}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-sm flex justify-between items-center"
-                  >
-                    <span>{patient.nombresApellidos}</span>
-                    <span className="text-xs text-gray-500">
-                      {patient.cedula}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+              {searchResults.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg max-h-48 overflow-y-auto custom-scrollbar">
+                  {searchResults.map((patient) => (
+                    <div
+                      key={patient.id}
+                      onClick={() => handleSelectPatient(patient)}
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-sm flex justify-between items-center"
+                    >
+                      <span>{patient.nombresApellidos}</span>
+                      <span className="text-xs text-gray-500">
+                        {patient.cedula}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
-          {selectedPatients.length > 0 && (
+          {selectedPatients.length > 0 && hasPermission(permCreate) && (
             <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-white/5">
               <div className="flex flex-wrap gap-2">
                 {selectedPatients.map((p) => (
@@ -264,13 +272,15 @@ export const AsignacionesModal = ({
                         </TableCell>
                         <TableCell>{asignacion.paciente.cedula}</TableCell>
                         <TableCell className="px-5 py-3 text-center text-theme-xs text-gray-700 dark:text-gray-300">
-                          <Button
-                            onClick={() => handleDelete(asignacion.id)}
-                            variant="danger"
-                            title="Eliminar asignación"
-                          >
-                            <Trash size={14} />
-                          </Button>
+                          {hasPermission(permDelete) && (
+                            <Button
+                              onClick={() => handleDelete(asignacion.id)}
+                              variant="danger"
+                              title="Eliminar asignación"
+                            >
+                              <Trash size={14} />
+                            </Button>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))

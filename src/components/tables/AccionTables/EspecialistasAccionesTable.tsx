@@ -264,11 +264,8 @@ export default function EspecialistasAccionesTable() {
       <TableActionHeader
         title="Especialistas"
         onSearchClick={handleSearch}
-        onNew={
-          permissions.includes("PERM_ESPECIALISTAS_CREAR")
-            ? () => navigate("/especialistas/nuevo")
-            : undefined
-        }
+        onNew={() => navigate("/especialistas/nuevo")}
+        createPermission="PERM_ESPECIALISTAS_CREAR"
         newButtonText="Agregar"
         onExport={handleExport}
         filterConfig={filterConfig}

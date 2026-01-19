@@ -1,4 +1,5 @@
 import { FileText, ListPlus, Search } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 import React, { useEffect, useState } from "react";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
@@ -35,6 +36,7 @@ interface TableActionHeaderProps {
   filterConfig?: FilterField[];
   activeFilters?: Record<string, any>;
   onFiltersChange?: (filters: Record<string, any>) => void;
+  createPermission?: string;
 }
 
 export const TableActionHeader: React.FC<TableActionHeaderProps> = ({
@@ -51,7 +53,9 @@ export const TableActionHeader: React.FC<TableActionHeaderProps> = ({
   filterConfig,
   activeFilters,
   onFiltersChange,
+  createPermission,
 }) => {
+  const { hasPermission } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [internalFilters, setInternalFilters] = useState<Record<string, any>>(
     {}
@@ -185,7 +189,7 @@ export const TableActionHeader: React.FC<TableActionHeaderProps> = ({
             </Button>
           )}
 
-          {onNew && (
+          {onNew && (!createPermission || hasPermission(createPermission)) && (
             <Button
               onClick={onNew}
               disabled={loading}
