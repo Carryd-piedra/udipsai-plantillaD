@@ -270,4 +270,70 @@ export const fichasService = {
       throw error;
     }
   },
+
+  exportarExcelHistoriaClinica: async (pacienteId?: number | string) => {
+    try {
+      const response = await api.get("/historia-clinica/export/excel", {
+        params: { pacienteId },
+        responseType: "blob",
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      const filename = pacienteId 
+        ? `historia_clinica_${pacienteId}.xlsx` 
+        : "historias_clinicas.xlsx";
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("Error al exportar Excel Historia Clínica:", error);
+      throw error;
+    }
+  },
+
+  exportarExcelPsicologiaEducativa: async (pacienteId?: number | string) => {
+    try {
+      const response = await api.get("/psicologia-educativa/export/excel", {
+        params: { pacienteId },
+        responseType: "blob",
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      const filename = pacienteId 
+        ? `psicologia_educativa_${pacienteId}.xlsx` 
+        : "fichas_psicologia_educativa.xlsx";
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("Error al exportar Excel Psicología Educativa:", error);
+      throw error;
+    }
+  },
+
+  exportarExcelPsicologiaClinica: async (pacienteId?: number | string) => {
+    try {
+      const response = await api.get("/psicologia-clinica/export/excel", {
+        params: { pacienteId },
+        responseType: "blob",
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      const filename = pacienteId 
+        ? `psicologia_clinica_${pacienteId}.xlsx` 
+        : "fichas_psicologia_clinica.xlsx";
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("Error al exportar Excel Psicología Clínica:", error);
+      throw error;
+    }
+  },
 };

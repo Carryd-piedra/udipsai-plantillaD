@@ -42,7 +42,7 @@ const FILE_TYPES = [
       create: "PERM_HISTORIA_CLINICA_CREAR",
       edit: "PERM_HISTORIA_CLINICA_EDITAR",
       delete: "PERM_HISTORIA_CLINICA_ELIMINAR",
-      view: "PERM_HISTORIA_CLINICA_LEER",
+      view: "PERM_HISTORIA_CLINICA",
     },
   },
   {
@@ -54,7 +54,7 @@ const FILE_TYPES = [
       create: "PERM_PSICOLOGIA_EDUCATIVA_CREAR",
       edit: "PERM_PSICOLOGIA_EDUCATIVA_EDITAR",
       delete: "PERM_PSICOLOGIA_EDUCATIVA_ELIMINAR",
-      view: "PERM_PSICOLOGIA_EDUCATIVA_LEER",
+      view: "PERM_PSICOLOGIA_EDUCATIVA",
     },
   },
   {
@@ -66,7 +66,7 @@ const FILE_TYPES = [
       create: "PERM_PSICOLOGIA_CLINICA_CREAR",
       edit: "PERM_PSICOLOGIA_CLINICA_EDITAR",
       delete: "PERM_PSICOLOGIA_CLINICA_ELIMINAR",
-      view: "PERM_PSICOLOGIA_CLINICA_LEER",
+      view: "PERM_PSICOLOGIA_CLINICA",
     },
   },
   {
@@ -90,7 +90,7 @@ const FILE_TYPES = [
       create: "PERM_PACIENTES_EDITAR", // Upload is part of edit
       edit: "PERM_PACIENTES_EDITAR", // Re-upload
       delete: "PERM_PACIENTES_ELIMINAR", // Delete doc
-      view: "PERM_PACIENTES_LEER",
+      view: "PERM_PACIENTES",
     },
   },
   {
@@ -102,7 +102,7 @@ const FILE_TYPES = [
       create: "PERM_PACIENTES_EDITAR",
       edit: "PERM_PACIENTES_EDITAR",
       delete: "PERM_PACIENTES_ELIMINAR",
-      view: "PERM_PACIENTES_LEER",
+      view: "PERM_PACIENTES",
     },
   },
 ];
@@ -192,6 +192,36 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
             try {
                 toast.info("Generando reporte Excel...");
                 await fichasService.exportarExcelFonoaudiologia(paciente.id);
+                toast.success("Excel descargado correctamente");
+            } catch (error) {
+                toast.error("Error al exportar el Excel");
+            }
+            return;
+        }
+        if (fileType === "historia-clinica") {
+            try {
+                toast.info("Generando reporte Excel...");
+                await fichasService.exportarExcelHistoriaClinica(paciente.id);
+                toast.success("Excel descargado correctamente");
+            } catch (error) {
+                toast.error("Error al exportar el Excel");
+            }
+            return;
+        }
+        if (fileType === "psicologia-educativa") {
+            try {
+                toast.info("Generando reporte Excel...");
+                await fichasService.exportarExcelPsicologiaEducativa(paciente.id);
+                toast.success("Excel descargado correctamente");
+            } catch (error) {
+                toast.error("Error al exportar el Excel");
+            }
+            return;
+        }
+        if (fileType === "psicologia-clinica") {
+            try {
+                toast.info("Generando reporte Excel...");
+                await fichasService.exportarExcelPsicologiaClinica(paciente.id);
                 toast.success("Excel descargado correctamente");
             } catch (error) {
                 toast.error("Error al exportar el Excel");

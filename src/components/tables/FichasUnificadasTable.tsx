@@ -48,6 +48,7 @@ interface TabConfig {
   permEdit: string;
   permCreate: string;
   permDelete: string;
+  permRead: string;
   title: string;
 }
 
@@ -67,7 +68,8 @@ export default function FichasUnificadasTable() {
       permEdit: "PERM_HISTORIA_CLINICA_EDITAR",
       permCreate: "PERM_HISTORIA_CLINICA_CREAR",
       permDelete: "PERM_HISTORIA_CLINICA_ELIMINAR",
-      title: "Fichas de Historia Clínica",
+      permRead: "PERM_HISTORIA_CLINICA",
+      title: "Historia Clínica",
     },
     {
       key: "psicologia_educativa",
@@ -80,7 +82,8 @@ export default function FichasUnificadasTable() {
       permEdit: "PERM_PSICOLOGIA_EDUCATIVA_EDITAR", 
       permCreate: "PERM_PSICOLOGIA_EDUCATIVA_CREAR",
       permDelete: "PERM_PSICOLOGIA_EDUCATIVA_ELIMINAR",
-      title: "Fichas de Psicología Educativa",
+      permRead: "PERM_PSICOLOGIA_EDUCATIVA",
+      title: "Psicología Educativa",
     },
     {
       key: "psicologia_clinica",
@@ -93,7 +96,8 @@ export default function FichasUnificadasTable() {
       permEdit: "PERM_PSICOLOGIA_CLINICA_EDITAR",
       permCreate: "PERM_PSICOLOGIA_CLINICA_CREAR",
       permDelete: "PERM_PSICOLOGIA_CLINICA_ELIMINAR",
-      title: "Fichas de Psicología Clínica",
+      permRead: "PERM_PSICOLOGIA_CLINICA",
+      title: "Psicología Clínica",
     },
     {
       key: "fonoaudiologia",
@@ -106,7 +110,8 @@ export default function FichasUnificadasTable() {
       permEdit: "PERM_FONOAUDIOLOGIA_EDITAR",
       permCreate: "PERM_FONOAUDIOLOGIA_CREAR",
       permDelete: "PERM_FONOAUDIOLOGIA_ELIMINAR",
-      title: "Fichas de Fonoaudiología",
+      permRead: "PERM_FONOAUDIOLOGIA",
+      title: "Fonoaudiología",
     },
   ];
 
@@ -191,14 +196,28 @@ export default function FichasUnificadasTable() {
   });
 
   const handleExport = async () => {
-    if (activeTabKey === "fonoaudiologia") {
-      try {
-        toast.info("Generando reporte Excel...");
-        await fichasService.exportarExcelFonoaudiologia();
-        toast.success("Excel descargado correctamente");
-      } catch (error) {
-        toast.error("Error al exportar el Excel");
+    try {
+      toast.info("Generando reporte Excel...");
+      switch (activeTabKey) {
+        case "fonoaudiologia":
+          await fichasService.exportarExcelFonoaudiologia();
+          break;
+        case "historia_clinica":
+          await fichasService.exportarExcelHistoriaClinica();
+          break;
+        case "psicologia_educativa":
+          await fichasService.exportarExcelPsicologiaEducativa();
+          break;
+        case "psicologia_clinica":
+          await fichasService.exportarExcelPsicologiaClinica();
+          break;
+        default:
+          toast.warn("Exportación no disponible para esta pestaña");
+          return;
       }
+      toast.success("Excel descargado correctamente");
+    } catch (error) {
+      toast.error("Error al exportar el Excel");
     }
   };
 
@@ -208,7 +227,7 @@ export default function FichasUnificadasTable() {
         title={activeTab.title}
         onSearchClick={setSearchTerm}
         onNew={() => navigate(activeTab.createPath)}
-        onExport={activeTabKey === "fonoaudiologia" && hasPermission("PERM_FONOAUDIOLOGIA") ? handleExport : undefined}
+        onExport={hasPermission(activeTab.permRead) ? handleExport : undefined}
         createPermission={activeTab.permCreate}
         newButtonText="Agregar"
       />
