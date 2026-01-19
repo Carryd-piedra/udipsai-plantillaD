@@ -190,12 +190,25 @@ export default function FichasUnificadasTable() {
     return nombreCompleto.includes(searchLower) || cedula.includes(searchLower);
   });
 
+  const handleExport = async () => {
+    if (activeTabKey === "fonoaudiologia") {
+      try {
+        toast.info("Generando reporte Excel...");
+        await fichasService.exportarExcelFonoaudiologia();
+        toast.success("Excel descargado correctamente");
+      } catch (error) {
+        toast.error("Error al exportar el Excel");
+      }
+    }
+  };
+
   return (
     <div className="space-y-6">
       <TableActionHeader
         title={activeTab.title}
         onSearchClick={setSearchTerm}
         onNew={() => navigate(activeTab.createPath)}
+        onExport={activeTabKey === "fonoaudiologia" && hasPermission("PERM_FONOAUDIOLOGIA") ? handleExport : undefined}
         createPermission={activeTab.permCreate}
         newButtonText="Agregar"
       />

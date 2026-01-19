@@ -248,4 +248,26 @@ export const fichasService = {
       throw error;
     }
   },
+
+  exportarExcelFonoaudiologia: async (pacienteId?: number | string) => {
+    try {
+      const response = await api.get("/fonoaudiologia/export/excel", {
+        params: { pacienteId },
+        responseType: "blob",
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      const filename = pacienteId 
+        ? `ficha_fonoaudiologia_${pacienteId}.xlsx` 
+        : "fichas_fonoaudiologia.xlsx";
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("Error al exportar Excel de fonoaudiología:", error);
+      throw error;
+    }
+  },
 };

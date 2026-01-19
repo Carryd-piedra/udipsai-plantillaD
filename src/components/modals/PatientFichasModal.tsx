@@ -14,6 +14,7 @@ import { FileText, Plus, Eye, Pen, Trash, Download } from "lucide-react";
 import { toast } from "react-toastify";
 import Badge from "../ui/badge/Badge";
 import { useAuth } from "../../context/AuthContext";
+import { fichasService } from "../../services/fichas";
 
 interface Paciente {
   id: number;
@@ -77,7 +78,7 @@ const FILE_TYPES = [
       create: "PERM_FONOAUDIOLOGIA_CREAR",
       edit: "PERM_FONOAUDIOLOGIA_EDITAR",
       delete: "PERM_FONOAUDIOLOGIA_ELIMINAR",
-      view: "PERM_FONOAUDIOLOGIA_LEER",
+      view: "PERM_FONOAUDIOLOGIA",
     },
   },
   {
@@ -184,6 +185,16 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
             } catch (error) {
                 console.error("Error downloading document", error);
                 toast.error("Error al descargar el documento");
+            }
+            return;
+        }
+        if (fileType === "fonoaudiologia") {
+            try {
+                toast.info("Generando reporte Excel...");
+                await fichasService.exportarExcelFonoaudiologia(paciente.id);
+                toast.success("Excel descargado correctamente");
+            } catch (error) {
+                toast.error("Error al exportar el Excel");
             }
             return;
         }
