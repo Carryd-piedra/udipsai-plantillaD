@@ -31,7 +31,7 @@ export interface FichaPsicologiaEducativaState {
   };
   desarrollo: {
     cdi: boolean;
-    cdiEdad: string;
+    cdiEdad: number;
     inicial1: boolean;
     inicial1Edad: number;
     inicial2: boolean;
@@ -71,16 +71,16 @@ export const initialPsicologiaEducativaState: FichaPsicologiaEducativaState = {
   historiaEscolar: {
     asignaturasGustan: "",
     asignaturasDisgustan: "",
-    relacionDocentes: "REGULAR",
+    relacionDocentes: "",
     causaRelacionDocentes: "",
     gustaIrInstitucion: false,
     causaGustaIrInstitucion: "",
-    relacionConGrupo: "REGULAR",
+    relacionConGrupo: "",
     causaRelacionConGrupo: "",
   },
   desarrollo: {
     cdi: false,
-    cdiEdad: "",
+    cdiEdad: 0,
     inicial1: false,
     inicial1Edad: 0,
     inicial2: false,
@@ -108,7 +108,7 @@ export const initialPsicologiaEducativaState: FichaPsicologiaEducativaState = {
     causaLugarTiempoRecibeApoyo: "",
   },
   estadoGeneral: {
-    aprovechamientoGeneral: "REGULAR",
+    aprovechamientoGeneral: "",
     actividadEscolar: "",
     observaciones: "",
   },
@@ -172,17 +172,45 @@ export default function FormularioPsicologiaEducativa() {
     }
   };
 
+  const isSectionEmpty = (sectionData: any, initialSectionData: any) => {
+    if (!sectionData) return true;
+
+    return Object.keys(initialSectionData).every((key) => {
+      const v1 = sectionData[key];
+      const v2 = initialSectionData[key];
+
+      // Normalizar null/undefined a "" para comparar con los valores iniciales
+      const normalize = (v: any) => (v === null || v === undefined ? "" : v);
+
+      return normalize(v1) === normalize(v2);
+    });
+  };
+
   const loadFicha = async (fichaId: string) => {
     try {
       setLoading(true);
       const data = await fichasService.obtenerPsicologiaEducativa(fichaId);
       if (data) {
-        // Ensure pacienteId is explicitly set from the nested patient object
         const loadedData = {
             ...data,
             pacienteId: data.pacienteId || data.paciente?.id
         };
         setFormData(loadedData);
+
+        // Auto-open sections with data
+        const hasHistoria = !isSectionEmpty(data.historiaEscolar, initialPsicologiaEducativaState.historiaEscolar);
+        const hasDesarrollo = !isSectionEmpty(data.desarrollo, initialPsicologiaEducativaState.desarrollo);
+        const hasAdaptacion = !isSectionEmpty(data.adaptacion, initialPsicologiaEducativaState.adaptacion);
+        const hasEstado = !isSectionEmpty(data.estadoGeneral, initialPsicologiaEducativaState.estadoGeneral);
+
+        if (hasHistoria) setVerHistoriaEscolar(true);
+        if (hasDesarrollo) setVerDesarrollo(true);
+        if (hasAdaptacion) setVerAdaptacion(true);
+        if (hasEstado) setVerEstadoGeneral(true);
+
+        // Auto-open areas
+        if (hasHistoria || hasDesarrollo) setAreaAcademica(true);
+        if (hasAdaptacion || hasEstado) setAreaApoyo(true);
 
         if (data.paciente) {
             try {
@@ -194,12 +222,12 @@ export default function FormularioPsicologiaEducativa() {
         }
       } else {
         toast.error("No se encontró la ficha");
-        navigate("/fichas");
+        navigate("/fichas?tab=psicologia_educativa");
       }
     } catch (error) {
       console.error("Error loading ficha:", error);
       toast.error("Error al cargar la ficha");
-      navigate("/fichas");
+      navigate("/fichas?tab=psicologia_educativa");
     } finally {
       setLoading(false);
     }
@@ -238,7 +266,7 @@ export default function FormularioPsicologiaEducativa() {
         await fichasService.crearPsicologiaEducativa(formData);
         toast.success("Ficha creada exitosamente");
       }
-      navigate("/fichas");
+      navigate("/fichas?tab=psicologia_educativa");
     } catch (error: any) {
       if (error.response?.status === 409) {
         toast.error("Este paciente ya tiene una ficha activa.");
@@ -409,6 +437,7 @@ export default function FormularioPsicologiaEducativa() {
                 onChange={(val) => setVerHistoriaEscolar(val)}
               />
             }
+            onHeaderClick={() => setVerHistoriaEscolar(!verHistoriaEscolar)}
             bodyDisabled={!verHistoriaEscolar}
           >
             <HistoriaEscolarForm
@@ -428,6 +457,7 @@ export default function FormularioPsicologiaEducativa() {
                 onChange={(val) => setVerDesarrollo(val)}
               />
             }
+            onHeaderClick={() => setVerDesarrollo(!verDesarrollo)}
             bodyDisabled={!verDesarrollo}
           >
             <DesarrolloForm
@@ -459,6 +489,7 @@ export default function FormularioPsicologiaEducativa() {
                 onChange={(val) => setVerAdaptacion(val)}
               />
             }
+            onHeaderClick={() => setVerAdaptacion(!verAdaptacion)}
             bodyDisabled={!verAdaptacion}
           >
             <AdaptacionForm
@@ -478,6 +509,7 @@ export default function FormularioPsicologiaEducativa() {
                 onChange={(val) => setVerEstadoGeneral(val)}
               />
             }
+            onHeaderClick={() => setVerEstadoGeneral(!verEstadoGeneral)}
             bodyDisabled={!verEstadoGeneral}
           >
             <EstadoGeneralForm
@@ -491,7 +523,7 @@ export default function FormularioPsicologiaEducativa() {
       )}
 
       <div className="flex justify-end gap-4">
-        <Button variant="outline" onClick={() => navigate("/fichas")}>
+        <Button variant="outline" onClick={() => navigate("/fichas?tab=psicologia_educativa")}>
           Cancelar
         </Button>
         <Button

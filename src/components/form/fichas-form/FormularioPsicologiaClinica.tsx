@@ -348,8 +348,8 @@ export const initialPsicologiaClinicaState: FichaPsicologiaClinicaState = {
   suenio: {
     inicioHorarioDeSuenio: 0,
     finHorarioDeSuenio: 0,
-    tipoHorarioDeSuenio: "DIURNO",
-    companiaSuenio: "SOLO",
+    tipoHorarioDeSuenio: "",
+    companiaSuenio: "",
     especificarCompaniaSuenio: "",
     edad: "0",
     hipersomnia: false,
@@ -374,17 +374,17 @@ export const initialPsicologiaClinicaState: FichaPsicologiaClinicaState = {
     observacionesConductasPreocupantes: "",
   },
   sexualidad: {
-    sexoDeNacimiento: "MASCULINO",
-    genero: "OTROS",
-    orientacionSexual: "HETEROSEXUAL",
-    curiosidadSexual: "AUSENTE",
-    gradoDeInformacion: "AUSENTE",
-    actividadSexual: "AUSENTE",
-    masturbacion: "AUSENTE",
-    promiscuidad: "AUSENTE",
-    disfunciones: "AUSENTE",
-    erotismo: "AUSENTE",
-    parafilias: "AUSENTE",
+    sexoDeNacimiento: "",
+    genero: "",
+    orientacionSexual: "",
+    curiosidadSexual: "",
+    gradoDeInformacion: "",
+    actividadSexual: "",
+    masturbacion: "",
+    promiscuidad: "",
+    disfunciones: "",
+    erotismo: "",
+    parafilias: "",
     observacionesAspectoPsicosexual: "",
   },
   evaluacionLenguaje: {
@@ -583,20 +583,20 @@ export const initialPsicologiaClinicaState: FichaPsicologiaClinicaState = {
     dismensia: false,
     paramnesias: false,
     sinAlteracionMemoria: false,
-    desorientacionEnTiempo: "AUSENTE",
-    espacio: "AUSENTE",
-    respectoASiMismo: "AUSENTE",
-    respectoAOtrasPersonas: "AUSENTE",
+    desorientacionEnTiempo: "",
+    espacio: "",
+    respectoASiMismo: "",
+    respectoAOtrasPersonas: "",
   },
   evaluacionPensamiento: {
-    incoherencia: "AUSENTE",
-    bloqueos: "AUSENTE",
-    preservacion: "AUSENTE",
-    prolijidad: "AUSENTE",
-    desgragacion: "AUSENTE",
-    estereotipiasEstructuraDelPensamiento: "AUSENTE",
-    neologismos: "AUSENTE",
-    musitacion: "AUSENTE",
+    incoherencia: "",
+    bloqueos: "",
+    preservacion: "",
+    prolijidad: "",
+    desgragacion: "",
+    estereotipiasEstructuraDelPensamiento: "",
+    neologismos: "",
+    musitacion: "",
     retardo: false,
     aceleracion: false,
     fugaDeIdeas: false,
@@ -714,6 +714,20 @@ export default function FormularioPsicologiaClinica() {
     }
   };
 
+  const isSectionEmpty = (sectionData: any, initialSectionData: any) => {
+    if (!sectionData) return true;
+
+    return Object.keys(initialSectionData).every((key) => {
+      const v1 = sectionData[key];
+      const v2 = initialSectionData[key];
+
+      // Normalizar null/undefined a "" para comparar con los valores iniciales
+      const normalize = (v: any) => (v === null || v === undefined ? "" : v);
+
+      return normalize(v1) === normalize(v2);
+    });
+  };
+
   const loadFicha = async (fichaId: string) => {
     try {
       setLoading(true);
@@ -725,6 +739,31 @@ export default function FormularioPsicologiaClinica() {
         };
         setFormData(loadedData);
 
+        // Auto-open sections with data
+        const hasAnamnesis = !isSectionEmpty(data.anamnesis, initialPsicologiaClinicaState.anamnesis);
+        const hasSuenio = !isSectionEmpty(data.suenio, initialPsicologiaClinicaState.suenio);
+        const hasConducta = !isSectionEmpty(data.conducta, initialPsicologiaClinicaState.conducta);
+        const hasSexualidad = !isSectionEmpty(data.sexualidad, initialPsicologiaClinicaState.sexualidad);
+        const hasLenguaje = !isSectionEmpty(data.evaluacionLenguaje, initialPsicologiaClinicaState.evaluacionLenguaje);
+        const hasAfectiva = !isSectionEmpty(data.evaluacionAfectiva, initialPsicologiaClinicaState.evaluacionAfectiva);
+        const hasCognitiva = !isSectionEmpty(data.evaluacionCognitiva, initialPsicologiaClinicaState.evaluacionCognitiva);
+        const hasPensamiento = !isSectionEmpty(data.evaluacionPensamiento, initialPsicologiaClinicaState.evaluacionPensamiento);
+        const hasDiagnostico = !isSectionEmpty(data.diagnostico, initialPsicologiaClinicaState.diagnostico);
+
+        if (hasAnamnesis) setVerAnamnesis(true);
+        if (hasSuenio) setVerSuenio(true);
+        if (hasConducta) setVerConducta(true);
+        if (hasSexualidad) setVerSexualidad(true);
+        if (hasLenguaje) setVerEvaluacionLenguaje(true);
+        if (hasAfectiva) setVerEvaluacionAfectiva(true);
+        if (hasCognitiva) setVerEvaluacionCognitiva(true);
+        if (hasPensamiento) setVerEvaluacionPensamiento(true);
+        if (hasDiagnostico) setVerDiagnostico(true);
+
+        // Auto-open areas
+        if (hasAnamnesis || hasSuenio || hasConducta || hasSexualidad) setAreaHistoria(true);
+        if (hasLenguaje || hasAfectiva || hasCognitiva || hasPensamiento) setAreaEvaluacion(true);
+        
         if (data.paciente) {
             try {
                 const paciente = await pacientesService.obtenerPorId(data.paciente.id);
@@ -735,12 +774,12 @@ export default function FormularioPsicologiaClinica() {
         }
       } else {
         toast.error("No se encontró la ficha");
-        navigate("/fichas");
+        navigate("/fichas?tab=psicologia_clinica");
       }
     } catch (error) {
       console.error("Error loading ficha:", error);
       toast.error("Error al cargar la ficha");
-      navigate("/fichas");
+      navigate("/fichas?tab=psicologia_clinica");
     } finally {
       setLoading(false);
     }
@@ -778,7 +817,7 @@ export default function FormularioPsicologiaClinica() {
         await fichasService.crearPsicologiaClinica(formData);
         toast.success("Ficha creada exitosamente");
       }
-      navigate("/fichas");
+      navigate("/fichas?tab=psicologia_clinica");
     } catch (error: any) {
       if (error.response?.status === 409) {
         toast.error("Este paciente ya tiene una ficha activa.");
@@ -949,6 +988,7 @@ export default function FormularioPsicologiaClinica() {
                 onChange={(val) => setVerAnamnesis(val)}
               />
             }
+            onHeaderClick={() => setVerAnamnesis(!verAnamnesis)}
             bodyDisabled={!verAnamnesis}
           >
             <AnamnesisForm
@@ -966,6 +1006,7 @@ export default function FormularioPsicologiaClinica() {
                 onChange={(val) => setVerSuenio(val)}
               />
             }
+            onHeaderClick={() => setVerSuenio(!verSuenio)}
             bodyDisabled={!verSuenio}
           >
             <SuenioForm
@@ -983,6 +1024,7 @@ export default function FormularioPsicologiaClinica() {
                 onChange={(val) => setVerConducta(val)}
               />
             }
+            onHeaderClick={() => setVerConducta(!verConducta)}
             bodyDisabled={!verConducta}
           >
             <ConductaForm
@@ -1000,6 +1042,7 @@ export default function FormularioPsicologiaClinica() {
                 onChange={(val) => setVerSexualidad(val)}
               />
             }
+            onHeaderClick={() => setVerSexualidad(!verSexualidad)}
             bodyDisabled={!verSexualidad}
           >
             <SexualidadForm
@@ -1031,6 +1074,9 @@ export default function FormularioPsicologiaClinica() {
                 onChange={(val) => setVerEvaluacionLenguaje(val)}
               />
             }
+            onHeaderClick={() =>
+              setVerEvaluacionLenguaje(!verEvaluacionLenguaje)
+            }
             bodyDisabled={!verEvaluacionLenguaje}
           >
             <EvaluacionLenguajeForm
@@ -1049,6 +1095,9 @@ export default function FormularioPsicologiaClinica() {
                 checked={verEvaluacionAfectiva}
                 onChange={(val) => setVerEvaluacionAfectiva(val)}
               />
+            }
+            onHeaderClick={() =>
+              setVerEvaluacionAfectiva(!verEvaluacionAfectiva)
             }
             bodyDisabled={!verEvaluacionAfectiva}
           >
@@ -1069,6 +1118,9 @@ export default function FormularioPsicologiaClinica() {
                 onChange={(val) => setVerEvaluacionCognitiva(val)}
               />
             }
+            onHeaderClick={() =>
+              setVerEvaluacionCognitiva(!verEvaluacionCognitiva)
+            }
             bodyDisabled={!verEvaluacionCognitiva}
           >
             <EvaluacionCognitivaForm
@@ -1087,6 +1139,9 @@ export default function FormularioPsicologiaClinica() {
                 checked={verEvaluacionPensamiento}
                 onChange={(val) => setVerEvaluacionPensamiento(val)}
               />
+            }
+            onHeaderClick={() =>
+              setVerEvaluacionPensamiento(!verEvaluacionPensamiento)
             }
             bodyDisabled={!verEvaluacionPensamiento}
           >
@@ -1118,6 +1173,7 @@ export default function FormularioPsicologiaClinica() {
               onChange={(val) => setVerDiagnostico(val)}
             />
           }
+          onHeaderClick={() => setVerDiagnostico(!verDiagnostico)}
           bodyDisabled={!verDiagnostico}
         >
           <DiagnosticoPsicologiaForm
@@ -1130,7 +1186,7 @@ export default function FormularioPsicologiaClinica() {
       </div>
 
       <div className="flex justify-end gap-4">
-        <Button variant="outline" onClick={() => navigate("/fichas")}>
+        <Button variant="outline" onClick={() => navigate("/fichas?tab=psicologia_clinica")}>
           Cancelar
         </Button>
         <Button

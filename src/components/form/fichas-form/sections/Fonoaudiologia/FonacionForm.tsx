@@ -12,14 +12,23 @@ interface FonacionFormProps {
     tonoDeVoz: string;
     respiracion: string;
     ronca: boolean;
+    roncaDesdeCuando: string;
     juegoVocal: boolean;
+    juegoVocalDesdeCuando: string;
     vocalizacion: boolean;
+    vocalizacionDesdeCuando: string;
     balbuceo: boolean;
+    balbuceoDesdeCuando: string;
     silabeo: boolean;
+    silabeoDesdeCuando: string;
     primerasPalabras: boolean;
+    primerasPalabrasDesdeCuando: string;
     oracionesDosPalabras: boolean;
+    oracionesDosPalabrasDesdeCuando: string;
     oracionesTresPalabras: boolean;
+    oracionesTresPalabrasDesdeCuando: string;
     formacionLinguisticaCompleta: boolean;
+    formacionLinguisticaCompletaDesdeCuando: string;
     numeroTotalPalabras: number;
   };
   onChange: (field: string, value: any) => void;
@@ -27,17 +36,38 @@ interface FonacionFormProps {
 
 const FonacionForm: React.FC<FonacionFormProps> = ({ data, onChange }) => {
   const switchesHitos = [
-    { id: "ronca", label: "Ronca" },
-    { id: "juegoVocal", label: "Juego vocal" },
-    { id: "vocalizacion", label: "Vocalización" },
-    { id: "balbuceo", label: "Balbuceo" },
-    { id: "silabeo", label: "Silabeo" },
-    { id: "primerasPalabras", label: "Primeras palabras" },
-    { id: "oracionesDosPalabras", label: "Oraciones dos palabras" },
-    { id: "oracionesTresPalabras", label: "Oraciones tres palabras" },
+    { id: "ronca", label: "Ronca", detailId: "roncaDesdeCuando" },
+    {
+      id: "juegoVocal",
+      label: "Juego vocal",
+      detailId: "juegoVocalDesdeCuando",
+    },
+    {
+      id: "vocalizacion",
+      label: "Vocalización",
+      detailId: "vocalizacionDesdeCuando",
+    },
+    { id: "balbuceo", label: "Balbuceo", detailId: "balbuceoDesdeCuando" },
+    { id: "silabeo", label: "Silabeo", detailId: "silabeoDesdeCuando" },
+    {
+      id: "primerasPalabras",
+      label: "Primeras palabras",
+      detailId: "primerasPalabrasDesdeCuando",
+    },
+    {
+      id: "oracionesDosPalabras",
+      label: "Oraciones dos palabras",
+      detailId: "oracionesDosPalabrasDesdeCuando",
+    },
+    {
+      id: "oracionesTresPalabras",
+      label: "Oraciones tres palabras",
+      detailId: "oracionesTresPalabrasDesdeCuando",
+    },
     {
       id: "formacionLinguisticaCompleta",
       label: "Formación lingüística completa",
+      detailId: "formacionLinguisticaCompletaDesdeCuando",
     },
   ];
 
@@ -49,47 +79,51 @@ const FonacionForm: React.FC<FonacionFormProps> = ({ data, onChange }) => {
         </h4>
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-4">
           <Switch
-            label="¿Cree tono voz estudiante apropiado?"
+            label="¿Cree que el tono de voz del estudiante es apropiado?"
             checked={data.creeTonoVozEstudianteApropiado}
             onChange={(val: boolean) =>
               onChange("creeTonoVozEstudianteApropiado", val)
             }
           />
-          <div>
-            <Label htmlFor="situacionesAlteraTonoVoz">
-              Situaciones que alteran el tono
-            </Label>
-            <Input
-              id="situacionesAlteraTonoVoz"
-              value={data.situacionesAlteraTonoVoz}
-              onChange={(e) =>
-                onChange("situacionesAlteraTonoVoz", e.target.value)
-              }
-              placeholder="Especifique..."
-            />
-          </div>
-          <div>
-            <Label htmlFor="desdeCuandoAlteracionesVoz">
-              Desde cuándo hay alteraciones
-            </Label>
-            <Input
-              id="desdeCuandoAlteracionesVoz"
-              value={data.desdeCuandoAlteracionesVoz}
-              onChange={(e) =>
-                onChange("desdeCuandoAlteracionesVoz", e.target.value)
-              }
-              placeholder="Especifique..."
-            />
-          </div>
-          <div>
-            <Label htmlFor="tonoDeVoz">Tono de voz</Label>
-            <Input
-              id="tonoDeVoz"
-              value={data.tonoDeVoz}
-              onChange={(e) => onChange("tonoDeVoz", e.target.value)}
-              placeholder="Normal, agudo, etc."
-            />
-          </div>
+          {data.creeTonoVozEstudianteApropiado && (
+            <>
+              <div>
+                <Label htmlFor="situacionesAlteraTonoVoz">
+                  Situaciones que alteran el tono
+                </Label>
+                <Input
+                  id="situacionesAlteraTonoVoz"
+                  value={data.situacionesAlteraTonoVoz}
+                  onChange={(e) =>
+                    onChange("situacionesAlteraTonoVoz", e.target.value)
+                  }
+                  placeholder="Especifique..."
+                />
+              </div>
+              <div>
+                <Label htmlFor="desdeCuandoAlteracionesVoz">
+                  Desde cuándo hay alteraciones
+                </Label>
+                <Input
+                  id="desdeCuandoAlteracionesVoz"
+                  value={data.desdeCuandoAlteracionesVoz}
+                  onChange={(e) =>
+                    onChange("desdeCuandoAlteracionesVoz", e.target.value)
+                  }
+                  placeholder="Especifique..."
+                />
+              </div>
+              <div>
+                <Label htmlFor="tonoDeVoz">Tono de voz</Label>
+                <Input
+                  id="tonoDeVoz"
+                  value={data.tonoDeVoz}
+                  onChange={(e) => onChange("tonoDeVoz", e.target.value)}
+                  placeholder="Normal, agudo, etc."
+                />
+              </div>
+            </>
+          )}
         </div>
         <div className="grid grid-cols-1 gap-4 pt-6 sm:grid-cols-4">
           <Switch
@@ -113,33 +147,50 @@ const FonacionForm: React.FC<FonacionFormProps> = ({ data, onChange }) => {
         <h4 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-300">
           Hitos del Lenguaje / Fonación
         </h4>
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-x-12 gap-y-2 items-center">
           {switchesHitos.map((sw) => (
-            <Switch
-              key={sw.id}
-              label={sw.label}
-              checked={data[sw.id as keyof typeof data] as boolean}
-              onChange={(checked: boolean) => onChange(sw.id, checked)}
-            />
+            <React.Fragment key={sw.id}>
+              <div className="py-2 flex items-center h-12">
+                <Switch
+                  label={sw.label}
+                  checked={data[sw.id as keyof typeof data] as boolean}
+                  onChange={(checked: boolean) => onChange(sw.id, checked)}
+                />
+              </div>
+              <div className="h-12 flex items-center">
+                {data[sw.id as keyof typeof data] && (
+                  <div className="w-full animate-in fade-in slide-in-from-left-4 duration-300">
+                    <Input
+                      placeholder="¿Desde cuándo?"
+                      value={
+                        (data[sw.detailId as keyof typeof data] as string) || ""
+                      }
+                      onChange={(e) => onChange(sw.detailId, e.target.value)}
+                    />
+                  </div>
+                )}
+              </div>
+            </React.Fragment>
           ))}
-        </div>
-        <div className="pt-4">
-          <div>
-            <Label htmlFor="numeroTotalPalabras">
+
+          <div className="py-2 flex items-center h-12">
+            <Label
+              htmlFor="numeroTotalPalabras"
+              className="text-sm font-medium text-gray-700 dark:text-gray-400"
+            >
               Número total de palabras
             </Label>
+          </div>
+          <div className="h-12 flex items-center">
             <Input
-            className="max-w-xs"
               id="numeroTotalPalabras"
               type="number"
               value={data.numeroTotalPalabras}
               onChange={(e) =>
                 onChange("numeroTotalPalabras", Number(e.target.value))
               }
+              className="w-full"
             />
-            <p className="mt-2 text-xs text-gray-400">
-              Total estimado de palabras en su léxico.
-            </p>
           </div>
         </div>
       </div>

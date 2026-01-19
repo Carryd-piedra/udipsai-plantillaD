@@ -38,7 +38,7 @@ export const initialFonoaudiologiaState: FonoaudiologiaState = {
     sabeComoLlamanObjetosEntorno: false,
     comprendeLoQueSeLeDice: false,
     reconoceFuenteSonora: false,
-    comunicacionPreferentementeForma: "VERBAL",
+    comunicacionPreferentementeForma: "",
     trastornoEspecificoPronunciacion: false,
     trastornoLenguajeExpresivo: false,
     afasiaAdquiridaEpilepsia: false,
@@ -53,36 +53,34 @@ export const initialFonoaudiologiaState: FonoaudiologiaState = {
   audicion: {
     seARealizadoExamenAudiologico: false,
     perdidaAuditivaConductivaNeurosensorial: false,
+    audicionNormal: false,
     hipoacusiaConductivaBilateral: false,
     hipoacusiaConductivaUnilateral: false,
     hipoacusiaNeurosensorialBilateral: false,
     hipoacusiaNeurosensorialUnilateral: false,
+    detallesAudicion: "",
     infeccionesOidoFuertes: false,
     cualInfeccionesOidoFuertes: "",
     edadInfeccionesOidoFuertes: 0,
     perdidaAuditiva: false,
-    unilateral: false,
     oidoDerecho: false,
     oidoIzquierdo: false,
     bilateral: false,
-    gradoPerdida: "SÚBITA",
-    permanecia: "TEMPORAL",
+    gradoPerdida: "",
+    permanecia: "",
     otitis: false,
-    tipoOtitis: "MEDIO",
+    tipoOtitis: "",
     duracionOtitisInicio: "",
     duracionOtitisFin: "",
     antecedentesFamiliares: false,
     exposisionRuidos: false,
-    duracionExposisionRuidosInicio: "",
-    duracionExposisionRuidosFin: "",
     ototoxicos: false,
     infecciones: false,
     usoAudifonos: false,
-    inicioUsoAudifonos: "",
-    finUsoAudifonos: "",
+    inicioAyudasAuditivas: "",
+    finUsoAyudasAuditivas: "",
     implanteCoclear: false,
-    tratamientoFonoaudiologicoPrevio: false,
-    atenidoPerdidaAudicionPasado: false,
+    vibradorOseo: false
   },
   fonacion: {
     creeTonoVozEstudianteApropiado: false,
@@ -92,14 +90,23 @@ export const initialFonoaudiologiaState: FonoaudiologiaState = {
     tonoDeVoz: "",
     respiracion: "",
     ronca: false,
+    roncaDesdeCuando: "",
     juegoVocal: false,
+    juegoVocalDesdeCuando: "",
     vocalizacion: false,
+    vocalizacionDesdeCuando: "",
     balbuceo: false,
+    balbuceoDesdeCuando: "",
     silabeo: false,
+    silabeoDesdeCuando: "",
     primerasPalabras: false,
+    primerasPalabrasDesdeCuando: "",
     oracionesDosPalabras: false,
+    oracionesDosPalabrasDesdeCuando: "",
     oracionesTresPalabras: false,
+    oracionesTresPalabrasDesdeCuando: "",
     formacionLinguisticaCompleta: false,
+    formacionLinguisticaCompletaDesdeCuando: "",
     numeroTotalPalabras: 0,
   },
   historiaAuditiva: {
@@ -110,7 +117,7 @@ export const initialFonoaudiologiaState: FonoaudiologiaState = {
     otalgiaBilateral: false,
     permanenciaOtalgiaContinua: false,
     permanenciaOtalgiaIntermitente: false,
-    gradoPermanenciaOtalgia: "MEDIA",
+    gradoPermanenciaOtalgia: "",
     asociadaOtalgiaInfeccionRespiratoriaAlta: false,
     infeccionRespiratoriaPunzante: false,
     infeccionRespiratoriaPulsatil: false,
@@ -127,7 +134,7 @@ export const initialFonoaudiologiaState: FonoaudiologiaState = {
     otorreaBilateral: false,
     permanenciaOtorreaContinua: false,
     permanenciaOtorreaIntermitente: false,
-    gradoPermanenciaOtorrea: "MEDIA",
+    gradoPermanenciaOtorrea: "",
     aspectoClaroOtorrea: false,
     aspectoSerosoOtorrea: false,
     aspectoMucosoOtorrea: false,
@@ -160,32 +167,32 @@ export const initialFonoaudiologiaState: FonoaudiologiaState = {
     utilizaAyudaAuditiva: false,
     especficarAyudaAuditiva: "",
     percibeSonidoIgualAmbosOidos: false,
-    conQueOidoEscuchaMejor: "AMBOS",
-    haceCuantoTiempoPresentaSintomasAuditivos: "DÍAS",
+    conQueOidoEscuchaMejor: "",
+    haceCuantoTiempoPresentaSintomasAuditivos: "",
   },
   vestibular: {
     faltaEquilibrioCaminar: false,
     mareos: false,
-    cuandoMareos: "SIEMPRE",
+    cuandoMareos: "",
     vertigo: false,
   },
   otoscopia: {
-    palpacionPabellonOidoDerecho: "NORMAL",
-    palpacionMastoidesOidoDerecho: "NORMAL",
-    caeOidoDerecho: "NORMAL",
-    obstruccionOidoDerecho: "SI",
-    aparienciaMenbranaTimpanicaOidoDerecho: "NORMAL",
+    palpacionPabellonOidoDerecho: "",
+    palpacionMastoidesOidoDerecho: "",
+    caeOidoDerecho: "",
+    obstruccionOidoDerecho: "",
+    aparienciaMenbranaTimpanicaOidoDerecho: "",
     perforacionOidoDerecho: false,
     burbujaOidoDerecho: false,
-    coloracionOidoDerecho: "NORMAL",
-    palpacionPabellonOidoIzquierdo: "NORMAL",
-    palpacionMastoidesOidoIzquierdo: "NORMAL",
-    caeOidoIzquierdo: "NORMAL",
-    obstruccionOidoIzquierdo: "SI",
-    aparienciaMenbranaTimpanicaOidoIzquierdo: "NORMAL",
+    coloracionOidoDerecho: "",
+    palpacionPabellonOidoIzquierdo: "",
+    palpacionMastoidesOidoIzquierdo: "",
+    caeOidoIzquierdo: "",
+    obstruccionOidoIzquierdo: "",
+    aparienciaMenbranaTimpanicaOidoIzquierdo: "",
     perforacionOidoIzquierdo: false,
     burbujaOidoIzquierdo: false,
-    coloracionOidoIzquierdo: "NORMAL",
+    coloracionOidoIzquierdo: "",
   },
 };
 
@@ -248,17 +255,50 @@ export default function FormularioFonoaudiologia() {
     }
   };
 
+  const isSectionEmpty = (sectionData: any, initialSectionData: any) => {
+    if (!sectionData) return true;
+    
+    return Object.keys(initialSectionData).every((key) => {
+      const v1 = sectionData[key];
+      const v2 = initialSectionData[key];
+      
+      const normalize = (v: any) => (v === null || v === undefined ? "" : v);
+      
+      return normalize(v1) === normalize(v2);
+    });
+  };
+
   const loadFicha = async (fichaId: string) => {
     try {
       setLoading(true);
       const data = await fichasService.obtenerFonoaudiologia(fichaId);
       if (data) {
-        // Ensure pacienteId is explicitly set from the nested patient object
         const loadedData = {
           ...data,
           pacienteId: data.pacienteId || data.paciente?.id,
         };
         setFormData(loadedData);
+
+        // Auto-open sections with data
+        const hasHabla = !isSectionEmpty(data.habla, initialFonoaudiologiaState.habla);
+        const hasAudicion = !isSectionEmpty(data.audicion, initialFonoaudiologiaState.audicion);
+        const hasFonacion = !isSectionEmpty(data.fonacion, initialFonoaudiologiaState.fonacion);
+        const hasHistoria = !isSectionEmpty(data.historiaAuditiva, initialFonoaudiologiaState.historiaAuditiva);
+        const hasVestibular = !isSectionEmpty(data.vestibular, initialFonoaudiologiaState.vestibular);
+        const hasOtoscopia = !isSectionEmpty(data.otoscopia, initialFonoaudiologiaState.otoscopia);
+
+        if (hasHabla) setVerSeccionHabla(true);
+        if (hasAudicion) setVerSeccionAudicion(true);
+        if (hasFonacion) setVerSeccionFonacion(true);
+        if (hasHistoria) setVerSeccionHistoriaAuditiva(true);
+        if (hasVestibular) setVerSeccionVestibular(true);
+        if (hasOtoscopia) setVerSeccionOtoscopia(true);
+
+        // Auto-open areas
+        if (hasHabla || hasFonacion) setAreaLenguaje(true);
+        if (hasAudicion || hasHistoria || hasVestibular || hasOtoscopia) setAreaAudicion(true);
+
+        console.log(data)
 
         if (data.paciente) {
           try {
@@ -272,12 +312,12 @@ export default function FormularioFonoaudiologia() {
         }
       } else {
         toast.error("No se encontró la ficha");
-        navigate("/fichas");
+        navigate("/fichas?tab=fonoaudiologia");
       }
     } catch (error) {
       console.error("Error loading ficha:", error);
       toast.error("Error al cargar la ficha");
-      navigate("/fichas");
+      navigate("/fichas?tab=fonoaudiologia");
     } finally {
       setLoading(false);
     }
@@ -315,7 +355,7 @@ export default function FormularioFonoaudiologia() {
         await fichasService.crearFonoaudiologia(formData);
         toast.success("Ficha creada exitosamente");
       }
-      navigate("/fichas");
+      navigate("/fichas?tab=fonoaudiologia");
     } catch (error: any) {
       if (error.response?.status === 409) {
         toast.error("Este paciente ya tiene una ficha activa.");
@@ -485,6 +525,7 @@ export default function FormularioFonoaudiologia() {
                 onChange={(val) => setVerSeccionHabla(val)}
               />
             }
+            onHeaderClick={() => setVerSeccionHabla(!verSeccionHabla)}
             bodyDisabled={!verSeccionHabla}
           >
             <HablaForm
@@ -502,6 +543,7 @@ export default function FormularioFonoaudiologia() {
                 onChange={(val) => setVerSeccionFonacion(val)}
               />
             }
+            onHeaderClick={() => setVerSeccionFonacion(!verSeccionFonacion)}
             bodyDisabled={!verSeccionFonacion}
           >
             <FonacionForm
@@ -533,6 +575,7 @@ export default function FormularioFonoaudiologia() {
                 onChange={(val) => setVerSeccionAudicion(val)}
               />
             }
+            onHeaderClick={() => setVerSeccionAudicion(!verSeccionAudicion)}
             bodyDisabled={!verSeccionAudicion}
           >
             <AudicionForm
@@ -551,6 +594,9 @@ export default function FormularioFonoaudiologia() {
                 checked={verSeccionHistoriaAuditiva}
                 onChange={(val) => setVerSeccionHistoriaAuditiva(val)}
               />
+            }
+            onHeaderClick={() =>
+              setVerSeccionHistoriaAuditiva(!verSeccionHistoriaAuditiva)
             }
             bodyDisabled={!verSeccionHistoriaAuditiva}
           >
@@ -571,6 +617,7 @@ export default function FormularioFonoaudiologia() {
                 onChange={(val) => setVerSeccionVestibular(val)}
               />
             }
+            onHeaderClick={() => setVerSeccionVestibular(!verSeccionVestibular)}
             bodyDisabled={!verSeccionVestibular}
           >
             <VestibularForm
@@ -590,6 +637,7 @@ export default function FormularioFonoaudiologia() {
                 onChange={(val) => setVerSeccionOtoscopia(val)}
               />
             }
+            onHeaderClick={() => setVerSeccionOtoscopia(!verSeccionOtoscopia)}
             bodyDisabled={!verSeccionOtoscopia}
           >
             <OtoscopiaForm
@@ -603,7 +651,7 @@ export default function FormularioFonoaudiologia() {
       )}
 
       <div className="flex justify-end gap-4">
-        <Button variant="outline" onClick={() => navigate("/fichas")}>
+        <Button variant="outline" onClick={() => navigate("/fichas?tab=fonoaudiologia")}>
           Cancelar
         </Button>
         <Button

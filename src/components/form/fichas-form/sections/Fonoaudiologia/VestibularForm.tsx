@@ -1,5 +1,4 @@
 import React from "react";
-import Label from "../../../Label";
 import Switch from "../../../switch/Switch";
 import Select from "../../../Select";
 
@@ -43,18 +42,17 @@ const VestibularForm: React.FC<VestibularFormProps> = ({ data, onChange }) => {
             checked={data.mareos}
             onChange={(val: boolean) => onChange("mareos", val)}
           />
-        </div>
-        <div className="grid grid-cols-1 pt-6 gap-4 sm:grid-cols-3">
+        {data.mareos && (
           <div>
-            <Label htmlFor="cuandoMareos">¿Cuándo presenta mareos?</Label>
             <Select
               options={optionsCuandoMareos}
-              value={data.cuandoMareos}
+              value={data.cuandoMareos || ""}
               onChange={(val: string) => onChange("cuandoMareos", val)}
               placeholder="Seleccione el momento..."
             />
           </div>
-          </div>
+        )}
+        </div>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ interface ComponentCardProps {
   desc?: string; // Description text
   action?: React.ReactNode; // Extra component for the header right side
   bodyDisabled?: boolean;
+  onHeaderClick?: () => void;
 }
 
 const ComponentCard: React.FC<ComponentCardProps> = ({
@@ -14,6 +15,7 @@ const ComponentCard: React.FC<ComponentCardProps> = ({
   desc = "",
   action,
   bodyDisabled = false,
+  onHeaderClick,
 }) => {
   return (
     <div
@@ -22,9 +24,20 @@ const ComponentCard: React.FC<ComponentCardProps> = ({
       } ${className}`}
     >
       {/* Card Header */}
-      <div className={`px-6 py-5 flex items-center justify-between ${!bodyDisabled && "border-b border-gray-100 dark:border-gray-800"}`}>
+      <div
+        onClick={onHeaderClick}
+        className={`px-6 py-5 flex items-center justify-between transition-colors duration-300 ${
+          onHeaderClick ? "cursor-pointer hover:bg-gray-50/50 dark:hover:bg-white/[0.02]" : ""
+        } ${!bodyDisabled && "border-b border-gray-100 dark:border-gray-800"}`}
+      >
         <div>
-          <h3 className={`text-base font-semibold transition-colors duration-300 ${bodyDisabled ? "text-gray-400 dark:text-gray-600" : "text-gray-800 dark:text-white/90"}`}>
+          <h3
+            className={`text-base font-semibold transition-colors duration-300 ${
+              bodyDisabled
+                ? "text-gray-400 dark:text-gray-600"
+                : "text-gray-800 dark:text-white/90"
+            }`}
+          >
             {title}
           </h3>
           {desc && (
@@ -34,7 +47,10 @@ const ComponentCard: React.FC<ComponentCardProps> = ({
           )}
         </div>
         {action && (
-          <div className="flex-shrink-0 ml-4">
+          <div
+            className="flex-shrink-0 ml-4"
+            onClick={(e) => e.stopPropagation()}
+          >
             {action}
           </div>
         )}
@@ -42,7 +58,7 @@ const ComponentCard: React.FC<ComponentCardProps> = ({
 
       {/* Card Body */}
       {!bodyDisabled && (
-        <div className="p-4 sm:p-6 animate-in fade-in zoom-in-95 duration-300">
+        <div className="p-4 sm:p-6 animate-in fade-in zoom-in-100 duration-300">
           <div className="space-y-6">{children}</div>
         </div>
       )}

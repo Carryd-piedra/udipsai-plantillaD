@@ -6,7 +6,7 @@ import Switch from "../../../switch/Switch";
 interface DesarrolloProps {
   data: {
     cdi: boolean;
-    cdiEdad: string;
+    cdiEdad: number;
     inicial1: boolean;
     inicial1Edad: number;
     inicial2: boolean;
@@ -39,6 +39,7 @@ const DatosDesarrolloForm: React.FC<DesarrolloProps> = ({ data, onChange }) => {
       <div>
         <Label>CDI Edad</Label>
         <Input
+          type="number"
           value={data.cdiEdad}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             onChange("cdiEdad", e.target.value)

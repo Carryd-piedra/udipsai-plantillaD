@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import ComponentCard from "../../common/ComponentCard";
 import Button from "../../ui/button/Button";
 import Label from "../Label";
+import InformacionGeneralForm from "./sections/HistoriaClinica.tsx/InformacionGeneralForm";
 import DatosFamiliaresForm from "./sections/HistoriaClinica.tsx/DatosFamiliaresForm";
 import HistoriaPrenatalForm from "./sections/HistoriaClinica.tsx/HistoriaPrenatalForm";
 import HistoriaNatalForm from "./sections/HistoriaClinica.tsx/HistoriaNatalForm";
@@ -22,132 +23,208 @@ export interface HistoriaClinicaState {
   id?: number;
   pacienteId: number;
   activo: boolean;
+  fecha: string;
+  informacionGeneral: {
+    fuenteDeInformacion: string;
+    motivoConsulta: string;
+    parentesco: string;
+    personaQueDeriva: string;
+    viveCon: string;
+    viveConOtro: string;
+    vivenJuntos: boolean;
+    otrosCompromisos: string;
+    tipoFamilia: string;
+    hijosOtrosFamiliaresVivenCasa: string;
+    genogramaUrl: string;
+  };
+
   datosFamiliares: {
-    procedenciaPadre: string;
-    procedenciaMadre: string;
-    edadMadreAlNacimiento: string;
-    edadPadreAlNacimiento: string;
-    consanguinidad: boolean;
+    nombrePadre: string;
+    edadPadre: string;
+    ocupacionPadre: string;
+    instruccionPadre: string;
+    estadoCivilPadre: string;
+    lugarResidenciaPadre: string;
+    nombreMadre: string;
+    edadMadre: string;
+    ocupacionMadre: string;
+    instruccionMadre: string;
+    estadoCivilMadre: string;
+    lugarResidenciaMadre: string;
+    numeroHermanos: string;
+    lugarQueOcupa: string;
+    direccionDomiciliaria: string;
   };
   historiaPrenatal: {
-    embarazoNumero: number;
-    controlesEco: boolean;
-    hijosVivos: number;
-    segSemestreAborto: boolean;
-    segSemestreAmenaza: boolean;
-    alimentacion: boolean;
-    ingestaMedicamentos: boolean;
+    embarazoDeseado: boolean;
+    controlEmbarazo: boolean;
+    causaControlEmbarazo: string;
+    enfermedadesMadre: string;
+    consumoMedicamentosToxicos: string;
+    presentoAmenazaAborto: boolean;
+    mesAmenazaAborto: string;
+    causaAmenazaAborto: string;
+    estadoEmocional: string;
   };
   historiaNatal: {
-    parto: string;
-    llantoAlNacer: string;
-    colorPielNacimiento: string;
-    cordonOmbilical: string;
-    presenciaIctericia: string;
-    transfucionSangre: string;
+    dondeNacio: string;
+    ciudadNacimiento: string;
+    duracionEmbarazo: string;
+    tipoParto: string;
+    partoSegunElComienzo: string;
+    partoSegunFinalizacion: string;
+    lloroAlNacer: boolean;
+    pesoAlNacer: string;
+    tallaAlNacer: string;
+    anoxiaAlNacer: boolean;
+    hipoxiaAlNacer: boolean;
+    ictericiaAlNacer: boolean;
+    cianosisAlNacer: boolean;
+    malformacionCongenita: string;
+    problemasDeAlimentacion: string;
+    complicacionesEnElParto: boolean;
+    cualComplicacionParto: string;
+    estuvoEnIncubadora: boolean;
+    tiempoEnIncubadora: string;
+    causaDeIncubadora: string;
   };
   historiaPostnatal: {
+    esquemaVacunacionCompleto: boolean;
     convulsiones: boolean;
     medicacion: boolean;
   };
   desarrolloMotor: {
-    sostuvoLaCabeza: number;
-    seSentoSolo: number;
-    seParoSolo: number;
-    caminoSolo: number;
-    inicioGateo: number;
-    tipoGateo: string;
-    edadesSonrisaSocial: number;
-    edadesBalbuceo: number;
-    edadesPrimerasFrases: number;
+    controlCefalico: string;
+    sedestacion: string;
+    hipedestacion: string;
+    caminaConApoyo: string;
+    caminaSolo: string;
+    subeEscaleras: string;
+    controlEsfinteres: string;
+    salta: string;
+    corre: string;
+    gateo: string;
+    prefiereManoIzquierdaDerecha: string;
+    caeOPerdeEquilibrioFacilmente: string;
   };
   alimentacion: {
-    tomoSeno: boolean;
-    edadDesteteTomoSeno: number;
-    tomoBiberon: boolean;
-    edadDesteteTomoBiberon: number;
-    edadInicioComidaSolida: number;
-    habitosAlimenticiosActuales: string;
-    edadDejoPanial: number;
-    edadControlEsfinferesDiurno: number;
-    edadControlEsfinferesNocturno: number;
-    seVisteSolo: boolean;
+    dejoPechoMaterno: string;
+    biberon: string;
+    alimentoPorSiSoloCuchara: string;
+    edadIntegroDietaFamiliar: string;
   };
   antecedentesMedicos: {
+    enfermedadesConTratamiento: string;
     alergias: string;
-    enfermedadesVirales: string;
-    hospitalizacionesQuirurgicasYCausas: string;
-    accidentesYSecuelas: string;
-    tomaMedicacionActualmente: string;
-    examenesComplementariosRealizados: string;
-    antecedentesPatologicosFamiliares: string;
-    vacunacionC: string;
+    intervencionesQuirurgicas: string;
+    medicamentosRequeridosOConsumo: string;
+    enfermedadesDiscapacidadesFamiliares: string;
+    trastornosPsicologicosFamiliares: string;
+    problemasAprendizajeFamiliares: string;
   };
 }
 
 export const initialHistoriaClinicaState: HistoriaClinicaState = {
   pacienteId: 0,
   activo: true,
+  fecha: "",
+  informacionGeneral: {
+    fuenteDeInformacion: "",
+    motivoConsulta: "",
+    parentesco: "",
+    personaQueDeriva: "",
+    viveCon: "",
+    viveConOtro: "",
+    vivenJuntos: false,
+    otrosCompromisos: "",
+    tipoFamilia: "",
+    hijosOtrosFamiliaresVivenCasa: "",
+    genogramaUrl: "",
+  },
+
   datosFamiliares: {
-    procedenciaPadre: "",
-    procedenciaMadre: "",
-    edadMadreAlNacimiento: "",
-    edadPadreAlNacimiento: "",
-    consanguinidad: false,
+    nombrePadre: "",
+    edadPadre: "",
+    ocupacionPadre: "",
+    instruccionPadre: "",
+    estadoCivilPadre: "",
+    lugarResidenciaPadre: "",
+    nombreMadre: "",
+    edadMadre: "",
+    ocupacionMadre: "",
+    instruccionMadre: "",
+    estadoCivilMadre: "",
+    lugarResidenciaMadre: "",
+    numeroHermanos: "",
+    lugarQueOcupa: "",
+    direccionDomiciliaria: "",
   },
   historiaPrenatal: {
-    embarazoNumero: 1,
-    controlesEco: false,
-    hijosVivos: 1,
-    segSemestreAborto: false,
-    segSemestreAmenaza: false,
-    alimentacion: false,
-    ingestaMedicamentos: false,
+    embarazoDeseado: false,
+    controlEmbarazo: false,
+    causaControlEmbarazo: "",
+    enfermedadesMadre: "",
+    consumoMedicamentosToxicos: "",
+    presentoAmenazaAborto: false,
+    mesAmenazaAborto: "",
+    causaAmenazaAborto: "",
+    estadoEmocional: "",
   },
   historiaNatal: {
-    parto: "NORMAL",
-    llantoAlNacer: "INMEDIATO",
-    colorPielNacimiento: "NORMOCROMICO",
-    cordonOmbilical: "OTRO",
-    presenciaIctericia: "NO",
-    transfucionSangre: "NO",
+    dondeNacio: "",
+    ciudadNacimiento: "",
+    duracionEmbarazo: "",
+    tipoParto: "",
+    partoSegunElComienzo: "",
+    partoSegunFinalizacion: "",
+    lloroAlNacer: false,
+    pesoAlNacer: "",
+    tallaAlNacer: "",
+    anoxiaAlNacer: false,
+    hipoxiaAlNacer: false,
+    ictericiaAlNacer: false,
+    cianosisAlNacer: false,
+    malformacionCongenita: "",
+    problemasDeAlimentacion: "",
+    complicacionesEnElParto: false,
+    cualComplicacionParto: "",
+    estuvoEnIncubadora: false,
+    tiempoEnIncubadora: "",
+    causaDeIncubadora: "",
   },
   historiaPostnatal: {
+    esquemaVacunacionCompleto: false,
     convulsiones: false,
     medicacion: false,
   },
   desarrolloMotor: {
-    sostuvoLaCabeza: 0,
-    seSentoSolo: 0,
-    seParoSolo: 0,
-    caminoSolo: 0,
-    inicioGateo: 0,
-    tipoGateo: "",
-    edadesSonrisaSocial: 0,
-    edadesBalbuceo: 0,
-    edadesPrimerasFrases: 0,
+    controlCefalico: "",
+    sedestacion: "",
+    hipedestacion: "",
+    caminaConApoyo: "",
+    caminaSolo: "",
+    subeEscaleras: "",
+    controlEsfinteres: "",
+    salta: "",
+    corre: "",
+    gateo: "",
+    prefiereManoIzquierdaDerecha: "",
+    caeOPerdeEquilibrioFacilmente: "",
   },
   alimentacion: {
-    tomoSeno: false,
-    edadDesteteTomoSeno: 0,
-    tomoBiberon: false,
-    edadDesteteTomoBiberon: 0,
-    edadInicioComidaSolida: 0,
-    habitosAlimenticiosActuales: "",
-    edadDejoPanial: 0,
-    edadControlEsfinferesDiurno: 0,
-    edadControlEsfinferesNocturno: 0,
-    seVisteSolo: false,
+    dejoPechoMaterno: "",
+    biberon: "",
+    alimentoPorSiSoloCuchara: "",
+    edadIntegroDietaFamiliar: "",
   },
   antecedentesMedicos: {
+    enfermedadesConTratamiento: "",
     alergias: "",
-    enfermedadesVirales: "",
-    hospitalizacionesQuirurgicasYCausas: "",
-    accidentesYSecuelas: "",
-    tomaMedicacionActualmente: "",
-    examenesComplementariosRealizados: "",
-    antecedentesPatologicosFamiliares: "",
-    vacunacionC: "",
+    intervencionesQuirurgicas: "",
+    medicamentosRequeridosOConsumo: "",
+    enfermedadesDiscapacidadesFamiliares: "",
+    trastornosPsicologicosFamiliares: "",
+    problemasAprendizajeFamiliares: "",
   },
 };
 
@@ -162,6 +239,7 @@ export default function FormularioHistoriaClinica() {
   const [loading, setLoading] = useState(false);
 
   // Section Visibility State
+  const [verInformacionGeneral, setVerInformacionGeneral] = useState(true);
   const [verDatosFamiliares, setVerDatosFamiliares] = useState(false);
   const [verHistoriaPrenatal, setVerHistoriaPrenatal] = useState(false);
   const [verHistoriaNatal, setVerHistoriaNatal] = useState(false);
@@ -215,16 +293,89 @@ export default function FormularioHistoriaClinica() {
     }
   };
 
+  const isSectionEmpty = (sectionData: any, initialSectionData: any) => {
+    if (!sectionData) return true;
+
+    return Object.keys(initialSectionData).every((key) => {
+      const v1 = sectionData[key];
+      const v2 = initialSectionData[key];
+
+      // Normalizar null/undefined a "" para comparar con los valores iniciales
+      const normalize = (v: any) => (v === null || v === undefined ? "" : v);
+
+      return normalize(v1) === normalize(v2);
+    });
+  };
+
   const loadFicha = async (fichaId: string) => {
     try {
       setLoading(true);
       const data = await fichasService.obtenerHistoriaClinica(fichaId);
       if (data) {
         const loadedData = {
-            ...data,
-            pacienteId: data.pacienteId || data.paciente?.id
+          ...data,
+          pacienteId: data.pacienteId || data.paciente?.id,
+          fecha: data.fecha ? data.fecha : "",
+          informacionGeneral: data.informacionGeneral || initialHistoriaClinicaState.informacionGeneral,
+          datosFamiliares: data.datosFamiliares || initialHistoriaClinicaState.datosFamiliares,
+          historiaPrenatal: data.historiaPrenatal || initialHistoriaClinicaState.historiaPrenatal,
+          historiaNatal: data.historiaNatal || initialHistoriaClinicaState.historiaNatal,
+          historiaPostnatal: data.historiaPostnatal || initialHistoriaClinicaState.historiaPostnatal,
+          desarrolloMotor: data.desarrolloMotor || initialHistoriaClinicaState.desarrolloMotor,
+          alimentacion: data.alimentacion || initialHistoriaClinicaState.alimentacion,
+          antecedentesMedicos: data.antecedentesMedicos || initialHistoriaClinicaState.antecedentesMedicos,
         };
         setFormData(loadedData);
+
+        // Auto-open sections with data
+        const hasInfoGeneral = !isSectionEmpty(
+          data.informacionGeneral,
+          initialHistoriaClinicaState.informacionGeneral
+        );
+        const hasDatosFam = !isSectionEmpty(
+          data.datosFamiliares,
+          initialHistoriaClinicaState.datosFamiliares
+        );
+        const hasPrenatal = !isSectionEmpty(
+          data.historiaPrenatal,
+          initialHistoriaClinicaState.historiaPrenatal
+        );
+        const hasNatal = !isSectionEmpty(
+          data.historiaNatal,
+          initialHistoriaClinicaState.historiaNatal
+        );
+        const hasPostnatal = !isSectionEmpty(
+          data.historiaPostnatal,
+          initialHistoriaClinicaState.historiaPostnatal
+        );
+        const hasMotor = !isSectionEmpty(
+          data.desarrolloMotor,
+          initialHistoriaClinicaState.desarrolloMotor
+        );
+        const hasAlimentacion = !isSectionEmpty(
+          data.alimentacion,
+          initialHistoriaClinicaState.alimentacion
+        );
+        const hasAntecedentes = !isSectionEmpty(
+          data.antecedentesMedicos,
+          initialHistoriaClinicaState.antecedentesMedicos
+        );
+        const hasGenograma = !!data.informacionGeneral?.genogramaUrl;
+
+        if (hasInfoGeneral) setVerInformacionGeneral(true);
+        if (hasDatosFam) setVerDatosFamiliares(true);
+        if (hasPrenatal) setVerHistoriaPrenatal(true);
+        if (hasNatal) setVerHistoriaNatal(true);
+        if (hasPostnatal) setVerHistoriaPostnatal(true);
+        if (hasMotor) setVerDesarrolloMotor(true);
+        if (hasAlimentacion) setVerAlimentacion(true);
+        if (hasAntecedentes) setVerAntecedentesMedicos(true);
+        if (hasGenograma) setVerGenograma(true);
+
+        // Auto-open areas
+        if (hasPrenatal || hasNatal || hasPostnatal) setAreaNacimiento(true);
+        if (hasMotor || hasAlimentacion || hasAntecedentes)
+          setAreaDesarrollo(true);
 
         if (data.paciente) {
           try {
@@ -238,15 +389,22 @@ export default function FormularioHistoriaClinica() {
         }
       } else {
         toast.error("No se encontró la ficha");
-        navigate("/fichas");
+        navigate("/fichas?tab=historia_clinica");
       }
     } catch (error) {
       console.error("Error loading ficha:", error);
       toast.error("Error al cargar la ficha");
-      navigate("/fichas");
+      navigate("/fichas?tab=historia_clinica");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRootChange = (field: keyof HistoriaClinicaState, value: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
   const handleNestedChange = (
@@ -271,20 +429,26 @@ export default function FormularioHistoriaClinica() {
 
     try {
       setLoading(true);
+
+      const payload = {
+        ...formData,
+        fecha: formData.fecha ? formData.fecha : null,
+      };
+
       if (isEdit && formData.id) {
-        await fichasService.actualizarHistoriaClinica(formData.id, formData);
+        await fichasService.actualizarHistoriaClinica(formData.id, payload);
         toast.success("Ficha actualizada exitosamente");
       } else if (isEdit && !formData.id) {
         toast.error("Error: No se encontró el ID de la ficha");
         return;
       } else {
         await fichasService.crearHistoriaClinica(
-          formData,
+          payload,
           genogramaFile || undefined
         );
         toast.success("Ficha creada exitosamente");
       }
-      navigate("/fichas");
+      navigate("/fichas?tab=historia_clinica");
     } catch (error: any) {
       if (error.response?.status === 409) {
         toast.error("Este paciente ya tiene una ficha activa.");
@@ -354,6 +518,29 @@ export default function FormularioHistoriaClinica() {
         </div>
       )}
 
+      {/* Información General */}
+      <ComponentCard
+        title="Información General"
+        action={
+          <Switch
+            label=""
+            checked={verInformacionGeneral}
+            onChange={(val) => setVerInformacionGeneral(val)}
+          />
+        }
+        onHeaderClick={() => setVerInformacionGeneral(!verInformacionGeneral)}
+        bodyDisabled={!verInformacionGeneral}
+      >
+        <InformacionGeneralForm
+          fecha={formData.fecha}
+          data={formData.informacionGeneral}
+          onChange={(field, val) =>
+            handleNestedChange("informacionGeneral", field, val)
+          }
+          onRootChange={handleRootChange as any}
+        />
+      </ComponentCard>
+
       {/* Datos Familiares Siempre Visible o con Switch Propio */}
       <ComponentCard
         title="Datos Familiares"
@@ -364,6 +551,7 @@ export default function FormularioHistoriaClinica() {
             onChange={(val) => setVerDatosFamiliares(val)}
           />
         }
+        onHeaderClick={() => setVerDatosFamiliares(!verDatosFamiliares)}
         bodyDisabled={!verDatosFamiliares}
       >
         <DatosFamiliaresForm
@@ -476,6 +664,7 @@ export default function FormularioHistoriaClinica() {
                 onChange={(val) => setVerHistoriaPrenatal(val)}
               />
             }
+            onHeaderClick={() => setVerHistoriaPrenatal(!verHistoriaPrenatal)}
             bodyDisabled={!verHistoriaPrenatal}
           >
             <HistoriaPrenatalForm
@@ -495,6 +684,7 @@ export default function FormularioHistoriaClinica() {
                 onChange={(val) => setVerHistoriaNatal(val)}
               />
             }
+            onHeaderClick={() => setVerHistoriaNatal(!verHistoriaNatal)}
             bodyDisabled={!verHistoriaNatal}
           >
             <HistoriaNatalForm
@@ -514,6 +704,7 @@ export default function FormularioHistoriaClinica() {
                 onChange={(val) => setVerHistoriaPostnatal(val)}
               />
             }
+            onHeaderClick={() => setVerHistoriaPostnatal(!verHistoriaPostnatal)}
             bodyDisabled={!verHistoriaPostnatal}
           >
             <HistoriaPostnatalForm
@@ -545,6 +736,7 @@ export default function FormularioHistoriaClinica() {
                 onChange={(val) => setVerDesarrolloMotor(val)}
               />
             }
+            onHeaderClick={() => setVerDesarrolloMotor(!verDesarrolloMotor)}
             bodyDisabled={!verDesarrolloMotor}
           >
             <DesarrolloMotorForm
@@ -564,6 +756,7 @@ export default function FormularioHistoriaClinica() {
                 onChange={(val) => setVerAlimentacion(val)}
               />
             }
+            onHeaderClick={() => setVerAlimentacion(!verAlimentacion)}
             bodyDisabled={!verAlimentacion}
           >
             <AlimentacionForm
@@ -582,6 +775,9 @@ export default function FormularioHistoriaClinica() {
                 checked={verAntecedentesMedicos}
                 onChange={(val) => setVerAntecedentesMedicos(val)}
               />
+            }
+            onHeaderClick={() =>
+              setVerAntecedentesMedicos(!verAntecedentesMedicos)
             }
             bodyDisabled={!verAntecedentesMedicos}
           >
@@ -613,6 +809,7 @@ export default function FormularioHistoriaClinica() {
               onChange={(val) => setVerGenograma(val)}
             />
           }
+          onHeaderClick={() => setVerGenograma(!verGenograma)}
           bodyDisabled={!verGenograma}
         >
           <div className="space-y-2">
@@ -627,7 +824,10 @@ export default function FormularioHistoriaClinica() {
       </div>
 
       <div className="flex justify-end gap-4">
-        <Button variant="outline" onClick={() => navigate("/fichas")}>
+        <Button
+          variant="outline"
+          onClick={() => navigate("/fichas?tab=historia_clinica")}
+        >
           Cancelar
         </Button>
         <Button

@@ -106,129 +106,135 @@ const HistoriaAuditivaForm: React.FC<HistoriaAuditivaFormProps> = ({
             onChange={(val: boolean) => onChange("otalgia", val)}
           />
         </div>
-        <div className="grid grid-cols-1 gap-8 xl:grid-cols-2">
-          <div className="space-y-6">
-            <div className="bg-gray-50/50 p-4 rounded-xl dark:bg-gray-800/50 space-y-4">
+        {data.otalgia && (
+          <div className="grid grid-cols-1 gap-8 xl:grid-cols-2">
+            <div className="space-y-6">
+              <div className="bg-gray-50/50 p-4 rounded-xl dark:bg-gray-800/50 space-y-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <Switch
+                    label="Unilateral"
+                    checked={data.otalgiaUnilateral}
+                    onChange={(val: boolean) =>
+                      onChange("otalgiaUnilateral", val)
+                    }
+                  />
+                  <Switch
+                    label="Bilateral"
+                    checked={data.otalgiaBilateral}
+                    onChange={(val: boolean) =>
+                      onChange("otalgiaBilateral", val)
+                    }
+                  />
+                  <Switch
+                    label="Oido Derecho"
+                    checked={data.otalgiaOidoDerecho}
+                    onChange={(val: boolean) =>
+                      onChange("otalgiaOidoDerecho", val)
+                    }
+                  />
+                  <Switch
+                    label="Oido Izquierdo"
+                    checked={data.otalgiaOidoIzquierdo}
+                    onChange={(val: boolean) =>
+                      onChange("otalgiaOidoIzquierdo", val)
+                    }
+                  />
+                </div>
+              </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <Switch
-                  label="Unilateral"
-                  checked={data.otalgiaUnilateral}
-                  onChange={(val: boolean) =>
-                    onChange("otalgiaUnilateral", val)
-                  }
-                />
-                <Switch
-                  label="Bilateral"
-                  checked={data.otalgiaBilateral}
-                  onChange={(val: boolean) => onChange("otalgiaBilateral", val)}
-                />
-                <Switch
-                  label="Oido Derecho"
-                  checked={data.otalgiaOidoDerecho}
-                  onChange={(val: boolean) =>
-                    onChange("otalgiaOidoDerecho", val)
-                  }
-                />
-                <Switch
-                  label="Oido Izquierdo"
-                  checked={data.otalgiaOidoIzquierdo}
-                  onChange={(val: boolean) =>
-                    onChange("otalgiaOidoIzquierdo", val)
-                  }
-                />
+                <div>
+                  <Label htmlFor="gradoPermanenciaOtalgia">
+                    Grado Permanencia
+                  </Label>
+                  <Select
+                    options={optionsGradoPermanencia}
+                    value={data.gradoPermanenciaOtalgia}
+                    onChange={(val: string) =>
+                      onChange("gradoPermanenciaOtalgia", val)
+                    }
+                  />
+                </div>
+                <div className="flex flex-col justify-center space-y-2">
+                  <Switch
+                    label="Continua"
+                    checked={data.permanenciaOtalgiaContinua}
+                    onChange={(val: boolean) =>
+                      onChange("permanenciaOtalgiaContinua", val)
+                    }
+                  />
+                  <Switch
+                    label="Intermitente"
+                    checked={data.permanenciaOtalgiaIntermitente}
+                    onChange={(val: boolean) =>
+                      onChange("permanenciaOtalgiaIntermitente", val)
+                    }
+                  />
+                </div>
               </div>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <Label htmlFor="gradoPermanenciaOtalgia">
-                  Grado Permanencia
-                </Label>
-                <Select
-                  options={optionsGradoPermanencia}
-                  value={data.gradoPermanenciaOtalgia}
-                  onChange={(val: string) =>
-                    onChange("gradoPermanenciaOtalgia", val)
-                  }
-                />
-              </div>
-              <div className="flex flex-col justify-center space-y-2">
-                <Switch
-                  label="Continua"
-                  checked={data.permanenciaOtalgiaContinua}
-                  onChange={(val: boolean) =>
-                    onChange("permanenciaOtalgiaContinua", val)
-                  }
-                />
-                <Switch
-                  label="Intermitente"
-                  checked={data.permanenciaOtalgiaIntermitente}
-                  onChange={(val: boolean) =>
-                    onChange("permanenciaOtalgiaIntermitente", val)
-                  }
-                />
-              </div>
+              <Switch
+                label="Asociada IRA"
+                checked={data.asociadaOtalgiaInfeccionRespiratoriaAlta}
+                onChange={(val: boolean) =>
+                  onChange("asociadaOtalgiaInfeccionRespiratoriaAlta", val)
+                }
+              />
+              <Switch
+                label="Punzante"
+                checked={data.infeccionRespiratoriaPunzante}
+                onChange={(val: boolean) =>
+                  onChange("infeccionRespiratoriaPunzante", val)
+                }
+              />
+              <Switch
+                label="Pulsátil"
+                checked={data.infeccionRespiratoriaPulsatil}
+                onChange={(val: boolean) =>
+                  onChange("infeccionRespiratoriaPulsatil", val)
+                }
+              />
+              <Switch
+                label="Progresivo"
+                checked={data.infeccionRespiratoriaProgresivo}
+                onChange={(val: boolean) =>
+                  onChange("infeccionRespiratoriaProgresivo", val)
+                }
+              />
+              <Switch
+                label="Opresivo"
+                checked={data.infeccionRespiratoriaOpresivo}
+                onChange={(val: boolean) =>
+                  onChange("infeccionRespiratoriaOpresivo", val)
+                }
+              />
+              <Switch
+                label="Pruriginoso"
+                checked={data.pruriginoso}
+                onChange={(val: boolean) => onChange("pruriginoso", val)}
+              />
+              <Switch
+                label="Aumenta al masticar"
+                checked={data.aumentaMasticar}
+                onChange={(val: boolean) => onChange("aumentaMasticar", val)}
+              />
+              <Switch
+                label="Disminuye con calor"
+                checked={data.disminuyeConCalorLocal}
+                onChange={(val: boolean) =>
+                  onChange("disminuyeConCalorLocal", val)
+                }
+              />
+              <Switch
+                label="Aumenta con calor"
+                checked={data.aumentaConCalorLocal}
+                onChange={(val: boolean) =>
+                  onChange("aumentaConCalorLocal", val)
+                }
+              />
             </div>
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Switch
-              label="Asociada IRA"
-              checked={data.asociadaOtalgiaInfeccionRespiratoriaAlta}
-              onChange={(val: boolean) =>
-                onChange("asociadaOtalgiaInfeccionRespiratoriaAlta", val)
-              }
-            />
-            <Switch
-              label="Punzante"
-              checked={data.infeccionRespiratoriaPunzante}
-              onChange={(val: boolean) =>
-                onChange("infeccionRespiratoriaPunzante", val)
-              }
-            />
-            <Switch
-              label="Pulsátil"
-              checked={data.infeccionRespiratoriaPulsatil}
-              onChange={(val: boolean) =>
-                onChange("infeccionRespiratoriaPulsatil", val)
-              }
-            />
-            <Switch
-              label="Progresivo"
-              checked={data.infeccionRespiratoriaProgresivo}
-              onChange={(val: boolean) =>
-                onChange("infeccionRespiratoriaProgresivo", val)
-              }
-            />
-            <Switch
-              label="Opresivo"
-              checked={data.infeccionRespiratoriaOpresivo}
-              onChange={(val: boolean) =>
-                onChange("infeccionRespiratoriaOpresivo", val)
-              }
-            />
-            <Switch
-              label="Pruriginoso"
-              checked={data.pruriginoso}
-              onChange={(val: boolean) => onChange("pruriginoso", val)}
-            />
-            <Switch
-              label="Aumenta al masticar"
-              checked={data.aumentaMasticar}
-              onChange={(val: boolean) => onChange("aumentaMasticar", val)}
-            />
-            <Switch
-              label="Disminuye con calor"
-              checked={data.disminuyeConCalorLocal}
-              onChange={(val: boolean) =>
-                onChange("disminuyeConCalorLocal", val)
-              }
-            />
-            <Switch
-              label="Aumenta con calor"
-              checked={data.aumentaConCalorLocal}
-              onChange={(val: boolean) => onChange("aumentaConCalorLocal", val)}
-            />
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Otorrea Section */}
@@ -243,122 +249,132 @@ const HistoriaAuditivaForm: React.FC<HistoriaAuditivaFormProps> = ({
             onChange={(val: boolean) => onChange("otorrea", val)}
           />
         </div>
-        <div className="grid grid-cols-1 gap-8 xl:grid-cols-2">
-          <div className="space-y-6">
-            <div className="bg-gray-50/50 p-4 rounded-xl dark:bg-gray-800/50 space-y-4">
+        {data.otorrea && (
+          <div className="grid grid-cols-1 gap-8 xl:grid-cols-2">
+            <div className="space-y-6">
+              <div className="bg-gray-50/50 p-4 rounded-xl dark:bg-gray-800/50 space-y-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <Switch
+                    label="Unilateral"
+                    checked={data.otorreaUnilateral}
+                    onChange={(val: boolean) =>
+                      onChange("otorreaUnilateral", val)
+                    }
+                  />
+                  <Switch
+                    label="Bilateral"
+                    checked={data.otorreaBilateral}
+                    onChange={(val: boolean) =>
+                      onChange("otorreaBilateral", val)
+                    }
+                  />
+                  <Switch
+                    label="Oido Derecho"
+                    checked={data.otorreaOidoDerecho}
+                    onChange={(val: boolean) =>
+                      onChange("otorreaOidoDerecho", val)
+                    }
+                  />
+                  <Switch
+                    label="Oido Izquierdo"
+                    checked={data.otorreaOidoIzquierdo}
+                    onChange={(val: boolean) =>
+                      onChange("otorreaOidoIzquierdo", val)
+                    }
+                  />
+                </div>
+              </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <Switch
-                  label="Unilateral"
-                  checked={data.otorreaUnilateral}
-                  onChange={(val: boolean) =>
-                    onChange("otorreaUnilateral", val)
-                  }
-                />
-                <Switch
-                  label="Bilateral"
-                  checked={data.otorreaBilateral}
-                  onChange={(val: boolean) => onChange("otorreaBilateral", val)}
-                />
-                <Switch
-                  label="Oido Derecho"
-                  checked={data.otorreaOidoDerecho}
-                  onChange={(val: boolean) =>
-                    onChange("otorreaOidoDerecho", val)
-                  }
-                />
-                <Switch
-                  label="Oido Izquierdo"
-                  checked={data.otorreaOidoIzquierdo}
-                  onChange={(val: boolean) =>
-                    onChange("otorreaOidoIzquierdo", val)
-                  }
-                />
+                <div>
+                  <Label htmlFor="gradoPermanenciaOtorrea">
+                    Grado Permanencia
+                  </Label>
+                  <Select
+                    options={optionsGradoPermanencia}
+                    value={data.gradoPermanenciaOtorrea}
+                    onChange={(val: string) =>
+                      onChange("gradoPermanenciaOtorrea", val)
+                    }
+                  />
+                </div>
+                <div className="flex flex-col justify-center space-y-2">
+                  <Switch
+                    label="Continua"
+                    checked={data.permanenciaOtorreaContinua}
+                    onChange={(val: boolean) =>
+                      onChange("permanenciaOtorreaContinua", val)
+                    }
+                  />
+                  <Switch
+                    label="Intermitente"
+                    checked={data.permanenciaOtorreaIntermitente}
+                    onChange={(val: boolean) =>
+                      onChange("permanenciaOtorreaIntermitente", val)
+                    }
+                  />
+                </div>
               </div>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <Label htmlFor="gradoPermanenciaOtorrea">
-                  Grado Permanencia
-                </Label>
-                <Select
-                  options={optionsGradoPermanencia}
-                  value={data.gradoPermanenciaOtorrea}
-                  onChange={(val: string) =>
-                    onChange("gradoPermanenciaOtorrea", val)
-                  }
-                />
-              </div>
-              <div className="flex flex-col justify-center space-y-2">
-                <Switch
-                  label="Continua"
-                  checked={data.permanenciaOtorreaContinua}
-                  onChange={(val: boolean) =>
-                    onChange("permanenciaOtorreaContinua", val)
-                  }
-                />
-                <Switch
-                  label="Intermitente"
-                  checked={data.permanenciaOtorreaIntermitente}
-                  onChange={(val: boolean) =>
-                    onChange("permanenciaOtorreaIntermitente", val)
-                  }
-                />
-              </div>
+              <Switch
+                label="Aspecto Claro"
+                checked={data.aspectoClaroOtorrea}
+                onChange={(val: boolean) =>
+                  onChange("aspectoClaroOtorrea", val)
+                }
+              />
+              <Switch
+                label="Aspecto Seroso"
+                checked={data.aspectoSerosoOtorrea}
+                onChange={(val: boolean) =>
+                  onChange("aspectoSerosoOtorrea", val)
+                }
+              />
+              <Switch
+                label="Aspecto Mucoso"
+                checked={data.aspectoMucosoOtorrea}
+                onChange={(val: boolean) =>
+                  onChange("aspectoMucosoOtorrea", val)
+                }
+              />
+              <Switch
+                label="Aspecto Mucopurulento"
+                checked={data.aspectoMucopurulentoOtorrea}
+                onChange={(val: boolean) =>
+                  onChange("aspectoMucopurulentoOtorrea", val)
+                }
+              />
+              <Switch
+                label="Aspecto Purulento"
+                checked={data.aspectoPurulentoOtorrea}
+                onChange={(val: boolean) =>
+                  onChange("aspectoPurulentoOtorrea", val)
+                }
+              />
+              <Switch
+                label="Aspecto Sanguinolento"
+                checked={data.aspectoSanguinolentoOtorrea}
+                onChange={(val: boolean) =>
+                  onChange("aspectoSanguinolentoOtorrea", val)
+                }
+              />
+              <Switch
+                label="Asociada IRA"
+                checked={data.asosiadaOtorreaInfeccionRespiratoriaAlta}
+                onChange={(val: boolean) =>
+                  onChange("asosiadaOtorreaInfeccionRespiratoriaAlta", val)
+                }
+              />
+              <Switch
+                label="Infección Aguda Oído"
+                checked={data.asosiadaotorreaInfeccionAgudaOido}
+                onChange={(val: boolean) =>
+                  onChange("asosiadaotorreaInfeccionAgudaOido", val)
+                }
+              />
             </div>
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Switch
-              label="Aspecto Claro"
-              checked={data.aspectoClaroOtorrea}
-              onChange={(val: boolean) => onChange("aspectoClaroOtorrea", val)}
-            />
-            <Switch
-              label="Aspecto Seroso"
-              checked={data.aspectoSerosoOtorrea}
-              onChange={(val: boolean) => onChange("aspectoSerosoOtorrea", val)}
-            />
-            <Switch
-              label="Aspecto Mucoso"
-              checked={data.aspectoMucosoOtorrea}
-              onChange={(val: boolean) => onChange("aspectoMucosoOtorrea", val)}
-            />
-            <Switch
-              label="Aspecto Mucopurulento"
-              checked={data.aspectoMucopurulentoOtorrea}
-              onChange={(val: boolean) =>
-                onChange("aspectoMucopurulentoOtorrea", val)
-              }
-            />
-            <Switch
-              label="Aspecto Purulento"
-              checked={data.aspectoPurulentoOtorrea}
-              onChange={(val: boolean) =>
-                onChange("aspectoPurulentoOtorrea", val)
-              }
-            />
-            <Switch
-              label="Aspecto Sanguinolento"
-              checked={data.aspectoSanguinolentoOtorrea}
-              onChange={(val: boolean) =>
-                onChange("aspectoSanguinolentoOtorrea", val)
-              }
-            />
-            <Switch
-              label="Asociada IRA"
-              checked={data.asosiadaOtorreaInfeccionRespiratoriaAlta}
-              onChange={(val: boolean) =>
-                onChange("asosiadaOtorreaInfeccionRespiratoriaAlta", val)
-              }
-            />
-            <Switch
-              label="Infección Aguda Oído"
-              checked={data.asosiadaotorreaInfeccionAgudaOido}
-              onChange={(val: boolean) =>
-                onChange("asosiadaotorreaInfeccionAgudaOido", val)
-              }
-            />
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Otros Síntomas Section */}

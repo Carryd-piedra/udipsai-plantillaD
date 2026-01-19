@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
 import { Pencil, Trash, FileText, Activity, Brain, Ear } from "lucide-react";
 
@@ -110,7 +110,12 @@ export default function FichasUnificadasTable() {
     },
   ];
 
-  const [activeTabKey, setActiveTabKey] = useState<TabKey>("historia_clinica");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = (searchParams.get("tab") as TabKey) || "historia_clinica";
+
+  const [activeTabKey, setActiveTabKey] = useState<TabKey>(
+    tabs.some((t) => t.key === initialTab) ? initialTab : "historia_clinica"
+  );
 
   const [fichas, setFichas] = useState<FichaListDTO[]>([]);
   const [loading, setLoading] = useState(false);
@@ -122,6 +127,7 @@ export default function FichasUnificadasTable() {
 
   const handleTabChange = (key: TabKey) => {
     setActiveTabKey(key);
+    setSearchParams({ tab: key });
   };
 
   useEffect(() => {
