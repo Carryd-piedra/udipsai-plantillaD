@@ -1,11 +1,8 @@
-// Services - Import these services individually from their files
-// Example: import { asignacionesService } from './services/asignaciones'
-// or
-// import { pacientesService } from './services/pacientes'
-
 export { asignacionesService } from './asignaciones';
 export { authService } from './authService';
+export { citasService } from './citas';
 export { documentosService } from './documentos';
+export { especialidadesService } from './especialidades';
 export { especialistasService } from './especialistas';
 export { evaluacionesService } from './evaluaciones';
 export { fichasService } from './fichas';

@@ -40,6 +40,7 @@ export default function FormularioEspecialistas() {
     fonoAudiologia: false,
     psicologiaClinica: false,
     psicologiaEducativa: false,
+    citas: false,
   });
 
   const [loading, setLoading] = useState(false);
@@ -121,6 +122,11 @@ export default function FormularioEspecialistas() {
               psicologiaEducativaCrear: data.permisos.psicologiaEducativaCrear || false,
               psicologiaEducativaEditar: data.permisos.psicologiaEducativaEditar || false,
               psicologiaEducativaEliminar: data.permisos.psicologiaEducativaEliminar || false,
+
+              citas: data.permisos.citas || false,
+              citasCrear: data.permisos.citasCrear || false,
+              citasEditar: data.permisos.citasEditar || false,
+              citasEliminar: data.permisos.citasEliminar || false,
             });
           }
         } catch (error) {

@@ -23,7 +23,7 @@ const ListaPasantes = lazy(() => import("../pages/Pasantes/ListaPasantes"));
 const NuevosPasantes = lazy(() => import("../pages/Pasantes/NuevosPasantes"));
 const EditarPasantes = lazy(() => import("../pages/Pasantes/EditarPasantes"));
 const ListaEspecialidades = lazy(() => import("../pages/Especialidades/ListaEspecialidades"));
-
+const ReporteCitas = lazy(() => import("../pages/Reportes/ReporteCitas"));
 // Fichas
 const ListaFichasUnificadas = lazy(() => import("../pages/Fichas/ListaFichasUnificadas"));
 
@@ -119,5 +119,8 @@ export const privateRouteObjects: RouteObject[] = [
       { path: "tests", element: <Tests /> },
       { path: "subir-recursos", ...protectedRoute("PERM_RECURSOS_CREAR", <SubirRecursos />) },
     ]
-  }
+  },
+
+  // Reportes
+  { path: "reportes", ...protectedRoute("PERM_REPORTES", <ReporteCitas />) },
 ];

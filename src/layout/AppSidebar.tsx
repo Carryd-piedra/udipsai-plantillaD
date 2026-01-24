@@ -83,8 +83,10 @@ const navItems: NavItem[] = [
   {
     icon: <Calendar size={20} />,
     name: "Citas",
-    path: "/citas",
-    requiredPermission: "PERM_CITAS",
+    subItems: [
+      { name: "Agendamiento", path: "/citas", pro: false },
+      { name: "Reportes", path: "/reportes-citas", pro: false },
+    ],
   },
 
   {

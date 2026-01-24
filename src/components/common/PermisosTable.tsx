@@ -16,6 +16,7 @@ export interface PermissionsState {
   fonoAudiologia: boolean;
   psicologiaClinica: boolean;
   psicologiaEducativa: boolean;
+  citas: boolean;
 
   // Granular - Pacientes
   pacientesCrear?: boolean;
@@ -76,6 +77,11 @@ export interface PermissionsState {
   psicologiaEducativaCrear?: boolean;
   psicologiaEducativaEditar?: boolean;
   psicologiaEducativaEliminar?: boolean;
+
+  // Granular - Citas
+  citasCrear?: boolean;
+  citasEditar?: boolean;
+  citasEliminar?: boolean;
 }
 
 interface PermisosTableProps {
@@ -90,6 +96,7 @@ const categories = [
     modules: [
       { key: "pacientes", label: "Pacientes" },
       { key: "historiaClinica", label: "Historia Clínica" },
+      { key: "citas", label: "Citas" },
       { key: "fonoAudiologia", label: "Fonoaudiología" },
       { key: "psicologiaClinica", label: "Psicología Clínica" },
       { key: "psicologiaEducativa", label: "Psicología Educativa" },
@@ -121,11 +128,9 @@ export const PermisosTable: React.FC<PermisosTableProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Helper to toggle all sub-permissions when the main module is toggled
   const handleMainToggle = (key: string, value: boolean) => {
     onChange(key as keyof PermissionsState, value);
     
-    // Auto-select/deselect sub-permissions
     const actions = ["Crear", "Editar", "Eliminar"];
     actions.forEach((action) => {
       onChange(`${key}${action}` as keyof PermissionsState, value);
