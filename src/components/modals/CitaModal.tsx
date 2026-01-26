@@ -121,7 +121,7 @@ const CitaModal: React.FC<CitaModalProps> = ({
                 setSelectedSpecialistForPasante(fullPasante.especialista);
               }
             }
-          } catch (e) {}
+          } catch (e) { }
         }
       }
     };
@@ -383,11 +383,10 @@ const CitaModal: React.FC<CitaModalProps> = ({
             <Label>Tipo de Profesional</Label>
             <div className="flex gap-4 mt-2 mb-4">
               <label
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
-                  profType === "ESPEC"
-                    ? "bg-brand-50 border-brand-500 text-brand-700"
-                    : "border-gray-200 "
-                } ${appointmentId ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-gray-50"}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${profType === "ESPEC"
+                  ? "bg-brand-50 border-brand-500 text-brand-700"
+                  : "border-gray-200 "
+                  } ${appointmentId ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-gray-50"}`}
               >
                 <input
                   type="radio"
@@ -407,11 +406,10 @@ const CitaModal: React.FC<CitaModalProps> = ({
               </label>
 
               <label
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
-                  profType === "PASANTE"
-                    ? "bg-purple-50 border-purple-500 text-purple-700"
-                    : "border-gray-200 "
-                } ${appointmentId ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-gray-50"}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${profType === "PASANTE"
+                  ? "bg-purple-50 border-purple-500 text-purple-700"
+                  : "border-gray-200 "
+                  } ${appointmentId ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-gray-50"}`}
               >
                 <input
                   type="radio"
@@ -442,8 +440,8 @@ const CitaModal: React.FC<CitaModalProps> = ({
                         <span className="text-gray-900 dark:text-white font-medium">
                           {selectedSpecialistForPasante.nombresApellidos ||
                             selectedSpecialistForPasante.nombres +
-                              " " +
-                              selectedSpecialistForPasante.apellidos}
+                            " " +
+                            selectedSpecialistForPasante.apellidos}
                         </span>
                         <span className="text-xs text-gray-500">
                           {selectedSpecialistForPasante.especialidad?.area ||
@@ -494,14 +492,14 @@ const CitaModal: React.FC<CitaModalProps> = ({
                     <span className="text-gray-900 dark:text-white font-medium">
                       {selectedProfessional.nombresApellidos ||
                         selectedProfessional.nombres +
-                          " " +
-                          selectedProfessional.apellidos}
+                        " " +
+                        selectedProfessional.apellidos}
                     </span>
                     <span className="text-xs text-gray-500">
                       {profType === "ESPEC"
                         ? selectedProfessional.especialidad?.area ||
-                          selectedProfessional.especialidad?.nombre ||
-                          "General"
+                        selectedProfessional.especialidad?.nombre ||
+                        "General"
                         : selectedProfessional.carrera || "Pasante"}
                     </span>
                   </div>
@@ -561,6 +559,23 @@ const CitaModal: React.FC<CitaModalProps> = ({
                 defaultDate={date}
                 disabled={!appointmentId}
                 onChange={(_, dateStr) => setDate(dateStr)}
+                options={{
+                  disable: [
+                    (date: Date) => {
+                      // Return true to disable
+                      // Disable weekends (0=Sun, 6=Sat)
+                      if (date.getDay() === 0 || date.getDay() === 6) return true;
+
+                      // Disable past dates
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
+                      return date < today;
+                    }
+                  ],
+                  locale: {
+                    firstDayOfWeek: 1
+                  }
+                }}
               />
               {!appointmentId && (
                 <p className="text-[10px] text-gray-500 mt-1 italic">
@@ -580,6 +595,23 @@ const CitaModal: React.FC<CitaModalProps> = ({
                       ? time.split(":").map(Number)
                       : [null];
 
+                    // Check if date is today and slot is in the past
+                    let isPast = false;
+                    if (date) {
+                      const now = new Date();
+                      const [y, m, d] = date.split('-').map(Number);
+                      const selectedDate = new Date(y, m - 1, d);
+                      const todayChecker = new Date();
+                      todayChecker.setHours(0, 0, 0, 0);
+                      if (selectedDate.getTime() === todayChecker.getTime()) {
+                        if (h < now.getHours()) {
+                          isPast = true;
+                        } else if (h === now.getHours() && now.getMinutes() > 0) {
+                          isPast = true;
+                        }
+                      }
+                    }
+
                     let isSelected = false;
                     if (selectedH !== null) {
                       // Highlight if it falls within [start, start + duration)
@@ -594,22 +626,20 @@ const CitaModal: React.FC<CitaModalProps> = ({
                       <button
                         key={slot}
                         onClick={() =>
-                          !occupiedSlots.includes(slot) && setTime(slot)
+                          !occupiedSlots.includes(slot) && !isPast && setTime(slot)
                         }
-                        disabled={occupiedSlots.includes(slot)}
-                        className={`px-2 py-2 text-sm font-medium rounded-md border transition-all
-                                                ${
-                                                  isSelected
-                                                    ? "bg-red-600 text-white border-red-600"
-                                                    : occupiedSlots.includes(
-                                                          slot,
-                                                        )
-                                                      ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed decoration-slice line-through"
-                                                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600"
-                                                }`}
+                        disabled={occupiedSlots.includes(slot) || isPast}
                         title={
-                          occupiedSlots.includes(slot) ? "Hora ocupada" : ""
+                          occupiedSlots.includes(slot) ? "Hora ocupada" : (isPast ? "Hora pasada" : "")
                         }
+                        className={`px-2 py-2 text-sm font-medium rounded-md border transition-all
+                                                ${isSelected
+                            ? "bg-red-600 text-white border-red-600"
+                            : (occupiedSlots.includes(slot) || isPast)
+                              ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed decoration-slice line-through"
+                              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600"
+                          }`}
+
                       >
                         {slot}
                       </button>
@@ -623,6 +653,23 @@ const CitaModal: React.FC<CitaModalProps> = ({
                       ? time.split(":").map(Number)
                       : [null];
 
+                    // Check if date is today and slot is in the past
+                    let isPast = false;
+                    if (date) {
+                      const now = new Date();
+                      const [y, m, d] = date.split('-').map(Number);
+                      const selectedDate = new Date(y, m - 1, d);
+                      const todayChecker = new Date();
+                      todayChecker.setHours(0, 0, 0, 0);
+                      if (selectedDate.getTime() === todayChecker.getTime()) {
+                        if (h < now.getHours()) {
+                          isPast = true;
+                        } else if (h === now.getHours() && now.getMinutes() > 0) {
+                          isPast = true;
+                        }
+                      }
+                    }
+
                     let isSelected = false;
                     if (selectedH !== null) {
                       const endH = selectedH + duration;
@@ -635,22 +682,20 @@ const CitaModal: React.FC<CitaModalProps> = ({
                       <button
                         key={slot}
                         onClick={() =>
-                          !occupiedSlots.includes(slot) && setTime(slot)
+                          !occupiedSlots.includes(slot) && !isPast && setTime(slot)
                         }
-                        disabled={occupiedSlots.includes(slot)}
-                        className={`px-2 py-2 text-sm font-medium rounded-md border transition-all
-                                                ${
-                                                  isSelected
-                                                    ? "bg-red-600 text-white border-red-600"
-                                                    : occupiedSlots.includes(
-                                                          slot,
-                                                        )
-                                                      ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed decoration-slice line-through"
-                                                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600"
-                                                }`}
+                        disabled={occupiedSlots.includes(slot) || isPast}
                         title={
-                          occupiedSlots.includes(slot) ? "Hora ocupada" : ""
+                          occupiedSlots.includes(slot) ? "Hora ocupada" : (isPast ? "Hora pasada" : "")
                         }
+                        className={`px-2 py-2 text-sm font-medium rounded-md border transition-all
+                                                ${isSelected
+                            ? "bg-red-600 text-white border-red-600"
+                            : (occupiedSlots.includes(slot) || isPast)
+                              ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed decoration-slice line-through"
+                              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600"
+                          }`}
+
                       >
                         {slot}
                       </button>
@@ -668,11 +713,10 @@ const CitaModal: React.FC<CitaModalProps> = ({
                       onClick={() => setDuration(h)}
                       disabled={h > maxDuration}
                       className={`flex-1 py-2 text-sm font-medium rounded-md border transition-all
-                                                ${
-                                                  duration === h
-                                                    ? "bg-red-600 text-white border-red-600"
-                                                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600"
-                                                } ${h > maxDuration ? "opacity-50 cursor-not-allowed" : ""}`}
+                                                ${duration === h
+                          ? "bg-red-600 text-white border-red-600"
+                          : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600"
+                        } ${h > maxDuration ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
                       {h}h
                     </button>
