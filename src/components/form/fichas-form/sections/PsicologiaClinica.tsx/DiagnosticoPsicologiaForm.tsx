@@ -23,7 +23,7 @@ const DiagnosticoPsicologiaForm: React.FC<DiagnosticoPsicologiaProps> = ({ data,
         <TextArea
           value={data.impresionDiagnostica}
           onChange={(val: string) => onChange("impresionDiagnostica", val)}
-          placeholder="..."
+          placeholder="Describa impresión diagnóstica"
         />
       </div>
       <div>
@@ -31,7 +31,7 @@ const DiagnosticoPsicologiaForm: React.FC<DiagnosticoPsicologiaProps> = ({ data,
         <TextArea
           value={data.derivacionInterconsulta}
           onChange={(val: string) => onChange("derivacionInterconsulta", val)}
-          placeholder="..."
+          placeholder="Describa derivación / interconsulta"
         />
       </div>
       <div>
@@ -39,7 +39,7 @@ const DiagnosticoPsicologiaForm: React.FC<DiagnosticoPsicologiaProps> = ({ data,
         <TextArea
           value={data.objetivoPlanTratamientoIndividual}
           onChange={(val: string) => onChange("objetivoPlanTratamientoIndividual", val)}
-          placeholder="..."
+          placeholder="Describa objetivo del plan de tratamiento individual"
         />
       </div>
       <div>
@@ -47,7 +47,7 @@ const DiagnosticoPsicologiaForm: React.FC<DiagnosticoPsicologiaProps> = ({ data,
         <TextArea
           value={data.estrategiaDeIntervencion}
           onChange={(val: string) => onChange("estrategiaDeIntervencion", val)}
-          placeholder="..."
+          placeholder="Describa estrategia de intervención"
         />
       </div>
       <div>
@@ -55,7 +55,7 @@ const DiagnosticoPsicologiaForm: React.FC<DiagnosticoPsicologiaProps> = ({ data,
         <TextArea
           value={data.indicadorDeLogro}
           onChange={(val: string) => onChange("indicadorDeLogro", val)}
-          placeholder="..."
+          placeholder="Describa indicador de logro"
         />
       </div>
       <div>
@@ -63,7 +63,7 @@ const DiagnosticoPsicologiaForm: React.FC<DiagnosticoPsicologiaProps> = ({ data,
         <TextArea
           value={data.tiempoEstimado}
           onChange={(val: string) => onChange("tiempoEstimado", val)}
-          placeholder="..."
+          placeholder="Describa tiempo estimado"
         />
       </div>
       <div>
@@ -71,7 +71,7 @@ const DiagnosticoPsicologiaForm: React.FC<DiagnosticoPsicologiaProps> = ({ data,
         <TextArea
           value={data.evaluacion}
           onChange={(val: string) => onChange("evaluacion", val)}
-          placeholder="..."
+          placeholder="Describa evaluación"
         />
       </div>
     </div>

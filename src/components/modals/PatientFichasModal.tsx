@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import Badge from "../ui/badge/Badge";
 import { useAuth } from "../../context/AuthContext";
 import { fichasService } from "../../services/fichas";
+import { DeleteModal } from "../ui/modal/DeleteModal";
 
 interface Paciente {
   id: number;
@@ -117,6 +118,14 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
   const [loading, setLoading] = useState(true);
   const { hasPermission } = useAuth();
 
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<{
+    id: number;
+    type: string;
+    fileType: string;
+    label: string;
+  } | null>(null);
+
   const fetchResumen = async () => {
     if (!paciente) return;
     try {
@@ -146,7 +155,43 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
     );
   };
 
-  const handleAction = async (action: string, fileType: string, internalName: string, type: string) => {
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+
+    try {
+      if (itemToDelete.type === "documento") {
+        await pacientesService.eliminarDocumento(itemToDelete.id);
+        toast.success(`${itemToDelete.label} eliminada`);
+      } else {
+        switch (itemToDelete.fileType) {
+          case "historia-clinica":
+            await fichasService.eliminarHistoriaClinica(itemToDelete.id);
+            break;
+          case "psicologia-educativa":
+            await fichasService.eliminarPsicologiaEducativa(itemToDelete.id);
+            break;
+          case "psicologia-clinica":
+            await fichasService.eliminarPsicologiaClinica(itemToDelete.id);
+            break;
+          case "fonoaudiologia":
+            await fichasService.eliminarFonoaudiologia(itemToDelete.id);
+            break;
+          default:
+            throw new Error("Tipo de ficha no reconocido");
+        }
+        toast.success(`Ficha de ${itemToDelete.label} eliminada`);
+      }
+      fetchResumen();
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      toast.error("Error al eliminar el elemento");
+    } finally {
+      setDeleteModalOpen(false);
+      setItemToDelete(null);
+    }
+  };
+
+  const handleAction = async (action: string, fileType: string, internalName: string, type: string, label: string) => {
     const fichaId = resumen?.fichas?.[internalName];
 
     if (action === "Crear") {
@@ -231,20 +276,11 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
     }
 
     if (action === "Eliminar") {
-        if (type === "documento" && fichaId) {
-             try {
-                await pacientesService.eliminarDocumento(fichaId);
-                toast.success("Documento eliminado");
-                fetchResumen(); // Refresh list
-            } catch (error) {
-                console.error("Error deleting document", error);
-                toast.error("Error al eliminar el documento");
-            }
-            return;
+        if (fichaId) {
+            setItemToDelete({ id: fichaId, type, fileType, label });
+            setDeleteModalOpen(true);
         }
-       if (type !== "documento" && fichaId) {
-            console.log("Delete ficha logic needed");
-       }
+        return;
     }
 
     if (action === "Editar") {
@@ -333,7 +369,7 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => handleAction("Ver", file.id, file.internalName, file.type)}
+                                onClick={() => handleAction("Ver", file.id, file.internalName, file.type, file.label)}
                                 className="hover:bg-white hover:text-blue-600 p-2 text-dark dark:text-white-400 dark:hover:text-blue-600"
                                 title="Ver"
                               >
@@ -344,7 +380,7 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => handleAction("Editar", file.id, file.internalName, file.type)}
+                                onClick={() => handleAction("Editar", file.id, file.internalName, file.type, file.label)}
                                 className="hover:bg-white hover:text-yellow-600 p-2 text-dark dark:text-white-400 dark:hover:text-yellow-600"
                                 title="Editar"
                               >
@@ -356,7 +392,7 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => handleAction("Exportar", file.id, file.internalName, file.type)}
+                                onClick={() => handleAction("Exportar", file.id, file.internalName, file.type, file.label)}
                                 className="hover:bg-white hover:text-green-600 p-2 text-dark dark:text-white-400 dark:hover:text-green-600"
                                 title="Exportar"
                               >
@@ -368,7 +404,7 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => handleAction("Eliminar", file.id, file.internalName, file.type)}
+                                onClick={() => handleAction("Eliminar", file.id, file.internalName, file.type, file.label)}
                                 className="hover:bg-red-500 hover:text-white p-2 text-red-600 dark:text-red-400 dark:hover:text-red-400"
                                 title="Eliminar"
                               >
@@ -381,7 +417,7 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleAction("Crear", file.id, file.internalName, file.type)}
+                              onClick={() => handleAction("Crear", file.id, file.internalName, file.type, file.label)}
                               className="hover:bg-white hover:text-green-600 p-2 text-dark dark:text-white-400 dark:hover:text-green-600"
                             >
                               <Plus size={14} />
@@ -398,6 +434,13 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
           </Table>
         </div>
       )}
+      <DeleteModal
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        title={`Eliminar ${itemToDelete?.label}`}
+        description={`¿Estás seguro de que deseas eliminar ${itemToDelete?.label.toLowerCase()}? Esta acción no se puede deshacer.`}
+      />
     </Modal>
   );
 };

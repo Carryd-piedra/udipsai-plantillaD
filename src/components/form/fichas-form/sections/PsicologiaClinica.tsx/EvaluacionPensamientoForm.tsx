@@ -157,7 +157,7 @@ const EvaluacionPensamientoForm: React.FC<EvaluacionPensamientoProps> = ({ data,
         </div>
         <div className="mt-4">
           <Label>Otros Contenido del Pensamiento</Label>
-          <TextArea value={data.otrosContenidoDelPensamiento} onChange={(val) => onChange("otrosContenidoDelPensamiento", val)} />
+          <TextArea value={data.otrosContenidoDelPensamiento} onChange={(val) => onChange("otrosContenidoDelPensamiento", val)} placeholder="Describa otros contenido del pensamiento" />
         </div>
       </div>
 

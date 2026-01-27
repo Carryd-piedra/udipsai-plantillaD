@@ -27,6 +27,7 @@ export const SedeModal: React.FC<SedeModalProps> = ({
   const [formData, setFormData] = useState({
     nombre: "",
   });
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (initialData) {
@@ -38,14 +39,20 @@ export const SedeModal: React.FC<SedeModalProps> = ({
         nombre: "",
       });
     }
+    setError("");
   }, [initialData, isOpen]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
+    if (error) setError("");
   };
 
   const handleSubmit = () => {
+    if (!formData.nombre.trim()) {
+      setError("El nombre de la sede es obligatorio");
+      return;
+    }
     onSave({
       ...formData,
       ...(initialData ? { id: initialData.id } : {}),
@@ -69,6 +76,8 @@ export const SedeModal: React.FC<SedeModalProps> = ({
             placeholder="Ingrese el nombre"
             value={formData.nombre}
             onChange={handleChange}
+            error={!!error}
+            hint={error}
           />
         </div>
       </div>

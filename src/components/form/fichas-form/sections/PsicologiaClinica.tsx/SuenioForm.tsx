@@ -71,14 +71,16 @@ const SuenioForm: React.FC<SuenioFormProps> = ({ data, onChange }) => {
           placeholder="Seleccione..."
         />
       </div>
-      <div>
-        <Label>Especificar Compañía</Label>
-        <Input
-          value={data.especificarCompaniaSuenio}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange("especificarCompaniaSuenio", e.target.value)}
-          placeholder="Con quién..."
-        />
-      </div>
+      {data.companiaSuenio === "ACOMPANIADO" && (
+        <div>
+          <Label>Especificar Compañía</Label>
+          <Input
+            value={data.especificarCompaniaSuenio}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange("especificarCompaniaSuenio", e.target.value)}
+            placeholder="Con quién..."
+          />
+        </div>
+      )}
       <div>
         <Label>Edad</Label>
         <Input

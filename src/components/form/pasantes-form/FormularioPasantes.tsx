@@ -54,6 +54,7 @@ export default function FormularioPasantes() {
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [sedes, setSedes] = useState<any[]>([]);
   const [especialistas, setEspecialistas] = useState<any[]>([]);
@@ -213,6 +214,14 @@ export default function FormularioPasantes() {
   ) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
+
+    if (errors[id]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[id];
+        return newErrors;
+      });
+    }
   };
 
   const handleSelectChange = (name: string, value: string | number) => {
@@ -233,6 +242,18 @@ export default function FormularioPasantes() {
   };
 
   const handleSubmit = async () => {
+    // Validation
+    const newErrors: Record<string, string> = {};
+    if (!formData.nombresApellidos.trim()) {
+      newErrors.nombresApellidos = "El nombre completo es obligatorio";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error("Por favor, complete los campos obligatorios");
+      return;
+    }
+
     try {
       setLoading(true);
       const payload = {
@@ -328,6 +349,8 @@ export default function FormularioPasantes() {
                 placeholder="Ingrese el nombre completo"
                 value={formData.nombresApellidos}
                 onChange={handleChange}
+                error={!!errors.nombresApellidos}
+                hint={errors.nombresApellidos}
               />
             </div>
             <div>

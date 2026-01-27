@@ -33,6 +33,7 @@ export const SeguimientoForm: React.FC<SeguimientoFormProps> = ({
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [especialistas, setEspecialistas] = useState<any[]>([]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (isOpen) {
@@ -47,6 +48,7 @@ export const SeguimientoForm: React.FC<SeguimientoFormProps> = ({
         setSelectedEspecialistaId(especialistaId || "");
         setFile(null);
       }
+      setErrors({});
     }
   }, [isOpen, initialData, especialistaId]);
 
@@ -62,13 +64,18 @@ export const SeguimientoForm: React.FC<SeguimientoFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const newErrors: Record<string, string> = {};
     if (!selectedEspecialistaId) {
-      toast.error("El especialista es requerido");
-      return;
+      newErrors.especialista = "El especialista es requerido";
     }
 
     if (!observacion.trim()) {
-      toast.error("La observación es requerida");
+      newErrors.observacion = "La observación es requerida";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error("Por favor, complete los campos obligatorios");
       return;
     }
 
@@ -116,8 +123,19 @@ export const SeguimientoForm: React.FC<SeguimientoFormProps> = ({
             <Select
               options={optionsEspecialistas}
               placeholder="Seleccione un especialista"
-              onChange={(value) => setSelectedEspecialistaId(value)}
+              onChange={(value) => {
+                setSelectedEspecialistaId(value);
+                if (errors.especialista) {
+                  setErrors((prev) => {
+                    const next = { ...prev };
+                    delete next.especialista;
+                    return next;
+                  });
+                }
+              }}
               value={String(selectedEspecialistaId)}
+              error={!!errors.especialista}
+              hint={errors.especialista}
             />
           </div>
         </div>
@@ -140,10 +158,21 @@ export const SeguimientoForm: React.FC<SeguimientoFormProps> = ({
           <Label>Observación</Label>
           <TextArea
             value={observacion}
-            onChange={(val) => setObservacion(val)}
+            onChange={(val) => {
+              setObservacion(val);
+              if (errors.observacion) {
+                setErrors((prev) => {
+                  const next = { ...prev };
+                  delete next.observacion;
+                  return next;
+                });
+              }
+            }}
             placeholder="Escribe los detalles del seguimiento..."
             rows={5}
             className="mt-1"
+            error={!!errors.observacion}
+            hint={errors.observacion}
           />
         </div>
 

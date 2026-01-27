@@ -11,11 +11,16 @@ import { pacientesService } from "../../../services/pacientes";
 import Button from "../../ui/button/Button";
 import { institucionesService, sedesService } from "../../../services";
 import { toast } from "react-toastify";
+import { useModal } from "../../../hooks/useModal";
+import { InstitucionModal } from "../../modals/InstitucionModal";
+import { Plus } from "lucide-react";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function FormularioPacientes() {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEditing = !!id;
+  const { permissions } = useAuth();
 
   const [formData, setFormData] = useState({
     cedula: "",
@@ -48,16 +53,24 @@ export default function FormularioPacientes() {
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fichaCompromisoFile, setFichaCompromisoFile] = useState<File | null>(
-    null
+    null,
   );
   const [fichaDeteccionFile, setFichaDeteccionFile] = useState<File | null>(
-    null
+    null,
   );
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [existingFichas, setExistingFichas] = useState({
     compromiso: false,
     deteccion: false,
   });
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const {
+    isOpen: isInstitucionModalOpen,
+    openModal: openInstitucionModal,
+    closeModal: closeInstitucionModal,
+  } = useModal();
 
   useEffect(() => {
     if (isEditing) {
@@ -74,10 +87,10 @@ export default function FormularioPacientes() {
 
           if (data.documentos) {
             const compromiso = data.documentos.some(
-              (d: any) => d.nombre === "Ficha Compromiso"
+              (d: any) => d.nombre === "Ficha Compromiso",
             );
             const deteccion = data.documentos.some(
-              (d: any) => d.nombre === "Ficha Detección"
+              (d: any) => d.nombre === "Ficha Detección",
             );
             setExistingFichas({ compromiso, deteccion });
           }
@@ -99,10 +112,18 @@ export default function FormularioPacientes() {
   }, [id, isEditing]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
+
+    if (errors[id]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[id];
+        return newErrors;
+      });
+    }
   };
 
   const handleSelectChange = (name: string, value: string | number) => {
@@ -128,12 +149,23 @@ export default function FormularioPacientes() {
   };
 
   const handleSubmit = async () => {
+    // Validation
+    const newErrors: Record<string, string> = {};
+    if (!formData.nombresApellidos.trim()) {
+      newErrors.nombresApellidos = "El nombre completo es obligatorio";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error("Por favor, complete los campos obligatorios");
+      return;
+    }
+
     try {
       setLoading(true);
       const { fotoUrl, ...rest } = formData;
       const payload = {
         ...rest,
-        // Eliminamos 'documentos' del payload si existe, ya que es readonly en el DTO y se maneja por archivos
         documentos: undefined,
         fechaNacimiento: rest.fechaNacimiento.split("T")[0],
         institucionEducativaId: Number(rest.institucionEducativaId),
@@ -145,7 +177,7 @@ export default function FormularioPacientes() {
           payload,
           selectedFile || undefined,
           fichaCompromisoFile || undefined,
-          fichaDeteccionFile || undefined
+          fichaDeteccionFile || undefined,
         );
         toast.success("Paciente actualizado exitosamente");
       } else {
@@ -153,7 +185,7 @@ export default function FormularioPacientes() {
           payload,
           selectedFile || undefined,
           fichaCompromisoFile || undefined,
-          fichaDeteccionFile || undefined
+          fichaDeteccionFile || undefined,
         );
         toast.success("Paciente creado exitosamente");
       }
@@ -163,6 +195,24 @@ export default function FormularioPacientes() {
       console.error("Error saving patient:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSaveInstitucion = async (institucion: any) => {
+    try {
+      const response = await institucionesService.crear(institucion);
+      toast.success("Institución creada correctamente");
+      await getInstituciones();
+      if (response && response.id) {
+        setFormData((prev) => ({
+          ...prev,
+          institucionEducativaId: response.id,
+        }));
+      }
+      closeInstitucionModal();
+    } catch (error) {
+      toast.error("Error al guardar la institución");
+      console.error("Error saving institucion:", error);
     }
   };
 
@@ -229,11 +279,52 @@ export default function FormularioPacientes() {
     { value: "bachillerato", label: "Bachillerato" },
     { value: "no-escolarizado", label: "No Escolarizado" },
   ];
-  const optionsAñoEducativo = [
-    { value: "primero", label: "Primero" },
-    { value: "segundo", label: "Segundo" },
-    { value: "tercero", label: "Tercero" },
-  ];
+  const optionsAñoEducativo = (nivelEducativo: string) => {
+    switch (nivelEducativo) {
+      case "inicial":
+        return [
+          { value: "inicial 1", label: "Inicial 1" },
+          { value: "inicial 2", label: "Inicial 2" },
+        ];
+      case "preparatoria":
+        return [{ value: "primero", label: "Primero" }];
+      case "basica-elemental":
+        return [
+          { value: "segundo", label: "Segundo" },
+          { value: "tercero", label: "Tercero" },
+          { value: "cuarto", label: "Cuarto" },
+        ];
+      case "basica-media":
+        return [
+          { value: "quinto", label: "Quinto" },
+          { value: "sexto", label: "Sexto" },
+          { value: "séptimo", label: "Séptimo" },
+        ];
+      case "basica-superior":
+        return [
+          { value: "octavo", label: "Octavo" },
+          { value: "noveno", label: "Noveno" },
+          { value: "decimo", label: "Décimo" },
+        ];
+      case "bachillerato":
+        return [
+          {
+            value: "primero de bachillerato",
+            label: "Primero de bachillerato",
+          },
+          {
+            value: "segundo de bachillerato",
+            label: "Segundo de bachillerato",
+          },
+          {
+            value: "tercero de bachillerato",
+            label: "Tercero de bachillerato",
+          },
+        ];
+      default:
+        return [];
+    }
+  };
 
   if (loading) {
     return (
@@ -314,6 +405,8 @@ export default function FormularioPacientes() {
                 placeholder="Ingrese el nombre completo"
                 value={formData.nombresApellidos}
                 onChange={handleChange}
+                error={!!errors.nombresApellidos}
+                hint={errors.nombresApellidos}
               />
             </div>
             <div>
@@ -391,7 +484,7 @@ export default function FormularioPacientes() {
       <ComponentCard title="Datos de discapacidad">
         <div className="space-y-6">
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-            <div>
+            <div className="flex items-center">
               <Switch
                 label="¿Presenta discapacidad?"
                 defaultChecked={formData.tieneDiscapacidad || false}
@@ -400,50 +493,54 @@ export default function FormularioPacientes() {
                 }
               />
             </div>
-            <div>
-              <Switch
-                label="¿Porta carnet de discapacidad?"
-                defaultChecked={formData.portadorCarnet || false}
-                onChange={(checked) =>
-                  handleSwitchChange("portadorCarnet", checked)
-                }
-              />
-            </div>
-            <div>
-              <Label htmlFor="tipoDiscapacidad">Tipo de Discapacidad</Label>
-              <Select
-                options={optionsDiscapacidad}
-                placeholder="Selecciona el tipo de discapacidad"
-                onChange={(value) =>
-                  handleSelectChange("tipoDiscapacidad", value)
-                }
-                value={formData.tipoDiscapacidad || ""}
-              />
-            </div>
-            <div>
-              <Label htmlFor="detalleDiscapacidad">
-                Detalles de la Discapacidad
-              </Label>
-              <Input
-                id="detalleDiscapacidad"
-                type="text"
-                placeholder="Ingrese detalles adicionales"
-                value={formData.detalleDiscapacidad}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <Label htmlFor="porcentajeDiscapacidad">
-                Porcentaje de Discapacidad
-              </Label>
-              <Input
-                id="porcentajeDiscapacidad"
-                type="number"
-                placeholder="Ingrese el porcentaje de discapacidad"
-                value={formData.porcentajeDiscapacidad}
-                onChange={handleChange}
-              />
-            </div>
+            {formData.tieneDiscapacidad && (
+              <>
+                <div>
+                  <Switch
+                    label="¿Porta carnet de discapacidad?"
+                    defaultChecked={formData.portadorCarnet || false}
+                    onChange={(checked) =>
+                      handleSwitchChange("portadorCarnet", checked)
+                    }
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="tipoDiscapacidad">Tipo de Discapacidad</Label>
+                  <Select
+                    options={optionsDiscapacidad}
+                    placeholder="Selecciona el tipo de discapacidad"
+                    onChange={(value) =>
+                      handleSelectChange("tipoDiscapacidad", value)
+                    }
+                    value={formData.tipoDiscapacidad || ""}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="detalleDiscapacidad">
+                    Detalles de la Discapacidad
+                  </Label>
+                  <Input
+                    id="detalleDiscapacidad"
+                    type="text"
+                    placeholder="Ingrese detalles adicionales"
+                    value={formData.detalleDiscapacidad}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="porcentajeDiscapacidad">
+                    Porcentaje de Discapacidad
+                  </Label>
+                  <Input
+                    id="porcentajeDiscapacidad"
+                    type="number"
+                    placeholder="Ingrese el porcentaje de discapacidad"
+                    value={formData.porcentajeDiscapacidad}
+                    onChange={handleChange}
+                  />
+                </div>
+              </>
+            )}
             <div>
               <Label htmlFor="diagnostico">Diagnóstico</Label>
               <Input
@@ -465,14 +562,31 @@ export default function FormularioPacientes() {
               <Label htmlFor="institucionEducativaId">
                 Institución Educativa
               </Label>
-              <Select
-                options={optionsInstituciones}
-                placeholder="Seleccione la institución educativa"
-                onChange={(value) =>
-                  handleSelectChange("institucionEducativaId", value)
-                }
-                value={String(formData.institucionEducativaId || "")}
-              />
+              <div className="flex items-center gap-2">
+                <div className="flex-1">
+                  <Select
+                    options={optionsInstituciones}
+                    placeholder="Seleccione la institución educativa"
+                    onChange={(value) =>
+                      handleSelectChange("institucionEducativaId", value)
+                    }
+                    value={String(formData.institucionEducativaId || "")}
+                  />
+                </div>
+                {permissions.includes(
+                  "PERM_INSTITUCIONES_EDUCATIVAS_CREAR",
+                ) && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={openInstitucionModal}
+                    title="Agregar nueva institución"
+                    className="hover:bg-red-500 hover:text-white"
+                  >
+                    <Plus size={18} />
+                  </Button>
+                )}
+              </div>
             </div>
             <div>
               <Label htmlFor="jornada">Jornada</Label>
@@ -494,15 +608,20 @@ export default function FormularioPacientes() {
                 value={formData.nivelEducativo || ""}
               />
             </div>
-            <div>
-              <Label htmlFor="anioEducacion">Año Educativo</Label>
-              <Select
-                options={optionsAñoEducativo}
-                placeholder="Seleccione el año educativo"
-                onChange={(value) => handleSelectChange("anioEducacion", value)}
-                value={formData.anioEducacion || ""}
-              />
-            </div>
+            {formData.nivelEducativo !== "no-escolarizado" &&
+              formData.nivelEducativo !== "" && (
+                <div>
+                  <Label htmlFor="anioEducacion">Año Educativo</Label>
+                  <Select
+                    options={optionsAñoEducativo(formData.nivelEducativo)}
+                    placeholder="Seleccione el año educativo"
+                    onChange={(value) =>
+                      handleSelectChange("anioEducacion", value)
+                    }
+                    value={formData.anioEducacion || ""}
+                  />
+                </div>
+              )}
             <div>
               <Switch
                 label="Pertenencia a programa de inclusión"
@@ -521,16 +640,18 @@ export default function FormularioPacientes() {
                 }
               />
             </div>
-            <div>
-              <Label htmlFor="proyecto">Proyecto</Label>
-              <Input
-                id="proyecto"
-                type="text"
-                placeholder="Ingrese el proyecto"
-                value={formData.proyecto}
-                onChange={handleChange}
-              />
-            </div>
+            {formData.perteneceAProyecto && (
+              <div>
+                <Label htmlFor="proyecto">Proyecto</Label>
+                <Input
+                  id="proyecto"
+                  type="text"
+                  placeholder="Ingrese el proyecto"
+                  value={formData.proyecto}
+                  onChange={handleChange}
+                />
+              </div>
+            )}
           </div>
         </div>
       </ComponentCard>
@@ -546,6 +667,7 @@ export default function FormularioPacientes() {
                   setFormData((prev) => ({ ...prev, motivoConsulta: value }))
                 }
                 rows={2}
+                placeholder="Ingrese el motivo de consulta"
               />
             </div>
             <div>
@@ -556,6 +678,7 @@ export default function FormularioPacientes() {
                   setFormData((prev) => ({ ...prev, observaciones: value }))
                 }
                 rows={2}
+                placeholder="Ingrese las observaciones"
               />
             </div>
           </div>
@@ -574,6 +697,12 @@ export default function FormularioPacientes() {
           {loading ? "Guardando..." : "Guardar Paciente"}
         </Button>
       </div>
+      <InstitucionModal
+        isOpen={isInstitucionModalOpen}
+        onClose={closeInstitucionModal}
+        onSave={handleSaveInstitucion}
+        title="Nueva Institución"
+      />
     </div>
   );
 }

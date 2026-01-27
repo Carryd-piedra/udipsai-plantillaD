@@ -119,7 +119,7 @@ const HistoriaNatalForm: React.FC<HistoriaNatalProps> = ({
       </div>
 
       {/* Datos del Recién Nacido */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-4 rounded-2xl bg-gray-50/50 dark:bg-gray-800/30 border border-gray-100 dark:border-gray-700">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4 rounded-2xl bg-gray-50/50 dark:bg-gray-800/30 border border-gray-100 dark:border-gray-700">
         <div>
           <Label>Peso (gr/kg)</Label>
           <Input

@@ -73,15 +73,15 @@ const CalendarBox = () => {
                         let classNames = ['text-white', 'border-0'];
 
                         if (cita.estado === 'FINALIZADA' || cita.estado === 'ASISTIDO') {
-                            classNames.push('!bg-green-500', '!border-green-500');
+                            classNames.push('!bg-green-400', '!border-green-400');
                         } else if (cita.estado === 'CANCELADA') {
-                            classNames.push('!bg-red-500', '!border-red-500');
+                            classNames.push('!bg-red-400', '!border-red-400');
                         } else if (cita.estado === 'FALTA_JUSTIFICADA') {
-                            classNames.push('!bg-orange-500', '!border-orange-500');
+                            classNames.push('!bg-orange-400', '!border-orange-400');
                         } else if (cita.estado === 'FALTA_INJUSTIFICADA' || cita.estado === 'NO_ASISTIDO') {
-                            classNames.push('!bg-red-500', '!border-red-500');
+                            classNames.push('!bg-red-400', '!border-red-400');
                         } else {
-                            classNames.push('!bg-blue-500', '!border-blue-500');
+                            classNames.push('!bg-blue-400', '!border-blue-400');
                         }
 
                         const fechaISO = parseDate(cita.fecha);

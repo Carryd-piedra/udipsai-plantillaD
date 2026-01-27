@@ -31,6 +31,7 @@ export const InstitucionModal: React.FC<InstitucionModalProps> = ({
     direccion: "",
     tipo: "",
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (initialData) {
@@ -46,14 +47,32 @@ export const InstitucionModal: React.FC<InstitucionModalProps> = ({
         tipo: "",
       });
     }
+    setErrors({});
   }, [initialData, isOpen]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
+    if (errors[id]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[id];
+        return newErrors;
+      });
+    }
   };
 
   const handleSubmit = () => {
+    const newErrors: Record<string, string> = {};
+    if (!formData.nombre.trim()) {
+      newErrors.nombre = "El nombre es obligatorio";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     onSave({
       ...formData,
       ...(initialData ? { id: initialData.id } : {}),
@@ -77,6 +96,8 @@ export const InstitucionModal: React.FC<InstitucionModalProps> = ({
             placeholder="Ingrese el nombre"
             value={formData.nombre}
             onChange={handleChange}
+            error={!!errors.nombre}
+            hint={errors.nombre}
           />
         </div>
         <div>

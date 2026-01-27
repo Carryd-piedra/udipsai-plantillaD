@@ -24,7 +24,6 @@ interface ConductaFormProps {
 const ConductaForm: React.FC<ConductaFormProps> = ({ data, onChange }) => {
   return (
     <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-      <div className="space-y-4">
         <Switch
           label="Temores"
           checked={data.temores}
@@ -50,9 +49,6 @@ const ConductaForm: React.FC<ConductaFormProps> = ({ data, onChange }) => {
           checked={data.egocentrismo}
           onChange={(checked: boolean) => onChange("egocentrismo", checked)}
         />
-      </div>
-      
-      <div className="space-y-4">
         <Switch
           label="Regresiones"
           checked={data.regresiones}
@@ -78,14 +74,13 @@ const ConductaForm: React.FC<ConductaFormProps> = ({ data, onChange }) => {
           checked={data.cuidadoPersonal}
           onChange={(checked: boolean) => onChange("cuidadoPersonal", checked)}
         />
-      </div>
 
       <div className="xl:col-span-2">
         <Label>Otras conductas preocupantes</Label>
         <TextArea
           value={data.otrosConductasPreocupantes}
           onChange={(val: string) => onChange("otrosConductasPreocupantes", val)}
-          placeholder="..."
+          placeholder="Describa otras conductas preocupantes..."
         />
       </div>
       <div className="xl:col-span-2">
@@ -93,7 +88,7 @@ const ConductaForm: React.FC<ConductaFormProps> = ({ data, onChange }) => {
         <TextArea
           value={data.observacionesConductasPreocupantes}
           onChange={(val: string) => onChange("observacionesConductasPreocupantes", val)}
-          placeholder="..."
+          placeholder="Describa observaciones conductas preocupantes..."
         />
       </div>
     </div>

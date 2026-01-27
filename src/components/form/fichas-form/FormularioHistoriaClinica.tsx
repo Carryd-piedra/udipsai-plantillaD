@@ -11,13 +11,20 @@ import DesarrolloMotorForm from "./sections/HistoriaClinica.tsx/DesarrolloMotorF
 import AlimentacionForm from "./sections/HistoriaClinica.tsx/AlimentacionForm";
 import AntecedentesMedicosForm from "./sections/HistoriaClinica.tsx/AntecedentesMedicosForm";
 import Switch from "../switch/Switch";
-import { Baby, Activity, FileText, HeartPulse } from "lucide-react";
+import {
+  Baby,
+  Activity,
+  FileText,
+  HeartPulse,
+  User,
+  Download,
+  Plus,
+} from "lucide-react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
 import { fichasService } from "../../../services/fichas";
 import { pacientesService } from "../../../services/pacientes";
 import PatientSelector from "../../common/PatientSelector";
-import { User } from "lucide-react";
 
 export interface HistoriaClinicaState {
   id?: number;
@@ -233,9 +240,11 @@ export default function FormularioHistoriaClinica() {
   const { id } = useParams<{ id: string }>();
 
   const [formData, setFormData] = useState<HistoriaClinicaState>(
-    initialHistoriaClinicaState
+    initialHistoriaClinicaState,
   );
   const [genogramaFile, setGenogramaFile] = useState<File | null>(null);
+  const [genogramaPreview, setGenogramaPreview] = useState<string | null>(null);
+  const [showFileInput, setShowFileInput] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // Section Visibility State
@@ -316,49 +325,61 @@ export default function FormularioHistoriaClinica() {
           ...data,
           pacienteId: data.pacienteId || data.paciente?.id,
           fecha: data.fecha ? data.fecha : "",
-          informacionGeneral: data.informacionGeneral || initialHistoriaClinicaState.informacionGeneral,
-          datosFamiliares: data.datosFamiliares || initialHistoriaClinicaState.datosFamiliares,
-          historiaPrenatal: data.historiaPrenatal || initialHistoriaClinicaState.historiaPrenatal,
-          historiaNatal: data.historiaNatal || initialHistoriaClinicaState.historiaNatal,
-          historiaPostnatal: data.historiaPostnatal || initialHistoriaClinicaState.historiaPostnatal,
-          desarrolloMotor: data.desarrolloMotor || initialHistoriaClinicaState.desarrolloMotor,
-          alimentacion: data.alimentacion || initialHistoriaClinicaState.alimentacion,
-          antecedentesMedicos: data.antecedentesMedicos || initialHistoriaClinicaState.antecedentesMedicos,
+          informacionGeneral:
+            data.informacionGeneral ||
+            initialHistoriaClinicaState.informacionGeneral,
+          datosFamiliares:
+            data.datosFamiliares || initialHistoriaClinicaState.datosFamiliares,
+          historiaPrenatal:
+            data.historiaPrenatal ||
+            initialHistoriaClinicaState.historiaPrenatal,
+          historiaNatal:
+            data.historiaNatal || initialHistoriaClinicaState.historiaNatal,
+          historiaPostnatal:
+            data.historiaPostnatal ||
+            initialHistoriaClinicaState.historiaPostnatal,
+          desarrolloMotor:
+            data.desarrolloMotor || initialHistoriaClinicaState.desarrolloMotor,
+          alimentacion:
+            data.alimentacion || initialHistoriaClinicaState.alimentacion,
+          antecedentesMedicos:
+            data.antecedentesMedicos ||
+            initialHistoriaClinicaState.antecedentesMedicos,
         };
         setFormData(loadedData);
 
         // Auto-open sections with data
         const hasInfoGeneral = !isSectionEmpty(
           data.informacionGeneral,
-          initialHistoriaClinicaState.informacionGeneral
+          initialHistoriaClinicaState.informacionGeneral,
         );
         const hasDatosFam = !isSectionEmpty(
           data.datosFamiliares,
-          initialHistoriaClinicaState.datosFamiliares
+          initialHistoriaClinicaState.datosFamiliares,
         );
         const hasPrenatal = !isSectionEmpty(
           data.historiaPrenatal,
-          initialHistoriaClinicaState.historiaPrenatal
+          initialHistoriaClinicaState.historiaPrenatal,
         );
         const hasNatal = !isSectionEmpty(
           data.historiaNatal,
-          initialHistoriaClinicaState.historiaNatal
+          initialHistoriaClinicaState.historiaNatal,
         );
         const hasPostnatal = !isSectionEmpty(
           data.historiaPostnatal,
-          initialHistoriaClinicaState.historiaPostnatal
+          initialHistoriaClinicaState.historiaPostnatal,
         );
         const hasMotor = !isSectionEmpty(
           data.desarrolloMotor,
-          initialHistoriaClinicaState.desarrolloMotor
+          initialHistoriaClinicaState.desarrolloMotor,
         );
         const hasAlimentacion = !isSectionEmpty(
           data.alimentacion,
-          initialHistoriaClinicaState.alimentacion
+          initialHistoriaClinicaState.alimentacion,
         );
         const hasAntecedentes = !isSectionEmpty(
           data.antecedentesMedicos,
-          initialHistoriaClinicaState.antecedentesMedicos
+          initialHistoriaClinicaState.antecedentesMedicos,
         );
         const hasGenograma = !!data.informacionGeneral?.genogramaUrl;
 
@@ -380,11 +401,21 @@ export default function FormularioHistoriaClinica() {
         if (data.paciente) {
           try {
             const paciente = await pacientesService.obtenerPorId(
-              data.paciente.id
+              data.paciente.id,
             );
             setSelectedPatient(paciente);
           } catch (pError) {
             console.warn("Could not load patient details", pError);
+          }
+        }
+        if (data.informacionGeneral?.genogramaUrl) {
+          try {
+            const gUrl = await fichasService.obtenerGenograma(
+              data.pacienteId || data.paciente?.id,
+            );
+            setGenogramaPreview(gUrl);
+          } catch (gError) {
+            console.warn("Could not load genogram preview", gError);
           }
         }
       } else {
@@ -410,7 +441,7 @@ export default function FormularioHistoriaClinica() {
   const handleNestedChange = (
     section: keyof HistoriaClinicaState,
     field: string,
-    value: any
+    value: any,
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -419,6 +450,18 @@ export default function FormularioHistoriaClinica() {
         [field]: value,
       },
     }));
+  };
+
+  const handleDescargarGenograma = () => {
+    if (genogramaPreview) {
+      const link = document.createElement("a");
+      link.href = genogramaPreview;
+      const fileName = formData.informacionGeneral.genogramaUrl || "genograma";
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
 
   const handleSubmit = async () => {
@@ -436,7 +479,11 @@ export default function FormularioHistoriaClinica() {
       };
 
       if (isEdit && formData.id) {
-        await fichasService.actualizarHistoriaClinica(formData.id, payload);
+        await fichasService.actualizarHistoriaClinica(
+          formData.id,
+          payload,
+          genogramaFile || undefined,
+        );
         toast.success("Ficha actualizada exitosamente");
       } else if (isEdit && !formData.id) {
         toast.error("Error: No se encontró el ID de la ficha");
@@ -444,7 +491,7 @@ export default function FormularioHistoriaClinica() {
       } else {
         await fichasService.crearHistoriaClinica(
           payload,
-          genogramaFile || undefined
+          genogramaFile || undefined,
         );
         toast.success("Ficha creada exitosamente");
       }
@@ -454,7 +501,7 @@ export default function FormularioHistoriaClinica() {
         toast.error("Este paciente ya tiene una ficha activa.");
       } else {
         toast.error(
-          isEdit ? "Error al actualizar la ficha" : "Error al crear la ficha"
+          isEdit ? "Error al actualizar la ficha" : "Error al crear la ficha",
         );
       }
       console.error("Error saving ficha:", error);
@@ -812,13 +859,103 @@ export default function FormularioHistoriaClinica() {
           onHeaderClick={() => setVerGenograma(!verGenograma)}
           bodyDisabled={!verGenograma}
         >
-          <div className="space-y-2">
-            <Label>Archivo de Genograma (Imagen/PDF)</Label>
-            <input
-              type="file"
-              onChange={(e) => setGenogramaFile(e.target.files?.[0] || null)}
-              className="block w-full text-sm text-gray-500"
-            />
+          <div className="space-y-4">
+            {(!formData.informacionGeneral.genogramaUrl || showFileInput) && (
+              <>
+                <Label>Archivo de Genograma (Imagen/PDF)</Label>
+                <input
+                  type="file"
+                  accept="image/*,application/pdf"
+                  onChange={(e) =>
+                    setGenogramaFile(e.target.files?.[0] || null)
+                  }
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100 dark:file:bg-gray-800 dark:file:text-gray-300"
+                />
+                {showFileInput && formData.informacionGeneral.genogramaUrl && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setShowFileInput(false);
+                      setGenogramaFile(null);
+                    }}
+                  >
+                    Cancelar cambio
+                  </Button>
+                )}
+              </>
+            )}
+
+            {formData.informacionGeneral.genogramaUrl && !showFileInput && (
+              <>
+                <div className="flex items-center justify-end mb-3">
+                  
+                </div>
+                {formData.informacionGeneral.genogramaUrl
+                  .toLowerCase()
+                  .endsWith(".pdf") ? (
+                  <div className="flex items-center gap-2 dark:text-brand-400 p-4 border-2 border-dashed rounded-xl dark:border-gray-600">
+                    <FileText size={24} />
+                    <span className="text-sm font-medium">
+                      Documento PDF cargado
+                    </span>
+                    <div className="flex gap-2 ml-auto">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setShowFileInput(true)}
+                      className="h-8 py-1"
+                      title="Cambiar genograma"
+                    >
+                      <Plus size={14} className="mr-1.5" /> Cambiar
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleDescargarGenograma}
+                      className="h-8 py-1"
+                      title="Descargar genograma"
+                    >
+                      <Download size={14} className="mr-1.5" /> Descargar
+                    </Button>
+                  </div>
+                  </div>
+                ) : (
+                  <div className="relative group">
+                    <img
+                      src={genogramaPreview || ""}
+                      alt="Genograma"
+                      className="max-h-64 rounded-xl shadow-sm border dark:border-gray-700"
+                    />
+                  </div>
+                )}
+              </>
+            )}
+            {genogramaFile && (
+              <div className="mt-4 p-4 border-2 border-dashed border-brand-200 rounded-2xl bg-brand-50/30 dark:bg-brand-500/5 items-center flex justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-brand-100 dark:bg-brand-500/20 rounded-lg text-brand-600 dark:text-brand-400">
+                    <FileText size={20} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                      Nuevo archivo seleccionado
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {genogramaFile.name}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setGenogramaFile(null)}
+                  className="h-8"
+                >
+                  Remover
+                </Button>
+              </div>
+            )}
           </div>
         </ComponentCard>
       </div>
@@ -838,8 +975,8 @@ export default function FormularioHistoriaClinica() {
           {loading
             ? "Guardando..."
             : isEdit
-            ? "Actualizar Ficha"
-            : "Guardar Ficha"}
+              ? "Actualizar Ficha"
+              : "Guardar Ficha"}
         </Button>
       </div>
     </div>

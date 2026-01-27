@@ -44,6 +44,7 @@ export default function FormularioEspecialistas() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (isEditing) {
@@ -158,6 +159,14 @@ export default function FormularioEspecialistas() {
   ) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
+
+    if (errors[id]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[id];
+        return newErrors;
+      });
+    }
   };
 
   const handleSelectChange = (name: string, value: string | number) => {
@@ -165,6 +174,18 @@ export default function FormularioEspecialistas() {
   };
 
   const handleSubmit = async () => {
+    // Validation
+    const newErrors: Record<string, string> = {};
+    if (!formData.nombresApellidos.trim()) {
+      newErrors.nombresApellidos = "El nombre completo es obligatorio";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error("Por favor, complete los campos obligatorios");
+      return;
+    }
+
     try {
       setLoading(true);
       const payload = {
@@ -237,6 +258,8 @@ export default function FormularioEspecialistas() {
                 placeholder="Ingrese el nombre completo"
                 value={formData.nombresApellidos}
                 onChange={handleChange}
+                error={!!errors.nombresApellidos}
+                hint={errors.nombresApellidos}
               />
             </div>
           </div>
