@@ -16,6 +16,10 @@ import Badge from "../ui/badge/Badge";
 import { useAuth } from "../../context/AuthContext";
 import { fichasService } from "../../services/fichas";
 import { DeleteModal } from "../ui/modal/DeleteModal";
+import { HistoriaClinicaViewModal } from "./HistoriaClinicaViewModal";
+import { PsicologiaEducativaViewModal } from "./PsicologiaEducativaViewModal";
+import { PsicologiaClinicaViewModal } from "./PsicologiaClinicaViewModal";
+import { FonoaudiologiaViewModal } from "./FonoaudiologiaViewModal";
 
 interface Paciente {
   id: number;
@@ -88,9 +92,9 @@ const FILE_TYPES = [
     internalName: "Ficha Compromiso",
     type: "documento",
     permissions: {
-      create: "PERM_PACIENTES_EDITAR", // Upload is part of edit
-      edit: "PERM_PACIENTES_EDITAR", // Re-upload
-      delete: "PERM_PACIENTES_ELIMINAR", // Delete doc
+      create: "PERM_PACIENTES_EDITAR",
+      edit: "PERM_PACIENTES_EDITAR",
+      delete: "PERM_PACIENTES_ELIMINAR",
       view: "PERM_PACIENTES",
     },
   },
@@ -125,6 +129,11 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
     fileType: string;
     label: string;
   } | null>(null);
+
+  const [viewHistoriaModalOpen, setViewHistoriaModalOpen] = useState(false);
+  const [viewEduModalOpen, setViewEduModalOpen] = useState(false);
+  const [viewClinicaModalOpen, setViewClinicaModalOpen] = useState(false);
+  const [viewFonoModalOpen, setViewFonoModalOpen] = useState(false);
 
   const fetchResumen = async () => {
     if (!paciente) return;
@@ -211,9 +220,25 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
     }
     
     if (action === "Ver") {
-        if (type === "documento") {
-             return;
-        }
+      if (fileType === "historia-clinica") {
+        setViewHistoriaModalOpen(true);
+        return;
+      }
+      if (fileType === "psicologia-educativa") {
+        setViewEduModalOpen(true);
+        return;
+      }
+      if (fileType === "psicologia-clinica") {
+        setViewClinicaModalOpen(true);
+        return;
+      }
+      if (fileType === "fonoaudiologia") {
+        setViewFonoModalOpen(true);
+        return;
+      }
+      if (type === "documento") {
+        return;
+      }
     }
     
     if (action === "Exportar") {
@@ -441,6 +466,35 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
         title={`Eliminar ${itemToDelete?.label}`}
         description={`¿Estás seguro de que deseas eliminar ${itemToDelete?.label.toLowerCase()}? Esta acción no se puede deshacer.`}
       />
+
+      {viewHistoriaModalOpen && (
+        <HistoriaClinicaViewModal
+          isOpen={viewHistoriaModalOpen}
+          onClose={() => setViewHistoriaModalOpen(false)}
+          pacienteId={paciente.id}
+        />
+      )}
+      {viewEduModalOpen && (
+        <PsicologiaEducativaViewModal
+          isOpen={viewEduModalOpen}
+          onClose={() => setViewEduModalOpen(false)}
+          pacienteId={paciente.id}
+        />
+      )}
+      {viewClinicaModalOpen && (
+        <PsicologiaClinicaViewModal
+          isOpen={viewClinicaModalOpen}
+          onClose={() => setViewClinicaModalOpen(false)}
+          pacienteId={paciente.id}
+        />
+      )}
+      {viewFonoModalOpen && (
+        <FonoaudiologiaViewModal
+          isOpen={viewFonoModalOpen}
+          onClose={() => setViewFonoModalOpen(false)}
+          pacienteId={paciente.id}
+        />
+      )}
     </Modal>
   );
 };

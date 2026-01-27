@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
-import { Pencil, Trash, FileText, Activity, Brain, Ear } from "lucide-react";
+import { Pencil, Trash, FileText, Activity, Brain, Ear, Eye } from "lucide-react";
 
 import {
   Table,
@@ -16,6 +16,12 @@ import Button from "../ui/button/Button";
 import Badge from "../ui/badge/Badge";
 import { DeleteModal } from "../ui/modal/DeleteModal";
 import { TableActionHeader } from "../common/TableActionHeader";
+
+// Import view modals
+import { HistoriaClinicaViewModal } from "../modals/HistoriaClinicaViewModal";
+import { PsicologiaEducativaViewModal } from "../modals/PsicologiaEducativaViewModal";
+import { PsicologiaClinicaViewModal } from "../modals/PsicologiaClinicaViewModal";
+import { FonoaudiologiaViewModal } from "../modals/FonoaudiologiaViewModal";
 
 import { useAuth } from "../../context/AuthContext";
 import { fichasService } from "../../services/fichas";
@@ -128,6 +134,13 @@ export default function FichasUnificadasTable() {
   const [fichaToDelete, setFichaToDelete] = useState<number | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+  // View Modals State
+  const [selectedPacienteId, setSelectedPacienteId] = useState<number | null>(null);
+  const [viewHistoriaModalOpen, setViewHistoriaModalOpen] = useState(false);
+  const [viewEduModalOpen, setViewEduModalOpen] = useState(false);
+  const [viewClinicaModalOpen, setViewClinicaModalOpen] = useState(false);
+  const [viewFonoModalOpen, setViewFonoModalOpen] = useState(false);
+
   const activeTab = tabs.find((t) => t.key === activeTabKey) || tabs[0];
 
   const handleTabChange = (key: TabKey) => {
@@ -180,6 +193,24 @@ export default function FichasUnificadasTable() {
 
   const getEstadoBadge = (activo: boolean) => {
     return activo ? "success" : "error";
+  };
+
+  const handleViewClick = (pacienteId: number) => {
+    setSelectedPacienteId(pacienteId);
+    switch (activeTabKey) {
+      case "historia_clinica":
+        setViewHistoriaModalOpen(true);
+        break;
+      case "psicologia_educativa":
+        setViewEduModalOpen(true);
+        break;
+      case "psicologia_clinica":
+        setViewClinicaModalOpen(true);
+        break;
+      case "fonoaudiologia":
+        setViewFonoModalOpen(true);
+        break;
+    }
   };
 
   const filteredFichas = fichas.filter((ficha) => {
@@ -287,6 +318,16 @@ export default function FichasUnificadasTable() {
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-center gap-2">
+                        {hasPermission(activeTab.permRead) && (
+                          <Button
+                            size="sm"
+                            variant="info"
+                            onClick={() => handleViewClick(ficha.paciente.id)}
+                            title="Ver"
+                          >
+                            <Eye size={14} />
+                          </Button>
+                        )}
                         {hasPermission(activeTab.permEdit) && (
                           <Button
                             size="sm"
@@ -328,6 +369,32 @@ export default function FichasUnificadasTable() {
           title="Confirmar Eliminación"
           description={`¿Está seguro que desea eliminar esta ficha de ${activeTab.label}? Esta acción no se puede deshacer.`}
         />
+
+        {/* View Modals */}
+        {selectedPacienteId && (
+          <>
+            <HistoriaClinicaViewModal
+              isOpen={viewHistoriaModalOpen}
+              onClose={() => setViewHistoriaModalOpen(false)}
+              pacienteId={selectedPacienteId}
+            />
+            <PsicologiaEducativaViewModal
+              isOpen={viewEduModalOpen}
+              onClose={() => setViewEduModalOpen(false)}
+              pacienteId={selectedPacienteId}
+            />
+            <PsicologiaClinicaViewModal
+              isOpen={viewClinicaModalOpen}
+              onClose={() => setViewClinicaModalOpen(false)}
+              pacienteId={selectedPacienteId}
+            />
+            <FonoaudiologiaViewModal
+              isOpen={viewFonoModalOpen}
+              onClose={() => setViewFonoModalOpen(false)}
+              pacienteId={selectedPacienteId}
+            />
+          </>
+        )}
       </div>
     </div>
   );
