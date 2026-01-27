@@ -3,12 +3,12 @@ import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Label from "../form/Label";
 import DatePicker from "../form/date-picker";
-import FileInput from "../form/input/FileInput";
 import { SeguimientoDTO } from "../../services/seguimientos";
 import { toast } from "react-toastify";
 import TextArea from "../form/input/TextArea";
 import Select from "../form/Select";
 import { especialistasService } from "../../services";
+import { Upload, CheckCircle2 } from "lucide-react";
 
 interface SeguimientoFormProps {
   isOpen: boolean;
@@ -178,16 +178,36 @@ export const SeguimientoForm: React.FC<SeguimientoFormProps> = ({
 
         <div>
           <Label>Documento Adjunto (Opcional)</Label>
-          <div className="mt-1">
-            <FileInput
+          <div
+            className={`mt-1 relative border-2 border-dashed rounded-2xl p-4 flex flex-col items-center justify-center transition-all min-h-[100px] ${
+              file || initialData?.documento
+                ? "border-green-200 bg-green-50/30 dark:border-green-500/30 dark:bg-green-500/5"
+                : "border-gray-200 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-500 bg-white dark:bg-gray-900"
+            }`}
+          >
+            <input
+              type="file"
+              className="absolute inset-0 opacity-0 cursor-pointer z-10"
               onChange={(e) =>
                 setFile(e.target.files ? e.target.files[0] : null)
               }
             />
-            {initialData?.documento && !file && (
-              <p className="text-xs text-gray-500 mt-1">
-                Documento actual: {initialData.documento.nombre}
-              </p>
+            {file || initialData?.documento ? (
+              <div className="flex flex-col items-center gap-2 text-center text-green-600 dark:text-green-400">
+                <CheckCircle2 className="w-6 h-6 animate-in zoom-in-50 duration-300" />
+                <span className="text-xs font-bold truncate max-w-[250px]">
+                  {file ? file.name : initialData?.documento?.nombre}
+                </span>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-2 text-center text-gray-500 dark:text-gray-400">
+                <div className="p-2 rounded-full bg-gray-100 dark:bg-gray-800">
+                  <Upload className="w-5 h-5 text-gray-400" />
+                </div>
+                <span className="text-xs font-semibold">
+                  Click para adjuntar documento
+                </span>
+              </div>
             )}
           </div>
         </div>

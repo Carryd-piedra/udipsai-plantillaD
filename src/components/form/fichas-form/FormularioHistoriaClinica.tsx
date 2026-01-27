@@ -19,6 +19,9 @@ import {
   User,
   Download,
   Plus,
+  Upload,
+  CheckCircle2,
+  X,
 } from "lucide-react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
@@ -861,50 +864,81 @@ export default function FormularioHistoriaClinica() {
         >
           <div className="space-y-4">
             {(!formData.informacionGeneral.genogramaUrl || showFileInput) && (
-              <>
+              <div className="flex flex-col gap-3">
                 <Label>Archivo de Genograma (Imagen/PDF)</Label>
-                <input
-                  type="file"
-                  accept="image/*,application/pdf"
-                  onChange={(e) =>
-                    setGenogramaFile(e.target.files?.[0] || null)
-                  }
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100 dark:file:bg-gray-800 dark:file:text-gray-300"
-                />
+                <div
+                  className={`relative border-2 border-dashed rounded-3xl p-8 flex flex-col items-center justify-center transition-all h-48 ${
+                    genogramaFile
+                      ? "border-green-200 bg-green-50/30 dark:border-green-500/30 dark:bg-green-500/5"
+                      : "border-gray-200 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-500 bg-white dark:bg-gray-900 shadow-sm"
+                  }`}
+                >
+                  <input
+                    type="file"
+                    accept="image/*,application/pdf"
+                    className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                    onChange={(e) =>
+                      setGenogramaFile(e.target.files?.[0] || null)
+                    }
+                  />
+                  {genogramaFile ? (
+                    <div className="flex flex-col items-center gap-3 text-center text-green-600 dark:text-green-400">
+                      <CheckCircle2 className="w-10 h-10 animate-in zoom-in-50 duration-300" />
+                      <div>
+                        <p className="text-sm font-bold truncate max-w-[300px]">
+                          {genogramaFile.name}
+                        </p>
+                        <p className="text-xs opacity-70">Nuevo archivo listo para subir</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-3 text-center text-gray-500 dark:text-gray-400">
+                      <div className="p-4 rounded-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
+                        <Upload className="w-8 h-8 text-brand-500/70" />
+                      </div>
+                      <div>
+                        <span className="text-sm font-bold block">Click o arrastra para subir</span>
+                        <span className="text-xs">Imagen o PDF (Máx. 5MB)</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
                 {showFileInput && formData.informacionGeneral.genogramaUrl && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setShowFileInput(false);
-                      setGenogramaFile(null);
-                    }}
-                  >
-                    Cancelar cambio
-                  </Button>
+                  <div className="flex justify-center">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setShowFileInput(false);
+                        setGenogramaFile(null);
+                      }}
+                      className="rounded-full px-6"
+                    >
+                      <X size={14} className="mr-2" /> Cancelar cambio
+                    </Button>
+                  </div>
                 )}
-              </>
+              </div>
             )}
 
             {formData.informacionGeneral.genogramaUrl && !showFileInput && (
-              <>
-                <div className="flex items-center justify-end mb-3">
-                  
-                </div>
-                {formData.informacionGeneral.genogramaUrl
-                  .toLowerCase()
-                  .endsWith(".pdf") ? (
-                  <div className="flex items-center gap-2 dark:text-brand-400 p-4 border-2 border-dashed rounded-xl dark:border-gray-600">
-                    <FileText size={24} />
-                    <span className="text-sm font-medium">
-                      Documento PDF cargado
-                    </span>
-                    <div className="flex gap-2 ml-auto">
+              <div className="mt-4 space-y-4">
+                <div className="flex items-center justify-between bg-gray-50/50 dark:bg-white/[0.03] p-4 rounded-2xl border border-gray-100 dark:border-white/[0.05]">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-brand-100 dark:bg-brand-500/20 rounded-lg text-brand-600 dark:text-brand-400">
+                      <FileText size={20} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-gray-700 dark:text-gray-200">Genograma actual</p>
+                      <p className="text-xs text-gray-500">Documento guardado en el servidor</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => setShowFileInput(true)}
-                      className="h-8 py-1"
+                      className="h-9 rounded-xl hover:bg-brand-50/50"
                       title="Cambiar genograma"
                     >
                       <Plus size={14} className="mr-1.5" /> Cambiar
@@ -913,47 +947,13 @@ export default function FormularioHistoriaClinica() {
                       size="sm"
                       variant="outline"
                       onClick={handleDescargarGenograma}
-                      className="h-8 py-1"
+                      className="h-9 rounded-xl hover:bg-brand-50/50"
                       title="Descargar genograma"
                     >
                       <Download size={14} className="mr-1.5" /> Descargar
                     </Button>
                   </div>
-                  </div>
-                ) : (
-                  <div className="relative group">
-                    <img
-                      src={genogramaPreview || ""}
-                      alt="Genograma"
-                      className="max-h-64 rounded-xl shadow-sm border dark:border-gray-700"
-                    />
-                  </div>
-                )}
-              </>
-            )}
-            {genogramaFile && (
-              <div className="mt-4 p-4 border-2 border-dashed border-brand-200 rounded-2xl bg-brand-50/30 dark:bg-brand-500/5 items-center flex justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-brand-100 dark:bg-brand-500/20 rounded-lg text-brand-600 dark:text-brand-400">
-                    <FileText size={20} />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                      Nuevo archivo seleccionado
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {genogramaFile.name}
-                    </p>
-                  </div>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setGenogramaFile(null)}
-                  className="h-8"
-                >
-                  Remover
-                </Button>
               </div>
             )}
           </div>

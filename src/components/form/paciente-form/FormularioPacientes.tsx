@@ -13,7 +13,7 @@ import { institucionesService, sedesService } from "../../../services";
 import { toast } from "react-toastify";
 import { useModal } from "../../../hooks/useModal";
 import { InstitucionModal } from "../../modals/InstitucionModal";
-import { Plus } from "lucide-react";
+import { Plus, Camera, Upload, CheckCircle2, User } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 
 export default function FormularioPacientes() {
@@ -342,60 +342,122 @@ export default function FormularioPacientes() {
       <ComponentCard title="Datos personales del paciente">
         <div className="space-y-6">
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-            <div>
-              <Label htmlFor="foto">Foto del Paciente</Label>
-              <input
-                id="foto"
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              />
-              {previewUrl && (
-                <img
-                  src={previewUrl}
-                  alt="Vista previa"
-                  className="mt-2 h-20 w-20 object-cover rounded-full"
-                />
-              )}
-            </div>
-            <div>
-              <Label htmlFor="fichaCompromiso">
-                Ficha de Compromiso (PDF)
-                {existingFichas.compromiso && (
-                  <span className="ml-2 text-xs font-semibold text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-2 py-0.5 rounded-full">
-                    Documento cargado
-                  </span>
-                )}
-              </Label>
-              <input
-                id="fichaCompromiso"
-                type="file"
-                accept="application/pdf"
-                onChange={(e) =>
-                  setFichaCompromisoFile(e.target.files?.[0] || null)
-                }
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
-              />
-            </div>
-            <div>
-              <Label htmlFor="fichaDeteccion">
-                Ficha de Detección (PDF)
-                {existingFichas.deteccion && (
-                  <span className="ml-2 text-xs font-semibold text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-2 py-0.5 rounded-full">
-                    Documento cargado
-                  </span>
-                )}
-              </Label>
-              <input
-                id="fichaDeteccion"
-                type="file"
-                accept="application/pdf"
-                onChange={(e) =>
-                  setFichaDeteccionFile(e.target.files?.[0] || null)
-                }
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
-              />
+            <div className="md:col-span-2 flex flex-col md:flex-row gap-8 items-start bg-gray-50/50 dark:bg-white/[0.03] p-6 rounded-3xl border border-gray-100 dark:border-white/[0.05]">
+              {/* Foto del Paciente */}
+              <div className="flex flex-col items-center gap-4">
+                <Label className="text-center w-full">Foto del Paciente</Label>
+                <div className="relative group">
+                  <div className="w-32 h-32 rounded-full border-4 border-white dark:border-gray-800 overflow-hidden bg-white dark:bg-gray-900 flex items-center justify-center shadow-md transition-all group-hover:border-brand-300 dark:group-hover:border-brand-500">
+                    {previewUrl ? (
+                      <img
+                        src={previewUrl}
+                        alt="Vista previa"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User className="w-16 h-16 text-gray-300 dark:text-gray-700" />
+                    )}
+                    <label
+                      htmlFor="foto"
+                      className="absolute inset-0 bg-black/40 flex rounded-full items-center justify-center opacity-0 group-hover:opacity-60 transition-opacity cursor-pointer"
+                    >
+                      <Camera className="text-white w-8 h-8" />
+                    </label>
+                  </div>
+                  <input
+                    id="foto"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </div>
+              </div>
+
+              {/* Documentos */}
+              <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-6 w-full mt-4 md:mt-0">
+                {/* Ficha Compromiso */}
+                <div className="flex flex-col gap-3">
+                  <Label>Ficha de Compromiso (PDF)</Label>
+                  <div
+                    className={`relative border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center transition-all h-32 ${
+                      fichaCompromisoFile || existingFichas.compromiso
+                        ? "border-green-200 bg-green-50/30 dark:border-green-500/30 dark:bg-green-500/5"
+                        : "border-gray-200 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-500 bg-white dark:bg-gray-900"
+                    }`}
+                  >
+                    <input
+                      id="fichaCompromiso"
+                      type="file"
+                      accept="application/pdf"
+                      className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                      onChange={(e) =>
+                        setFichaCompromisoFile(e.target.files?.[0] || null)
+                      }
+                    />
+                    {fichaCompromisoFile || existingFichas.compromiso ? (
+                      <div className="flex flex-col items-center gap-2 text-center text-green-600 dark:text-green-400">
+                        <CheckCircle2 className="w-8 h-8 animate-in zoom-in-50 duration-300" />
+                        <span className="text-xs font-bold truncate max-w-[150px]">
+                          {fichaCompromisoFile
+                            ? fichaCompromisoFile.name
+                            : "Documento cargado"}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-2 text-center text-gray-500 dark:text-gray-400">
+                        <div className="p-3 rounded-full bg-gray-100 dark:bg-gray-800">
+                          <Upload className="w-6 h-6 text-gray-400" />
+                        </div>
+                        <span className="text-xs font-semibold">
+                          Click para subir PDF
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Ficha Deteccion */}
+                <div className="flex flex-col gap-3">
+                  <Label>Ficha de Detección (PDF)</Label>
+                  <div
+                    className={`relative border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center transition-all h-32 ${
+                      fichaDeteccionFile || existingFichas.deteccion
+                        ? "border-green-200 bg-green-50/30 dark:border-green-500/30 dark:bg-green-500/5"
+                        : "border-gray-200 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-500 bg-white dark:bg-gray-900"
+                    }`}
+                  >
+                    <input
+                      id="fichaDeteccion"
+                      type="file"
+                      accept="application/pdf"
+                      className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                      onChange={(e) =>
+                        setFichaDeteccionFile(e.target.files?.[0] || null)
+                      }
+                    />
+                    {fichaDeteccionFile || existingFichas.deteccion ? (
+                      <div className="flex flex-col items-center gap-2 text-center text-green-600 dark:text-green-400">
+                        <CheckCircle2 className="w-8 h-8 animate-in zoom-in-50 duration-300" />
+                        <span className="text-xs font-bold truncate max-w-[150px]">
+                          {fichaDeteccionFile
+                            ? fichaDeteccionFile.name
+                            : "Documento cargado"}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-2 text-center text-gray-500 dark:text-gray-400">
+                        <div className="p-3 rounded-full bg-gray-100 dark:bg-gray-800">
+                          <Upload className="w-6 h-6 text-gray-400" />
+                        </div>
+                        <span className="text-xs font-semibold">
+                          Click para subir PDF
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
             <div>
               <Label htmlFor="nombresApellidos">Nombre Completo</Label>

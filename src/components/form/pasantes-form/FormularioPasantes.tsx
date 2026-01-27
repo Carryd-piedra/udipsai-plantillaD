@@ -12,6 +12,7 @@ import DatePicker from "../date-picker";
 
 import { PermisosTable, PermissionsState } from "../../common/PermisosTable";
 import { especialidadesService } from "../../../services/especialidades";
+import { Camera, User } from "lucide-react";
 
 export default function FormularioPasantes() {
   const { id } = useParams();
@@ -324,22 +325,36 @@ export default function FormularioPasantes() {
       <ComponentCard title="Datos personales del pasante">
         <div className="space-y-6">
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-            <div>
-              <Label htmlFor="foto">Foto del Pasante</Label>
-              <input
-                id="foto"
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              />
-              {previewUrl && (
-                <img
-                  src={previewUrl}
-                  alt="Vista previa"
-                  className="mt-2 h-20 w-20 object-cover rounded-full"
-                />
-              )}
+            <div className="md:col-span-2 flex justify-center mb-6">
+              <div className="flex flex-col items-center gap-4">
+                <Label className="text-center w-full">Foto del Pasante</Label>
+                <div className="relative group">
+                  <div className="w-32 h-32 rounded-full border-4 border-white dark:border-gray-800 overflow-hidden bg-white dark:bg-gray-900 flex items-center justify-center shadow-md transition-all group-hover:border-brand-300 dark:group-hover:border-brand-500">
+                    {previewUrl ? (
+                      <img
+                        src={previewUrl}
+                        alt="Vista previa"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User className="w-16 h-16 text-gray-300 dark:text-gray-700" />
+                    )}
+                    <label
+                      htmlFor="foto"
+                      className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-60 transition-opacity cursor-pointer"
+                    >
+                      <Camera className="text-white w-8 h-8" />
+                    </label>
+                  </div>
+                  <input
+                    id="foto"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </div>
+              </div>
             </div>
             <div>
               <Label htmlFor="nombresApellidos">Nombres y Apellidos</Label>
