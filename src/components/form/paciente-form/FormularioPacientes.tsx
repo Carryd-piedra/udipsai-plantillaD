@@ -13,7 +13,7 @@ import { institucionesService, sedesService } from "../../../services";
 import { toast } from "react-toastify";
 import { useModal } from "../../../hooks/useModal";
 import { InstitucionModal } from "../../modals/InstitucionModal";
-import { Plus, Camera, Upload, CheckCircle2, User } from "lucide-react";
+import { Plus, Camera, Upload, CheckCircle2, User, FileText, Trash, Download } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 
 export default function FormularioPacientes() {
@@ -58,11 +58,16 @@ export default function FormularioPacientes() {
   const [fichaDeteccionFile, setFichaDeteccionFile] = useState<File | null>(
     null,
   );
+  const [otrosDocumentos, setOtrosDocumentos] = useState<File[]>([]);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [existingFichas, setExistingFichas] = useState({
-    compromiso: false,
-    deteccion: false,
+  const [existingFichas, setExistingFichas] = useState<{
+    compromiso: any | null;
+    deteccion: any | null;
+  }>({
+    compromiso: null,
+    deteccion: null,
   });
+  const [existingDocumentos, setExistingDocumentos] = useState<any[]>([]);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -86,13 +91,19 @@ export default function FormularioPacientes() {
           });
 
           if (data.documentos) {
-            const compromiso = data.documentos.some(
+            const compromiso = data.documentos.find(
               (d: any) => d.nombre === "Ficha Compromiso",
             );
-            const deteccion = data.documentos.some(
+            const deteccion = data.documentos.find(
               (d: any) => d.nombre === "Ficha Detección",
             );
             setExistingFichas({ compromiso, deteccion });
+            
+            // Filtrar otros documentos que no son las fichas estándar
+            const otros = data.documentos.filter(
+              (d: any) => d.nombre !== "Ficha Compromiso" && d.nombre !== "Ficha Detección"
+            );
+            setExistingDocumentos(otros);
           }
 
           if (data.fotoUrl) {
@@ -148,6 +159,45 @@ export default function FormularioPacientes() {
     }
   };
 
+  const handleOtrosDocumentosChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      const newFiles = Array.from(files);
+      setOtrosDocumentos((prev) => [...prev, ...newFiles]);
+    }
+  };
+
+  const removeOtroDocumento = (index: number) => {
+    setOtrosDocumentos((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const downloadExistingDocument = async (docId: number, nombre: string) => {
+    try {
+      const blob = await pacientesService.descargarDocumento(docId);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", nombre);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+    } catch (error) {
+      toast.error("Error al descargar el documento");
+    }
+  };
+
+  const deleteExistingDocument = async (docId: number) => {
+    if (window.confirm("¿Estás seguro de que deseas eliminar este documento?")) {
+      try {
+        await pacientesService.eliminarDocumento(docId);
+        toast.success("Documento eliminado");
+        setExistingDocumentos((prev) => prev.filter((d) => d.id !== docId));
+      } catch (error) {
+        toast.error("Error al eliminar el documento");
+      }
+    }
+  };
+
   const handleSubmit = async () => {
     // Validation
     const newErrors: Record<string, string> = {};
@@ -178,6 +228,7 @@ export default function FormularioPacientes() {
           selectedFile || undefined,
           fichaCompromisoFile || undefined,
           fichaDeteccionFile || undefined,
+          otrosDocumentos.length > 0 ? otrosDocumentos : undefined,
         );
         toast.success("Paciente actualizado exitosamente");
       } else {
@@ -186,6 +237,7 @@ export default function FormularioPacientes() {
           selectedFile || undefined,
           fichaCompromisoFile || undefined,
           fichaDeteccionFile || undefined,
+          otrosDocumentos.length > 0 ? otrosDocumentos : undefined,
         );
         toast.success("Paciente creado exitosamente");
       }
@@ -342,7 +394,7 @@ export default function FormularioPacientes() {
       <ComponentCard title="Datos personales del paciente">
         <div className="space-y-6">
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-            <div className="md:col-span-2 flex flex-col md:flex-row gap-8 items-start bg-gray-50/50 dark:bg-white/[0.03] p-6 rounded-3xl border border-gray-100 dark:border-white/[0.05]">
+            <div className="md:col-span-2 flex flex-col md:flex-row justify-center gap-8 items-center bg-gray-50/50 dark:bg-white/[0.03] p-6 rounded-3xl border border-gray-100 dark:border-white/[0.05]">
               {/* Foto del Paciente */}
               <div className="flex flex-col items-center gap-4">
                 <Label className="text-center w-full">Foto del Paciente</Label>
@@ -371,91 +423,6 @@ export default function FormularioPacientes() {
                     onChange={handleFileChange}
                     className="hidden"
                   />
-                </div>
-              </div>
-
-              {/* Documentos */}
-              <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-6 w-full mt-4 md:mt-0">
-                {/* Ficha Compromiso */}
-                <div className="flex flex-col gap-3">
-                  <Label>Ficha de Compromiso (PDF)</Label>
-                  <div
-                    className={`relative border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center transition-all h-32 ${
-                      fichaCompromisoFile || existingFichas.compromiso
-                        ? "border-green-200 bg-green-50/30 dark:border-green-500/30 dark:bg-green-500/5"
-                        : "border-gray-200 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-500 bg-white dark:bg-gray-900"
-                    }`}
-                  >
-                    <input
-                      id="fichaCompromiso"
-                      type="file"
-                      accept="application/pdf"
-                      className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                      onChange={(e) =>
-                        setFichaCompromisoFile(e.target.files?.[0] || null)
-                      }
-                    />
-                    {fichaCompromisoFile || existingFichas.compromiso ? (
-                      <div className="flex flex-col items-center gap-2 text-center text-green-600 dark:text-green-400">
-                        <CheckCircle2 className="w-8 h-8 animate-in zoom-in-50 duration-300" />
-                        <span className="text-xs font-bold truncate max-w-[150px]">
-                          {fichaCompromisoFile
-                            ? fichaCompromisoFile.name
-                            : "Documento cargado"}
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center gap-2 text-center text-gray-500 dark:text-gray-400">
-                        <div className="p-3 rounded-full bg-gray-100 dark:bg-gray-800">
-                          <Upload className="w-6 h-6 text-gray-400" />
-                        </div>
-                        <span className="text-xs font-semibold">
-                          Click para subir PDF
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Ficha Deteccion */}
-                <div className="flex flex-col gap-3">
-                  <Label>Ficha de Detección (PDF)</Label>
-                  <div
-                    className={`relative border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center transition-all h-32 ${
-                      fichaDeteccionFile || existingFichas.deteccion
-                        ? "border-green-200 bg-green-50/30 dark:border-green-500/30 dark:bg-green-500/5"
-                        : "border-gray-200 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-500 bg-white dark:bg-gray-900"
-                    }`}
-                  >
-                    <input
-                      id="fichaDeteccion"
-                      type="file"
-                      accept="application/pdf"
-                      className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                      onChange={(e) =>
-                        setFichaDeteccionFile(e.target.files?.[0] || null)
-                      }
-                    />
-                    {fichaDeteccionFile || existingFichas.deteccion ? (
-                      <div className="flex flex-col items-center gap-2 text-center text-green-600 dark:text-green-400">
-                        <CheckCircle2 className="w-8 h-8 animate-in zoom-in-50 duration-300" />
-                        <span className="text-xs font-bold truncate max-w-[150px]">
-                          {fichaDeteccionFile
-                            ? fichaDeteccionFile.name
-                            : "Documento cargado"}
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center gap-2 text-center text-gray-500 dark:text-gray-400">
-                        <div className="p-3 rounded-full bg-gray-100 dark:bg-gray-800">
-                          <Upload className="w-6 h-6 text-gray-400" />
-                        </div>
-                        <span className="text-xs font-semibold">
-                          Click para subir PDF
-                        </span>
-                      </div>
-                    )}
-                  </div>
                 </div>
               </div>
             </div>
@@ -603,6 +570,8 @@ export default function FormularioPacientes() {
                 </div>
               </>
             )}
+          </div>
+          <div className="grid grid-cols-2 gap-6 xl:grid-cols-2">
             <div>
               <Label htmlFor="diagnostico">Diagnóstico</Label>
               <Input
@@ -613,11 +582,20 @@ export default function FormularioPacientes() {
                 onChange={handleChange}
               />
             </div>
+            <div className="flex items-center pt-6">
+              <Switch
+                label="Pertenencia a programa de inclusión"
+                defaultChecked={formData.perteneceInclusion || false}
+                onChange={(checked) =>
+                  handleSwitchChange("perteneceInclusion", checked)
+                }
+              />
+            </div>
           </div>
         </div>
       </ComponentCard>
       <br />
-      <ComponentCard title="Información educativa y Proyecto">
+      <ComponentCard title="Información educativa">
         <div className="space-y-6">
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
             <div>
@@ -684,16 +662,7 @@ export default function FormularioPacientes() {
                   />
                 </div>
               )}
-            <div>
-              <Switch
-                label="Pertenencia a programa de inclusión"
-                defaultChecked={formData.perteneceInclusion || false}
-                onChange={(checked) =>
-                  handleSwitchChange("perteneceInclusion", checked)
-                }
-              />
-            </div>
-            <div>
+            <div className="flex items-center gap-2 pt-6">
               <Switch
                 label="Pertenece a Proyecto"
                 defaultChecked={formData.perteneceAProyecto || false}
@@ -742,6 +711,180 @@ export default function FormularioPacientes() {
                 rows={2}
                 placeholder="Ingrese las observaciones"
               />
+            </div>
+          </div>
+          {/* Documentos */}
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-6 w-full mt-4 md:mt-0">
+            {/* Ficha Compromiso */}
+            <div className="flex flex-col gap-3">
+              <Label>Ficha de Compromiso (PDF)</Label>
+              <div
+                className={`relative border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center transition-all h-32 ${
+                  fichaCompromisoFile || existingFichas.compromiso
+                    ? "border-green-200 bg-green-50/30 dark:border-green-500/30 dark:bg-green-500/5"
+                    : "border-gray-200 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-500 bg-white dark:bg-gray-900"
+                }`}
+              >
+                <input
+                  id="fichaCompromiso"
+                  type="file"
+                  accept="application/pdf"
+                  className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                  onChange={(e) =>
+                    setFichaCompromisoFile(e.target.files?.[0] || null)
+                  }
+                />
+                {fichaCompromisoFile || existingFichas.compromiso ? (
+                  <div className="flex flex-col items-center gap-2 text-center text-green-600 dark:text-green-400">
+                    <CheckCircle2 className="w-8 h-8 animate-in zoom-in-50 duration-300" />
+                    <span className="text-xs font-bold truncate max-w-[150px]" title={fichaCompromisoFile ? fichaCompromisoFile.name : existingFichas.compromiso.nombre}>
+                      {fichaCompromisoFile
+                        ? fichaCompromisoFile.name
+                        : "Documento cargado"}
+                    </span>
+                    {existingFichas.compromiso && !fichaCompromisoFile && (
+                      <button
+                        type="button"
+                        onClick={() => downloadExistingDocument(existingFichas.compromiso.id, existingFichas.compromiso.nombre)}
+                        className="text-[10px] underline hover:text-green-700"
+                      >
+                        Ver actual
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-2 text-center text-gray-500 dark:text-gray-400">
+                    <div className="p-3 rounded-full bg-gray-100 dark:bg-gray-800">
+                      <Upload className="w-6 h-6 text-gray-400" />
+                    </div>
+                    <span className="text-xs font-semibold">
+                      Click para subir PDF
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Ficha Deteccion */}
+            <div className="flex flex-col gap-3">
+              <Label>Ficha de Detección (PDF)</Label>
+              <div
+                className={`relative border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center transition-all h-32 ${
+                  fichaDeteccionFile || existingFichas.deteccion
+                    ? "border-green-200 bg-green-50/30 dark:border-green-500/30 dark:bg-green-500/5"
+                    : "border-gray-200 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-500 bg-white dark:bg-gray-900"
+                }`}
+              >
+                <input
+                  id="fichaDeteccion"
+                  type="file"
+                  accept="application/pdf"
+                  className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                  onChange={(e) =>
+                    setFichaDeteccionFile(e.target.files?.[0] || null)
+                  }
+                />
+                {fichaDeteccionFile || existingFichas.deteccion ? (
+                  <div className="flex flex-col items-center gap-2 text-center text-green-600 dark:text-green-400">
+                    <CheckCircle2 className="w-8 h-8 animate-in zoom-in-50 duration-300" />
+                    <span className="text-xs font-bold truncate max-w-[150px]" title={fichaDeteccionFile ? fichaDeteccionFile.name : existingFichas.deteccion.nombre}>
+                      {fichaDeteccionFile
+                        ? fichaDeteccionFile.name
+                        : "Documento cargado"}
+                    </span>
+                    {existingFichas.deteccion && !fichaDeteccionFile && (
+                      <button
+                        type="button"
+                        onClick={() => downloadExistingDocument(existingFichas.deteccion.id, existingFichas.deteccion.nombre)}
+                        className="text-[10px] underline hover:text-green-700"
+                      >
+                        Ver actual
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-2 text-center text-gray-500 dark:text-gray-400">
+                    <div className="p-3 rounded-full bg-gray-100 dark:bg-gray-800">
+                      <Upload className="w-6 h-6 text-gray-400" />
+                    </div>
+                    <span className="text-xs font-semibold">
+                      Click para subir PDF
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+            {/* Otros Documentos Dinámicos */}
+            <div className="flex flex-col gap-3 sm:col-span-3">
+              <Label>Otros Documentos Adicionales (PDF, Imágenes, etc.)</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {/* Documentos ya existentes en el servidor */}
+                {existingDocumentos.map((doc) => (
+                  <div key={doc.id} className="relative flex items-center justify-between p-3 bg-green-50/50 dark:bg-green-500/5 border border-green-200 dark:border-green-500/30 rounded-xl shadow-sm">
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <div className="p-2 rounded-lg bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400">
+                        <FileText size={18} />
+                      </div>
+                      <span className="text-xs font-bold truncate max-w-[120px]" title={doc.nombre}>
+                        {doc.nombre}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => downloadExistingDocument(doc.id, doc.nombre)}
+                        className="p-1.5 text-gray-400 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-full transition-colors"
+                        title="Descargar"
+                      >
+                        <Download size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => deleteExistingDocument(doc.id)}
+                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-full transition-colors"
+                        title="Eliminar"
+                      >
+                        <Trash size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Nuevos documentos a subir */}
+                {otrosDocumentos.map((file, index) => (
+                  <div key={`new-${index}`} className="relative flex items-center justify-between p-3 bg-white dark:bg-gray-900 border border-brand-200 dark:border-brand-500/30 rounded-xl shadow-sm border-dashed">
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <div className="p-2 rounded-lg bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400">
+                        <FileText size={18} />
+                      </div>
+                      <span className="text-xs font-bold truncate max-w-[120px]" title={file.name}>
+                        {file.name}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeOtroDocumento(index)}
+                      className="ml-2 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-full transition-colors"
+                    >
+                      <Trash size={14} />
+                    </button>
+                  </div>
+                ))}
+                
+                <div className="relative border-2 border-dashed border-gray-200 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-500 rounded-xl p-4 flex flex-col items-center justify-center transition-all bg-white dark:bg-gray-900 h-[58px] cursor-pointer group">
+                  <input
+                    id="otrosDocumentos"
+                    type="file"
+                    multiple
+                    className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                    onChange={handleOtrosDocumentosChange}
+                  />
+                  <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 group-hover:text-brand-500 transition-colors">
+                    <Plus size={18} />
+                    <span className="text-xs font-semibold">Agregar archivos</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -55,7 +55,8 @@ export const pacientesService = {
     data: any,
     file?: File,
     fichaCompromiso?: File,
-    fichaDeteccion?: File
+    fichaDeteccion?: File,
+    otrosDocumentos?: File[]
   ) => {
     try {
       const formData = new FormData();
@@ -71,6 +72,9 @@ export const pacientesService = {
       }
       if (fichaDeteccion) {
         formData.append("fichaDeteccion", fichaDeteccion);
+      }
+      if (otrosDocumentos) {
+        otrosDocumentos.forEach((f) => formData.append("otrosDocumentos", f));
       }
 
       const response = await api.post("/pacientes", formData, {
@@ -90,7 +94,8 @@ export const pacientesService = {
     data: any,
     file?: File,
     fichaCompromiso?: File,
-    fichaDeteccion?: File
+    fichaDeteccion?: File,
+    otrosDocumentos?: File[]
   ) => {
     try {
       const formData = new FormData();
@@ -107,6 +112,9 @@ export const pacientesService = {
       }
       if (fichaDeteccion) {
         formData.append("fichaDeteccion", fichaDeteccion);
+      }
+      if (otrosDocumentos) {
+        otrosDocumentos.forEach((f) => formData.append("otrosDocumentos", f));
       }
 
       const response = await api.put(`/pacientes/${id}`, formData, {

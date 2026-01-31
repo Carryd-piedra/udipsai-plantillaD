@@ -455,6 +455,46 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                   </TableRow>
                 );
               })}
+              {/* Otros Documentos Adicionales */}
+              {resumen?.fichas && Object.entries(resumen.fichas)
+                .filter(([name]) => !FILE_TYPES.some(ft => ft.internalName === name))
+                .map(([name, id]) => (
+                  <TableRow key={`extra-${id}`}>
+                    <TableCell className="px-4 py-4 text-sm text-gray-700 dark:text-gray-300">
+                      <div className="flex items-center gap-2">
+                        <FileText size={18} className="text-gray-400" />
+                        {name}
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-4 py-4">
+                      <Badge color="success">Subido</Badge>
+                    </TableCell> 
+                    <TableCell className="px-4 py-4">
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleAction("Exportar", "extra", name, "documento", name)}
+                          className="hover:bg-white hover:text-green-600 p-2 text-dark dark:text-white-400 dark:hover:text-green-600"
+                          title="Descargar"
+                        >
+                          <Download size={14} />
+                        </Button>
+                        {hasPermission("PERM_PACIENTES_ELIMINAR") && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleAction("Eliminar", "extra", name, "documento", name)}
+                            className="hover:bg-red-500 hover:text-white p-2 text-red-600 dark:text-red-400 dark:hover:text-red-400"
+                            title="Eliminar"
+                          >
+                            <Trash size={14} />
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </div>
