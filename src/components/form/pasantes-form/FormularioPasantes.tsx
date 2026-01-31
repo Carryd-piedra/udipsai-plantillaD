@@ -13,6 +13,7 @@ import DatePicker from "../date-picker";
 import { PermisosTable, PermissionsState } from "../../common/PermisosTable";
 import { especialidadesService } from "../../../services/especialidades";
 import { Camera, User } from "lucide-react";
+import { validarCedulaEcuatoriana, validarEmail, validarSoloNumeros } from "../../../services/validators";
 
 export default function FormularioPasantes() {
   const { id } = useParams();
@@ -214,6 +215,13 @@ export default function FormularioPasantes() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { id, value } = e.target;
+
+    if (["numeroTelefono", "numeroCelular", "cedula"].includes(id)) {
+      if (!validarSoloNumeros(value) || value.length > 10) {
+        return;
+      }
+    }
+
     setFormData((prev) => ({ ...prev, [id]: value }));
 
     if (errors[id]) {
@@ -247,6 +255,32 @@ export default function FormularioPasantes() {
     const newErrors: Record<string, string> = {};
     if (!formData.nombresApellidos.trim()) {
       newErrors.nombresApellidos = "El nombre completo es obligatorio";
+    }
+
+    if (!formData.cedula.trim()) {
+      newErrors.cedula = "La cédula es obligatoria";
+    } else if (!validarCedulaEcuatoriana(formData.cedula)) {
+      newErrors.cedula = "La cédula ingresada no es válida";
+    }
+
+    if (!formData.especialidadId.toString().trim()) {
+      newErrors.especialidadId = "La especialidad es obligatoria";
+    }
+
+    if (!formData.sedeId.toString().trim()) {
+      newErrors.sedeId = "La sede es obligatoria";
+    }
+
+    if (!formData.especialistaId.toString().trim()) {
+      newErrors.especialistaId = "El especialista es obligatorio";
+    }
+
+    if (!isEditing && !formData.contrasenia.trim()) {
+      newErrors.contrasenia = "La contraseña es obligatoria para nuevos pasantes";
+    }
+
+    if (formData.email && !validarEmail(formData.email)) {
+      newErrors.email = "El correo electrónico no es válido";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -376,6 +410,8 @@ export default function FormularioPasantes() {
                 placeholder="Ingrese el número de cédula/ruc"
                 value={formData.cedula}
                 onChange={handleChange}
+                error={!!errors.cedula}
+                hint={errors.cedula}
               />
             </div>
             <div>
@@ -386,6 +422,8 @@ export default function FormularioPasantes() {
                 placeholder="ejemplo@correo.com"
                 value={formData.email}
                 onChange={handleChange}
+                error={!!errors.email}
+                hint={errors.email}
               />
             </div>
             <div>
@@ -471,6 +509,8 @@ export default function FormularioPasantes() {
                 placeholder="Seleccione una sede"
                 onChange={(value) => handleSelectChange("sedeId", value)}
                 value={formData.sedeId || ""}
+                error={!!errors.sedeId}
+                hint={errors.sedeId}
               />
             </div>
             <div>
@@ -482,6 +522,8 @@ export default function FormularioPasantes() {
                   handleSelectChange("especialistaId", value)
                 }
                 value={formData.especialistaId || ""}
+                error={!!errors.especialistaId}
+                hint={errors.especialistaId}
               />
             </div>
             <div>
@@ -493,6 +535,8 @@ export default function FormularioPasantes() {
                   handleSelectChange("especialidadId", value)
                 }
                 value={formData.especialidadId || ""}
+                error={!!errors.especialidadId}
+                hint={errors.especialidadId}
               />
             </div>
           </div>
@@ -521,6 +565,8 @@ export default function FormularioPasantes() {
                 }
                 value={formData.contrasenia}
                 onChange={handleChange}
+                error={!!errors.contrasenia}
+                hint={errors.contrasenia}
               />
             </div>
           </div>

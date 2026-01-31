@@ -15,6 +15,7 @@ import { useModal } from "../../../hooks/useModal";
 import { InstitucionModal } from "../../modals/InstitucionModal";
 import { Plus, Camera, Upload, CheckCircle2, User, FileText, Trash, Download } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
+import { validarCedulaEcuatoriana, validarSoloNumeros } from "../../../services/validators";
 
 export default function FormularioPacientes() {
   const { id } = useParams();
@@ -126,6 +127,13 @@ export default function FormularioPacientes() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { id, value } = e.target;
+
+    if (["numeroTelefono", "numeroCelular", "cedula"].includes(id)) {
+      if (!validarSoloNumeros(value) || value.length > 10) {
+        return;
+      }
+    }
+
     setFormData((prev) => ({ ...prev, [id]: value }));
 
     if (errors[id]) {
@@ -203,6 +211,12 @@ export default function FormularioPacientes() {
     const newErrors: Record<string, string> = {};
     if (!formData.nombresApellidos.trim()) {
       newErrors.nombresApellidos = "El nombre completo es obligatorio";
+    }
+
+    if (!formData.cedula.trim()) {
+      newErrors.cedula = "La cédula es obligatoria";
+    } else if (!validarCedulaEcuatoriana(formData.cedula)) {
+      newErrors.cedula = "La cédula ingresada no es válida";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -446,6 +460,8 @@ export default function FormularioPacientes() {
                 placeholder="Ingrese la cédula"
                 value={formData.cedula}
                 onChange={handleChange}
+                error={!!errors.cedula}
+                hint={errors.cedula}
               />
             </div>
             <div>
@@ -494,6 +510,8 @@ export default function FormularioPacientes() {
                 placeholder="Ingrese el teléfono convencional"
                 value={formData.numeroTelefono}
                 onChange={handleChange}
+                error={!!errors.numeroTelefono}
+                hint={errors.numeroTelefono}
               />
             </div>
             <div>
@@ -504,6 +522,8 @@ export default function FormularioPacientes() {
                 placeholder="Ingrese el teléfono celular"
                 value={formData.numeroCelular}
                 onChange={handleChange}
+                error={!!errors.numeroCelular}
+                hint={errors.numeroCelular}
               />
             </div>
           </div>
