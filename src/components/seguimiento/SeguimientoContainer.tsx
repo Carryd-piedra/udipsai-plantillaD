@@ -35,7 +35,6 @@ export const SeguimientoContainer: React.FC<SeguimientoContainerProps> = ({
     try {
       setLoading(true);
       const data = await seguimientosService.listarPorPaciente(pacienteId);
-      // Sort by date desc (newest first)
       const sorted = (Array.isArray(data) ? data : []).sort((a: SeguimientoDTO, b: SeguimientoDTO) => 
         new Date(b.fecha).getTime() - new Date(a.fecha).getTime()
       );
@@ -124,9 +123,6 @@ export const SeguimientoContainer: React.FC<SeguimientoContainerProps> = ({
       </div>
 
       <div className="relative pl-4 space-y-0">
-         {/* Vertical line background for the whole list handled by individual cards but we can add a connector if needed.
-             The individual card has the line.
-         */}
         {seguimientos.length > 0 ? (
           seguimientos.map((seguimiento) => (
             <SeguimientoCard

@@ -55,7 +55,6 @@ export const citasService = {
 
     eliminar: async (id: number | string) => {
         try {
-            // Updated to use the correct PATCH endpoint for cancellation
             const response = await api.patch(`/citas/cancelar/${id}`);
             return response.data;
         } catch (error) {

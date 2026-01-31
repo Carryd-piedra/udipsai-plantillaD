@@ -250,7 +250,6 @@ export default function FormularioHistoriaClinica() {
   const [showFileInput, setShowFileInput] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Section Visibility State
   const [verInformacionGeneral, setVerInformacionGeneral] = useState(true);
   const [verDatosFamiliares, setVerDatosFamiliares] = useState(false);
   const [verHistoriaPrenatal, setVerHistoriaPrenatal] = useState(false);
@@ -261,18 +260,15 @@ export default function FormularioHistoriaClinica() {
   const [verAntecedentesMedicos, setVerAntecedentesMedicos] = useState(false);
   const [verGenograma, setVerGenograma] = useState(false);
 
-  // Group Visibility State
   const [areaNacimiento, setAreaNacimiento] = useState(false);
   const [areaDesarrollo, setAreaDesarrollo] = useState(false);
 
-  // Patient Selection State
   const [selectedPatient, setSelectedPatient] = useState<{
     nombresApellidos: string;
     cedula: string;
   } | null>(null);
   const [showSelector, setShowSelector] = useState(false);
 
-  // Create Mode state
   const isEdit = !!id;
   const [searchParams] = useSearchParams();
 
@@ -283,7 +279,6 @@ export default function FormularioHistoriaClinica() {
     } else if (pacienteIdParam) {
       loadPacienteFromUrl(pacienteIdParam);
     } else {
-      // New ficha with no URL param -> Show selector
       setShowSelector(true);
     }
   }, [id, isEdit, searchParams]);
@@ -295,7 +290,7 @@ export default function FormularioHistoriaClinica() {
       if (paciente) {
         setFormData((prev) => ({ ...prev, pacienteId: paciente.id }));
         setSelectedPatient(paciente);
-        setShowSelector(false); // Ensure selector is hidden
+        setShowSelector(false);
       }
     } catch (error) {
       console.error("Error loading patient from URL", error);
@@ -312,7 +307,6 @@ export default function FormularioHistoriaClinica() {
       const v1 = sectionData[key];
       const v2 = initialSectionData[key];
 
-      // Normalizar null/undefined a "" para comparar con los valores iniciales
       const normalize = (v: any) => (v === null || v === undefined ? "" : v);
 
       return normalize(v1) === normalize(v2);
@@ -351,7 +345,6 @@ export default function FormularioHistoriaClinica() {
         };
         setFormData(loadedData);
 
-        // Auto-open sections with data
         const hasInfoGeneral = !isSectionEmpty(
           data.informacionGeneral,
           initialHistoriaClinicaState.informacionGeneral,
@@ -396,7 +389,6 @@ export default function FormularioHistoriaClinica() {
         if (hasAntecedentes) setVerAntecedentesMedicos(true);
         if (hasGenograma) setVerGenograma(true);
 
-        // Auto-open areas
         if (hasPrenatal || hasNatal || hasPostnatal) setAreaNacimiento(true);
         if (hasMotor || hasAlimentacion || hasAntecedentes)
           setAreaDesarrollo(true);
@@ -530,7 +522,6 @@ export default function FormularioHistoriaClinica() {
     );
   }
 
-  // If selecting patient
   if (showSelector) {
     return (
       <div className="space-y-6">

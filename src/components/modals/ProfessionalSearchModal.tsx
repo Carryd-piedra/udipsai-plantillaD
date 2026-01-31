@@ -92,7 +92,6 @@ const ProfessionalSearchModal: React.FC<ProfessionalSearchModalProps> = ({
       onClose={onClose}
       className="max-w-[700px] p-0 overflow-hidden"
     >
-      {/* Modern Header */}
       <div className="px-8 py-6 flex justify-between items-center">
         <div className="flex items-center gap-4">
           <div
@@ -122,7 +121,6 @@ const ProfessionalSearchModal: React.FC<ProfessionalSearchModalProps> = ({
       </div>
 
       <div className="p-8">
-        {/* Search Bar */}
         <div className="mb-8">
           <div className="relative">
             <InputField
@@ -138,7 +136,6 @@ const ProfessionalSearchModal: React.FC<ProfessionalSearchModalProps> = ({
           </div>
         </div>
 
-        {/* Results Area */}
         <div className="max-h-[400px] overflow-y-auto custom-scrollbar -mx-2 px-2">
           {loading ? (
             <div className="py-20 text-center">

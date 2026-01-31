@@ -660,7 +660,6 @@ export default function FormularioPsicologiaClinica() {
   );
   const [loading, setLoading] = useState(false);
 
-  // Section Visibility State
   const [verAnamnesis, setVerAnamnesis] = useState(false);
   const [verSuenio, setVerSuenio] = useState(false);
   const [verConducta, setVerConducta] = useState(false);
@@ -671,18 +670,15 @@ export default function FormularioPsicologiaClinica() {
   const [verEvaluacionPensamiento, setVerEvaluacionPensamiento] = useState(false);
   const [verDiagnostico, setVerDiagnostico] = useState(false);
 
-  // Group Visibility State
   const [areaHistoria, setAreaHistoria] = useState(false);
   const [areaEvaluacion, setAreaEvaluacion] = useState(false);
 
-  // Patient Selection State
   const [selectedPatient, setSelectedPatient] = useState<{
     nombresApellidos: string;
     cedula: string;
   } | null>(null);
   const [showSelector, setShowSelector] = useState(false);
 
-  // Create Mode state
   const isEdit = !!id;
   const [searchParams] = useSearchParams();
 
@@ -721,7 +717,6 @@ export default function FormularioPsicologiaClinica() {
       const v1 = sectionData[key];
       const v2 = initialSectionData[key];
 
-      // Normalizar null/undefined a "" para comparar con los valores iniciales
       const normalize = (v: any) => (v === null || v === undefined ? "" : v);
 
       return normalize(v1) === normalize(v2);
@@ -739,7 +734,6 @@ export default function FormularioPsicologiaClinica() {
         };
         setFormData(loadedData);
 
-        // Auto-open sections with data
         const hasAnamnesis = !isSectionEmpty(data.anamnesis, initialPsicologiaClinicaState.anamnesis);
         const hasSuenio = !isSectionEmpty(data.suenio, initialPsicologiaClinicaState.suenio);
         const hasConducta = !isSectionEmpty(data.conducta, initialPsicologiaClinicaState.conducta);
@@ -760,7 +754,6 @@ export default function FormularioPsicologiaClinica() {
         if (hasPensamiento) setVerEvaluacionPensamiento(true);
         if (hasDiagnostico) setVerDiagnostico(true);
 
-        // Auto-open areas
         if (hasAnamnesis || hasSuenio || hasConducta || hasSexualidad) setAreaHistoria(true);
         if (hasLenguaje || hasAfectiva || hasCognitiva || hasPensamiento) setAreaEvaluacion(true);
         

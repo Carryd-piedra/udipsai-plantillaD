@@ -30,9 +30,9 @@ interface TableActionHeaderProps {
   onExport?: () => void;
   loading?: boolean;
   placeholder?: string;
-  onFilterApply?: () => void; // Legacy support
-  onFilterClear?: () => void; // Legacy support
-  filterContent?: React.ReactNode; // Legacy support
+  onFilterApply?: () => void;
+  onFilterClear?: () => void;
+  filterContent?: React.ReactNode;
   filterConfig?: FilterField[];
   activeFilters?: Record<string, any>;
   onFiltersChange?: (filters: Record<string, any>) => void;

@@ -54,7 +54,6 @@ export const Modal: React.FC<ModalProps> = ({
     ? "w-full h-full"
     : "relative w-full rounded-3xl bg-white/70 dark:bg-gray-900/70 backdrop-blur-lg border border-white/20 shadow-2xl transition-all duration-300 transform scale-100 flex flex-col overflow-hidden max-h-[90vh]";
 
-  // Separate padding from other classes to move it inside the scrollable area
   const paddingRegex = /\bp[xyzbtr]?-[^ ]+/g;
   const paddingClasses = className?.match(paddingRegex)?.join(" ") || "p-6";
   const shellClasses = className?.replace(paddingRegex, "").trim() || "";

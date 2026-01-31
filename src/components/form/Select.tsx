@@ -26,7 +26,6 @@ const Select: React.FC<SelectProps> = ({
   error = false,
   hint = "",
 }) => {
-  // Manage the selected value
   const [internalValue, setInternalValue] = useState<string>(defaultValue);
   const selectedValue = value !== undefined ? value : internalValue;
 
@@ -35,7 +34,7 @@ const Select: React.FC<SelectProps> = ({
     if (value === undefined) {
       setInternalValue(val);
     }
-    onChange(val); // Trigger parent handler
+    onChange(val);
   };
 
   const baseClasses = `h-11 w-full appearance-none rounded-lg border px-4 py-2.5 pr-11 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:placeholder:text-white/30`;
@@ -55,11 +54,9 @@ const Select: React.FC<SelectProps> = ({
         value={selectedValue}
         onChange={handleChange}
       >
-        {/* Placeholder option */}
         <option value="" className="text-gray-400 dark:bg-gray-900">
           {placeholder}
         </option>
-        {/* Map over options */}
         {options.map((option) => (
           <option
             key={option.value}

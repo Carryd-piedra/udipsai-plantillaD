@@ -1,5 +1,5 @@
 import React from "react";
-import ThemeTogglerTwo from "../../components/common/ThemeTogglerTwo";
+import ThemeTogglerTwo from "../components/common/ThemeTogglerTwo";
 
 export default function AuthLayout({
   children,
@@ -8,20 +8,14 @@ export default function AuthLayout({
 }) {
   return (
     <div className="flex min-h-screen w-full bg-white transition-colors duration-300 dark:bg-gray-900">
-      {/* Contenedor Principal */}
       <div className="flex w-full">
-        
-        {/* Left Side - Visual Branding (Hidden on mobile) */}
         <section className="relative hidden flex-1 lg:block">
-          {/* Background Image con overlay de gradiente para mejor lectura */}
           <div
             className="absolute inset-0 bg-cover bg-center transition-transform duration-700 hover:scale-105"
             style={{ backgroundImage: "url(/images/login/login-image1.jpeg)" }}
             aria-hidden="true"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-gray-900/100 via-gray-900/30 to-gray-900/100 flex flex-col justify-between p-12 xl:p-20">
-            
-            {/* Top Branding Header */}
             <div className="flex items-center gap-6 animate-fade-in">
               <img
                 width={220}
@@ -40,11 +34,10 @@ export default function AuthLayout({
               </div>
             </div>
 
-            {/* Bottom Content */}
             <div className="max-w-xl animate-fade-in-up">
               <div className="h-1.5 w-12 bg-red-600 mb-8 rounded-full" />
               <h3 className="text-4xl xl:text-5xl font-extrabold text-gray-200 mb-6 leading-tight">
-                Innovación y Compromiso <br /> 
+                Innovación y Compromiso <br />
                 <span className="text-brand-400">en cada Diagnóstico.</span>
               </h3>
               <p className="text-lg text-gray-200 leading-relaxed font-normal max-w-md">
@@ -55,29 +48,31 @@ export default function AuthLayout({
           </div>
         </section>
 
-        {/* Right Side - Form Content */}
         <main className="relative flex flex-col justify-center w-full lg:w-[480px] xl:w-[560px] p-8 sm:p-12 lg:p-16 bg-white dark:bg-gray-900 shadow-2xl z-10">
-          {/* Theme Toggler */}
           <div className="absolute top-8 right-8">
             <ThemeTogglerTwo />
           </div>
 
           <div className="mx-auto w-full max-w-sm">
-            {/* Logo visible solo en móvil si es necesario */}
             <div className="lg:hidden mb-12 flex justify-center">
-               <img src="/images/logo/logo-dark.png" alt="Logo" className="h-12 dark:hidden" />
-               <img src="/images/logo/logo-light.png" alt="Logo" className="h-12 hidden dark:block" />
+              <img
+                src="/images/logo/logo-dark.png"
+                alt="Logo"
+                className="h-12 dark:hidden"
+              />
+              <img
+                src="/images/logo/logo-light.png"
+                alt="Logo"
+                className="h-12 hidden dark:block"
+              />
             </div>
 
-            {/* Renderizado de formularios */}
-            <div className="space-y-6">
-              {children}
-            </div>
+            <div className="space-y-6">{children}</div>
           </div>
 
-          {/* Footer opcional para links legales */}
           <footer className="absolute bottom-8 left-0 w-full text-center text-sm text-gray-500">
-            &copy; {new Date().getFullYear()} UDIPSAI. Todos los derechos reservados.
+            &copy; {new Date().getFullYear()} UDIPSAI. Todos los derechos
+            reservados.
           </footer>
         </main>
       </div>

@@ -11,7 +11,7 @@ interface AuthContextType {
   loading: boolean;
   userRole: string | null;
   userName: string | null;
-  userIdentity: string | null; // Holds Cedula or Username
+  userIdentity: string | null;
   permissions: string[];
   hasPermission: (permission: string) => boolean;
 }
@@ -45,10 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const role = allAuthorities.find(auth => auth.startsWith('ROLE_')) || null;
       const perms = allAuthorities.filter(auth => !auth.startsWith('ROLE_'));
 
-      // Extract User Info
-      // 'name' claim is now added by Backend JwtTokenProvider
       const extractedName = decoded.name || decoded.fullName || "Usuario";
-      // 'sub' claim holds the username/cedula
       const extractedIdentity = decoded.sub || ""; 
 
       setUserRole(role);
@@ -63,7 +60,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   useEffect(() => {
-    // Check initial auth state
     const checkAuth = () => {
       const isAuth = authService.isAuthenticated();
       const token = localStorage.getItem("accessToken");
@@ -77,7 +73,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const login = (token: string) => {
-    // Token is already set in localStorage by authService.login
     decodeAndSetUser(token);
   };
 

@@ -27,7 +27,6 @@ export const PsicologiaEducativaViewModal: React.FC<
   const fetchData = async () => {
     try {
       setLoading(true);
-      // Assuming a similar service method exists or using generic one if available
       const res = await fichasService.obtenerPsicologiaEducativa(pacienteId);
       setData(res);
     } catch (error) {
@@ -91,7 +90,6 @@ export const PsicologiaEducativaViewModal: React.FC<
           </div>
         ) : data ? (
           <>
-            {/* Historia Escolar */}
             <section className="p-6 rounded-2xl border-3 border-gray-300/50 dark:border-white/[0.05]">
               <SectionHeader title="Historia Escolar" />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-4">
@@ -131,7 +129,6 @@ export const PsicologiaEducativaViewModal: React.FC<
               </div>
             </section>
 
-            {/* Desarrollo Escolar */}
             <section className="p-6 rounded-2xl border-3 border-gray-300/50 dark:border-white/[0.05]">
               <SectionHeader title="Desarrollo Escolar" />
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-y-6 gap-x-4">
@@ -190,7 +187,6 @@ export const PsicologiaEducativaViewModal: React.FC<
               </div>
             </section>
 
-            {/* Adaptacion */}
             <section className="p-6 rounded-2xl border-3 border-gray-300/50 dark:border-white/[0.05]">
               <SectionHeader title="Adaptación y Apoyo" />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-4">
@@ -236,7 +232,6 @@ export const PsicologiaEducativaViewModal: React.FC<
               </div>
             </section>
 
-            {/* Estado General */}
             <section className="p-6 rounded-2xl border-3 border-gray-300/50 dark:border-white/[0.05]">
               <SectionHeader title="Estado General" />
               <div className="space-y-6">

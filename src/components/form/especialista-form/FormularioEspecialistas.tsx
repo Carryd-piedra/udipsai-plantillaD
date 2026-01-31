@@ -182,7 +182,6 @@ export default function FormularioEspecialistas() {
   };
 
   const handleSubmit = async () => {
-    // Validation
     const newErrors: Record<string, string> = {};
     if (!formData.nombresApellidos.trim()) {
       newErrors.nombresApellidos = "El nombre completo es obligatorio";

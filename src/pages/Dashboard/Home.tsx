@@ -1,6 +1,6 @@
 import EcommerceMetrics from "../../components/ecommerce/EcommerceMetrics";
 import PageMeta from "../../components/common/PageMeta";
-import CalendarBox from "../../components/calendar/CalendarBox";
+import CalendarBox from "../../components/common/CalendarBox";
 
 export default function Home() {
   return (

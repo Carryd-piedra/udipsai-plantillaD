@@ -100,7 +100,6 @@ export default function FormularioPacientes() {
             );
             setExistingFichas({ compromiso, deteccion });
             
-            // Filtrar otros documentos que no son las fichas estándar
             const otros = data.documentos.filter(
               (d: any) => d.nombre !== "Ficha Compromiso" && d.nombre !== "Ficha Detección"
             );
@@ -146,9 +145,7 @@ export default function FormularioPacientes() {
   };
 
   const handleSelectChange = (name: string, value: string | number) => {
-    console.log(name, value);
     setFormData((prev) => ({ ...prev, [name]: value }));
-    console.log(formData);
   };
 
   const handleSwitchChange = (name: string, checked: boolean) => {
@@ -207,7 +204,6 @@ export default function FormularioPacientes() {
   };
 
   const handleSubmit = async () => {
-    // Validation
     const newErrors: Record<string, string> = {};
     if (!formData.nombresApellidos.trim()) {
       newErrors.nombresApellidos = "El nombre completo es obligatorio";

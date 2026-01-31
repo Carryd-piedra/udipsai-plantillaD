@@ -3,7 +3,6 @@ export const validarCedulaEcuatoriana = (cedula: string): boolean => {
     return false;
   }
 
-  // Verificar que sean solo dígitos
   if (!/^\d+$/.test(cedula)) {
     return false;
   }
@@ -45,7 +44,7 @@ export const validarCedulaEcuatoriana = (cedula: string): boolean => {
 };
 
 export const validarEmail = (email: string): boolean => {
-  if (!email) return true; // Es opcional
+  if (!email) return true;
   const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   return re.test(email);
 };

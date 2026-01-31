@@ -93,7 +93,6 @@ export const PsicologiaClinicaViewModal: React.FC<PsicologiaClinicaViewModalProp
           </div>
         ) : data ? (
           <>
-            {/* Anamnesis */}
             <section className="p-6 rounded-2xl border-3 border-gray-300/50 dark:border-white/[0.05]">
               <SectionHeader title="Anamnesis" />
               <div className="grid grid-cols-1 gap-y-6">
@@ -104,7 +103,6 @@ export const PsicologiaClinicaViewModal: React.FC<PsicologiaClinicaViewModalProp
               </div>
             </section>
 
-            {/* Suenio y Conducta */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <section className="p-6 rounded-2xl border-3 border-gray-300/50 dark:border-white/[0.05]">
                 <SectionHeader title="Hábitos de Sueño" />
@@ -137,7 +135,6 @@ export const PsicologiaClinicaViewModal: React.FC<PsicologiaClinicaViewModalProp
               </section>
             </div>
 
-            {/* Sexualidad */}
             <section className="p-6 rounded-2xl border-3 border-gray-300/50 dark:border-white/[0.05]">
               <SectionHeader title="Aspecto Psicosexual" />
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-4">
@@ -150,7 +147,6 @@ export const PsicologiaClinicaViewModal: React.FC<PsicologiaClinicaViewModalProp
               </div>
             </section>
 
-            {/* Evaluaciones (Checklists) */}
             <section className="p-6 rounded-2xl border-3 border-gray-300/50 dark:border-white/[0.05]">
               <SectionHeader title="Examen Mental / Expresión" />
               <div className="space-y-8">
@@ -165,7 +161,6 @@ export const PsicologiaClinicaViewModal: React.FC<PsicologiaClinicaViewModalProp
               </div>
             </section>
 
-            {/* Pensamiento y Diagnostico */}
             <section className="p-6 rounded-2xl border-3 border-gray-300/50 dark:border-white/[0.05]">
               <SectionHeader title="Diagnóstico y Plan" />
               <div className="space-y-6">

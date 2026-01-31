@@ -7,28 +7,31 @@ import {
   TableRow,
   TableLoading,
   TableEmpty,
-} from "../../ui/table";
+} from "../ui/table";
 
-import Badge from "../../ui/badge/Badge";
+import Badge from "../ui/badge/Badge";
 import { toast } from "react-toastify";
-import { sedesService, SedeCriteria } from "../../../services/sedes";
-import Button from "../../ui/button/Button";
-import { DeleteModal } from "../../ui/modal/DeleteModal";
-import { useModal } from "../../../hooks/useModal";
-import { TableActionHeader, FilterField } from "../../common/TableActionHeader";
-import { Pagination } from "../../ui/Pagination";
+import {
+  especialidadesService,
+  EspecialidadCriteria,
+} from "../../services/especialidades";
+import Button from "../ui/button/Button";
+import { DeleteModal } from "../ui/modal/DeleteModal";
+import { useModal } from "../../hooks/useModal";
+import { TableActionHeader, FilterField } from "../common/TableActionHeader";
+import { Pagination } from "../ui/Pagination";
 import { Pencil, Trash } from "lucide-react";
-import { SedeModal } from "../../modals/SedesModal";
-import { useAuth } from "../../../context/AuthContext";
+import { EspecialidadModal } from "../modals/EspecialidadModal";
+import { useAuth } from "../../context/AuthContext";
 
-interface Sedes {
+interface Especialidades {
   id: number;
-  nombre: string;
+  area: string;
   activo: boolean;
 }
 
-export default function SedesAccionesTable() {
-  const [sedes, setSedes] = useState<Sedes[]>([]);
+export default function EspecialidadesAccionesTable() {
+  const [especialidades, setEspecialidades] = useState<Especialidades[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -36,16 +39,15 @@ export default function SedesAccionesTable() {
   const [pageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
 
-
-  const [filters, setFilters] = useState<SedeCriteria>({});
+  const [filters, setFilters] = useState<EspecialidadCriteria>({});
 
   const [sortField, setSortField] = useState("id");
   const [sortDirection, setSortDirection] = useState("desc");
 
   const {
     isOpen: isModalOpen,
-    openModal: openSedeModal,
-    closeModal: closeSedeModal,
+    openModal: openEspecialidadModal,
+    closeModal: closeEspecialidadModal,
   } = useModal();
 
   const {
@@ -54,104 +56,111 @@ export default function SedesAccionesTable() {
     closeModal: closeDeleteModal,
   } = useModal();
 
-  const [currentSede, setCurrentSede] = useState<Sedes | null>(null);
-  const [sedesToDelete, setSedesToDelete] = useState<number | null>(null);
+  const [currentEspecialidad, setCurrentEspecialidad] =
+    useState<Especialidades | null>(null);
+  const [especialidadesToDelete, setEspecialidadesToDelete] = useState<
+    number | null
+  >(null);
 
-  const fetchSedes = async (
+  const fetchEspecialidades = async (
     page = currentPage,
     search = searchTerm,
     currentFilters = filters,
     currentSortField = sortField,
-    currentSortDirection = sortDirection
+    currentSortDirection = sortDirection,
   ) => {
     try {
       setLoading(true);
       const sort = `${currentSortField},${currentSortDirection}`;
       const hasFilters =
         Object.values(currentFilters).some(
-          (val) => val !== undefined && val !== ""
+          (val) => val !== undefined && val !== "",
         ) || !!search;
 
       let data;
       if (hasFilters) {
-        const criteria: SedeCriteria = {
+        const criteria: EspecialidadCriteria = {
           ...currentFilters,
           search: search || undefined,
         };
-        data = await sedesService.filtrar(criteria, page, pageSize, sort);
+        data = await especialidadesService.filtrar(
+          criteria,
+          page,
+          pageSize,
+          sort,
+        );
       } else {
-        data = await sedesService.listarActivos(page, pageSize, sort);
+        data = await especialidadesService.listarActivos(page, pageSize, sort);
       }
 
       if (data?.content && Array.isArray(data.content)) {
-        setSedes(data.content);
+        setEspecialidades(data.content);
         setTotalPages(data.totalPages);
       } else if (Array.isArray(data)) {
-        setSedes(data);
+        setEspecialidades(data);
         setTotalPages(1);
       } else {
-        setSedes([]);
+        setEspecialidades([]);
       }
     } catch (error) {
-      console.error("Error fetching sedes:", error);
+      console.error("Error fetching especialidades:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchSedes();
+    fetchEspecialidades();
   }, [currentPage, sortField, sortDirection, filters, searchTerm]);
 
   const getEstadoBadge = (activo: boolean) => {
     return activo ? "success" : "error";
   };
 
-  // Handlers
   const handleCreate = () => {
-    setCurrentSede(null);
-    openSedeModal();
+    setCurrentEspecialidad(null);
+    openEspecialidadModal();
   };
 
-  const handleEdit = (sedes: Sedes) => {
-    setCurrentSede(sedes);
-    openSedeModal();
+  const handleEdit = (especialidad: Especialidades) => {
+    setCurrentEspecialidad(especialidad);
+    openEspecialidadModal();
   };
 
   const handleDelete = (id: number) => {
-    setSedesToDelete(id);
+    setEspecialidadesToDelete(id);
     openDeleteModal();
   };
 
   const confirmDelete = async () => {
-    if (sedesToDelete) {
+    if (especialidadesToDelete) {
       try {
-        await sedesService.eliminar(sedesToDelete);
-        toast.success("Sede eliminada correctamente");
-        await fetchSedes();
+        await especialidadesService.eliminar(especialidadesToDelete);
+        toast.success("Especialidad eliminada correctamente");
+        await fetchEspecialidades();
         closeDeleteModal();
-        setSedesToDelete(null);
+        setEspecialidadesToDelete(null);
       } catch (error) {
-        toast.error("Error al eliminar sede");
-        console.error("Error deleting sedes:", error);
+        toast.error("Error al eliminar especialidad");
+        console.error("Error deleting especialidad:", error);
       }
     }
   };
 
-  const handleSave = async (sedes: any) => {
+  const handleSave = async (especialidad: any) => {
     try {
-      if ("id" in sedes) {
-        await sedesService.actualizar(sedes.id, sedes);
-        toast.success("Sede actualizada correctamente");
+      if ("id" in especialidad) {
+        await especialidadesService.actualizar(especialidad.id, especialidad);
+        toast.success("Especialidad actualizada correctamente");
       } else {
-        await sedesService.crear(sedes);
-        toast.success("Sede creada correctamente");
+        await especialidadesService.crear(especialidad);
+        toast.success("Especialidad creada correctamente");
       }
-      await fetchSedes();
-      closeSedeModal();
+      await fetchEspecialidades();
+      closeEspecialidadModal();
     } catch (error) {
-      toast.error("Error al guardar sede");
-      console.error("Error saving sedes:", error);
+      toast.error("Error al guardar especialidad");
+      console.error("Error saving especialidad:", error);
     }
   };
 
@@ -165,7 +174,7 @@ export default function SedesAccionesTable() {
     if (newFilters.sortDirection) setSortDirection(newFilters.sortDirection);
 
     const { sortField: _sf, sortDirection: _sd, ...rest } = newFilters;
-    
+
     const cleanedFilters: any = { ...rest };
     if (cleanedFilters.activo === "true") cleanedFilters.activo = true;
     else if (cleanedFilters.activo === "false") cleanedFilters.activo = false;
@@ -192,7 +201,7 @@ export default function SedesAccionesTable() {
       label: "Ordenar por",
       options: [
         { value: "id", label: "Registro (ID)" },
-        { value: "nombre", label: "Nombre" },
+        { value: "area", label: "Área" },
       ],
     },
     {
@@ -208,22 +217,27 @@ export default function SedesAccionesTable() {
 
   const handleExport = async () => {
     try {
-      const toastId = toast.info("Generando reporte Excel...", { autoClose: false });
-      const criteria: SedeCriteria = {
-          ...filters,
-          search: searchTerm || undefined,
+      const toastId = toast.info("Generando reporte Excel...", {
+        autoClose: false,
+      });
+      const criteria: EspecialidadCriteria = {
+        ...filters,
+        search: searchTerm || undefined,
       };
-      
-      const blob = await sedesService.exportarExcel(criteria);
-      
+
+      const blob = await especialidadesService.exportarExcel(criteria);
+
       const url = window.URL.createObjectURL(new Blob([blob]));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `sedes_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      link.setAttribute(
+        "download",
+        `especialidades_${new Date().toISOString().slice(0, 10)}.xlsx`,
+      );
       document.body.appendChild(link);
       link.click();
       link.parentNode?.removeChild(link);
-      
+
       toast.dismiss(toastId);
       toast.success("Reporte descargado correctamente");
     } catch (error) {
@@ -237,10 +251,12 @@ export default function SedesAccionesTable() {
   return (
     <div>
       <TableActionHeader
-        title="Sedes"
+        title="Especialidades"
         onSearchClick={handleSearch}
         onNew={
-          permissions.includes("PERM_SEDES_CREAR") ? handleCreate : undefined
+          permissions.includes("PERM_ESPECIALIDADES_CREAR")
+            ? handleCreate
+            : undefined
         }
         newButtonText="Agregar"
         onExport={handleExport}
@@ -251,8 +267,8 @@ export default function SedesAccionesTable() {
             filters.activo === true
               ? "true"
               : filters.activo === false
-              ? "false"
-              : "",
+                ? "false"
+                : "",
           sortField,
           sortDirection,
         }}
@@ -261,46 +277,49 @@ export default function SedesAccionesTable() {
       <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-white/[0.05] dark:bg-white/[0.03]">
         <div className="max-w-full overflow-x-auto">
           <Table>
-            {/* Table Header */}
             <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
               <TableRow>
-                <TableCell isHeader>Id de la sede</TableCell>
-                <TableCell isHeader>Nombre de la sede</TableCell>
+                <TableCell isHeader>Id</TableCell>
+                <TableCell isHeader>Área / Especialidad</TableCell>
                 <TableCell isHeader>Estado</TableCell>
                 <TableCell isHeader>Acciones</TableCell>
               </TableRow>
             </TableHeader>
-            {/* Table Body */}
             <TableBody>
               {loading ? (
-                <TableLoading colSpan={4} message="Cargando sedes..." />
-              ) : sedes.length > 0 ? (
-                sedes.map((sede) => (
-                  <TableRow key={sede.id}>
-                    <TableCell>{sede.id}</TableCell>
-                    <TableCell>{sede.nombre}</TableCell>
+                <TableLoading
+                  colSpan={4}
+                  message="Cargando especialidades..."
+                />
+              ) : especialidades.length > 0 ? (
+                especialidades.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell>{item.id}</TableCell>
+                    <TableCell>{item.area}</TableCell>
                     <TableCell>
-                      <Badge size="sm" color={getEstadoBadge(sede.activo)}>
-                        {sede.activo ? "Activo" : "Inactivo"}
+                      <Badge size="sm" color={getEstadoBadge(item.activo)}>
+                        {item.activo ? "Activo" : "Inactivo"}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-center gap-2">
-                        {permissions.includes("PERM_SEDES_EDITAR") && (
+                        {permissions.includes("PERM_ESPECIALIDADES_EDITAR") && (
                           <Button
                             size="sm"
                             variant="warning"
-                            onClick={() => handleEdit(sede)}
+                            onClick={() => handleEdit(item)}
                             title="Editar"
                           >
                             <Pencil size={14} />
                           </Button>
                         )}
-                        {permissions.includes("PERM_SEDES_ELIMINAR") && (
+                        {permissions.includes(
+                          "PERM_ESPECIALIDADES_ELIMINAR",
+                        ) && (
                           <Button
                             size="sm"
                             variant="danger"
-                            onClick={() => handleDelete(sede.id)}
+                            onClick={() => handleDelete(item.id)}
                             title="Eliminar"
                           >
                             <Trash size={14} />
@@ -313,27 +332,29 @@ export default function SedesAccionesTable() {
               ) : (
                 <TableEmpty
                   colSpan={4}
-                  message="No se encontraron sedes registradas"
+                  message="No se encontraron especialidades registradas"
                 />
               )}
             </TableBody>
           </Table>
         </div>
 
-        <SedeModal
+        <EspecialidadModal
           isOpen={isModalOpen}
-          onClose={closeSedeModal}
+          onClose={closeEspecialidadModal}
           onSave={handleSave}
-          initialData={currentSede}
-          title={currentSede ? "Editar Sede" : "Nueva Sede"}
+          initialData={currentEspecialidad}
+          title={
+            currentEspecialidad ? "Editar Especialidad" : "Nueva Especialidad"
+          }
         />
 
         <DeleteModal
           isOpen={isDeleteModalOpen}
           onClose={closeDeleteModal}
           onConfirm={confirmDelete}
-          title="Eliminar Sede"
-          description={`¿Estás seguro de que deseas eliminar la sede?`}
+          title="Eliminar Especialidad"
+          description={`¿Estás seguro de que deseas eliminar la especialidad?`}
         />
         <Pagination
           currentPage={currentPage}

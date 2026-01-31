@@ -63,7 +63,6 @@ export default function EcommerceMetrics() {
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 md:gap-6">
-      {/* <!-- Metric Item Start --> */}
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
         <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800">
           <UsersIcon size={20} className="text-gray-800 size-6 dark:text-white/90" />
@@ -80,9 +79,6 @@ export default function EcommerceMetrics() {
           </div>
         </div>
       </div>
-      {/* <!-- Metric Item End --> */}
-
-      {/* <!-- Metric Item Start --> */}
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
         <div className="flex items-center justify-center w-12 h-12 bg-blue-50 rounded-xl dark:bg-blue-900/20">
           <CalendarIcon size={20} className="text-blue-600 size-6 dark:text-blue-400" />
@@ -98,9 +94,6 @@ export default function EcommerceMetrics() {
           </div>
         </div>
       </div>
-      {/* <!-- Metric Item End --> */}
-
-      {/* <!-- Metric Item Start --> */}
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
         <div className="flex items-center justify-center w-12 h-12 bg-orange-50 rounded-xl dark:bg-orange-900/20">
           <ClockIcon size={20} className="text-orange-600 size-6 dark:text-orange-400" />
@@ -116,7 +109,6 @@ export default function EcommerceMetrics() {
           </div>
         </div>
       </div>
-      {/* <!-- Metric Item End --> */}
     </div>
   );
 }

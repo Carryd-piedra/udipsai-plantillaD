@@ -7,22 +7,22 @@ import {
   TableRow,
   TableLoading,
   TableEmpty,
-} from "../../ui/table";
+} from "../ui/table";
 
-import Badge from "../../ui/badge/Badge";
+import Badge from "../ui/badge/Badge";
 import { toast } from "react-toastify";
 import {
   institucionesService,
   InstitucionEducativaCriteria,
-} from "../../../services/instituciones";
-import Button from "../../ui/button/Button";
-import { DeleteModal } from "../../ui/modal/DeleteModal";
-import { useModal } from "../../../hooks/useModal";
-import { TableActionHeader, FilterField } from "../../common/TableActionHeader";
-import { InstitucionModal } from "../../modals/InstitucionModal";
-import { Pagination } from "../../ui/Pagination";
+} from "../../services/instituciones";
+import Button from "../ui/button/Button";
+import { DeleteModal } from "../ui/modal/DeleteModal";
+import { useModal } from "../../hooks/useModal";
+import { TableActionHeader, FilterField } from "../common/TableActionHeader";
+import { InstitucionModal } from "../modals/InstitucionModal";
+import { Pagination } from "../ui/Pagination";
 import { Pencil, Trash } from "lucide-react";
-import { useAuth } from "../../../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 interface Institucion {
   id: number;
@@ -40,7 +40,6 @@ export default function InstitucionesTable() {
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
-
 
   const [filters, setFilters] = useState<InstitucionEducativaCriteria>({});
 
@@ -62,7 +61,7 @@ export default function InstitucionesTable() {
   const [currentInstitucion, setCurrentInstitucion] =
     useState<Institucion | null>(null);
   const [institucionToDelete, setInstitucionToDelete] = useState<number | null>(
-    null
+    null,
   );
 
   const fetchInstituciones = async (
@@ -70,14 +69,14 @@ export default function InstitucionesTable() {
     search = searchTerm,
     currentFilters = filters,
     currentSortField = sortField,
-    currentSortDirection = sortDirection
+    currentSortDirection = sortDirection,
   ) => {
     try {
       setLoading(true);
       const sort = `${currentSortField},${currentSortDirection}`;
       const hasFilters =
         Object.values(currentFilters).some(
-          (val) => val !== undefined && val !== ""
+          (val) => val !== undefined && val !== "",
         ) || !!search;
 
       let data;
@@ -90,7 +89,7 @@ export default function InstitucionesTable() {
           criteria,
           page,
           pageSize,
-          sort
+          sort,
         );
       } else {
         data = await institucionesService.listarActivos(page, pageSize, sort);
@@ -173,14 +172,11 @@ export default function InstitucionesTable() {
   };
 
   const handleFiltersChange = (newFilters: any) => {
-    // Separate sort parameters from filter criteria
     if (newFilters.sortField) setSortField(newFilters.sortField);
     if (newFilters.sortDirection) setSortDirection(newFilters.sortDirection);
 
     const { sortField: _sf, sortDirection: _sd, ...rest } = newFilters;
-    
-    // Convert generic filter "true"/"false" strings to booleans if needed
-    // For this specific table, we have 'activo' which should be boolean or undefined
+
     const cleanedFilters = { ...rest };
     if (cleanedFilters.activo === "true") cleanedFilters.activo = true;
     else if (cleanedFilters.activo === "false") cleanedFilters.activo = false;
@@ -223,22 +219,27 @@ export default function InstitucionesTable() {
 
   const handleExport = async () => {
     try {
-      const toastId = toast.info("Generando reporte Excel...", { autoClose: false });
+      const toastId = toast.info("Generando reporte Excel...", {
+        autoClose: false,
+      });
       const criteria: InstitucionEducativaCriteria = {
-          ...filters,
-          search: searchTerm || undefined,
+        ...filters,
+        search: searchTerm || undefined,
       };
-      
+
       const blob = await institucionesService.exportarExcel(criteria);
-      
+
       const url = window.URL.createObjectURL(new Blob([blob]));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `instituciones_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      link.setAttribute(
+        "download",
+        `instituciones_${new Date().toISOString().slice(0, 10)}.xlsx`,
+      );
       document.body.appendChild(link);
       link.click();
       link.parentNode?.removeChild(link);
-      
+
       toast.dismiss(toastId);
       toast.success("Reporte descargado correctamente");
     } catch (error) {
@@ -268,8 +269,8 @@ export default function InstitucionesTable() {
             filters.activo === true
               ? "true"
               : filters.activo === false
-              ? "false"
-              : "",
+                ? "false"
+                : "",
           sortField,
           sortDirection,
         }}
@@ -278,7 +279,6 @@ export default function InstitucionesTable() {
       <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-white/[0.05] dark:bg-white/[0.03]">
         <div className="max-w-full overflow-x-auto">
           <Table>
-            {/* Table Header */}
             <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
               <TableRow>
                 <TableCell isHeader>Id de institución</TableCell>
@@ -289,7 +289,6 @@ export default function InstitucionesTable() {
                 <TableCell isHeader>Acciones</TableCell>
               </TableRow>
             </TableHeader>
-            {/* Table Body */}
             <TableBody>
               {loading ? (
                 <TableLoading colSpan={6} message="Cargando instituciones..." />
@@ -311,7 +310,7 @@ export default function InstitucionesTable() {
                     <TableCell>
                       <div className="flex justify-center gap-2">
                         {permissions.includes(
-                          "PERM_INSTITUCIONES_EDUCATIVAS_EDITAR"
+                          "PERM_INSTITUCIONES_EDUCATIVAS_EDITAR",
                         ) && (
                           <Button
                             variant="warning"
@@ -323,7 +322,7 @@ export default function InstitucionesTable() {
                           </Button>
                         )}
                         {permissions.includes(
-                          "PERM_INSTITUCIONES_EDUCATIVAS_ELIMINAR"
+                          "PERM_INSTITUCIONES_EDUCATIVAS_ELIMINAR",
                         ) && (
                           <Button
                             variant="danger"

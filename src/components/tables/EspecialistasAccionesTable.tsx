@@ -8,22 +8,22 @@ import {
   TableRow,
   TableLoading,
   TableEmpty,
-} from "../../ui/table";
+} from "../ui/table";
 import { Pen, Trash } from "lucide-react";
-import Badge from "../../ui/badge/Badge";
+import Badge from "../ui/badge/Badge";
 import { toast } from "react-toastify";
 import {
   especialistasService,
   EspecialistaCriteria,
-} from "../../../services/especialistas";
-import { sedesService } from "../../../services/sedes";
-import { TableActionHeader, FilterField } from "../../common/TableActionHeader";
-import { useAuth } from "../../../context/AuthContext";
-import { especialidadesService } from "../../../services/especialidades";
-import Button from "../../ui/button/Button";
-import { Pagination } from "../../ui/Pagination";
-import { useModal } from "../../../hooks/useModal";
-import { DeleteModal } from "../../ui/modal/DeleteModal";
+} from "../../services/especialistas";
+import { sedesService } from "../../services/sedes";
+import { TableActionHeader, FilterField } from "../common/TableActionHeader";
+import { useAuth } from "../../context/AuthContext";
+import { especialidadesService } from "../../services/especialidades";
+import Button from "../ui/button/Button";
+import { Pagination } from "../ui/Pagination";
+import { useModal } from "../../hooks/useModal";
+import { DeleteModal } from "../ui/modal/DeleteModal";
 
 interface Especialista {
   id: number;
@@ -72,14 +72,14 @@ export default function EspecialistasAccionesTable() {
     search = searchTerm,
     currentFilters = filters,
     currentSortField = sortField,
-    currentSortDirection = sortDirection
+    currentSortDirection = sortDirection,
   ) => {
     try {
       setLoading(true);
       const sort = `${currentSortField},${currentSortDirection}`;
       const hasFilters =
         Object.values(currentFilters).some(
-          (val) => val !== undefined && val !== ""
+          (val) => val !== undefined && val !== "",
         ) || !!search;
 
       let data;
@@ -92,7 +92,7 @@ export default function EspecialistasAccionesTable() {
           criteria,
           page,
           pageSize,
-          sort
+          sort,
         );
       } else {
         data = await especialistasService.listarActivos(page, pageSize, sort);
@@ -172,14 +172,16 @@ export default function EspecialistasAccionesTable() {
     if (newFilters.sortDirection) setSortDirection(newFilters.sortDirection);
 
     const { sortField: _sf, sortDirection: _sd, ...rest } = newFilters;
-    
+
     const cleanedFilters: any = { ...rest };
     if (cleanedFilters.activo === "true") cleanedFilters.activo = true;
     else if (cleanedFilters.activo === "false") cleanedFilters.activo = false;
     else if (cleanedFilters.activo === "") delete cleanedFilters.activo;
 
-    if (cleanedFilters.sedeId) cleanedFilters.sedeId = parseInt(cleanedFilters.sedeId);
-    if (cleanedFilters.especialidadId) cleanedFilters.especialidadId = parseInt(cleanedFilters.especialidadId);
+    if (cleanedFilters.sedeId)
+      cleanedFilters.sedeId = parseInt(cleanedFilters.sedeId);
+    if (cleanedFilters.especialidadId)
+      cleanedFilters.especialidadId = parseInt(cleanedFilters.especialidadId);
 
     setFilters(cleanedFilters);
     setCurrentPage(0);
@@ -198,7 +200,10 @@ export default function EspecialistasAccionesTable() {
       name: "especialidadId",
       label: "Especialidad",
       placeholder: "Todas",
-      options: especialidades.map((e) => ({ value: e.id.toString(), label: e.area })),
+      options: especialidades.map((e) => ({
+        value: e.id.toString(),
+        label: e.area,
+      })),
     },
     {
       type: "select",
@@ -233,22 +238,27 @@ export default function EspecialistasAccionesTable() {
 
   const handleExport = async () => {
     try {
-      const toastId = toast.info("Generando reporte Excel...", { autoClose: false });
+      const toastId = toast.info("Generando reporte Excel...", {
+        autoClose: false,
+      });
       const criteria: EspecialistaCriteria = {
-          ...filters,
-          search: searchTerm || undefined,
+        ...filters,
+        search: searchTerm || undefined,
       };
-      
+
       const blob = await especialistasService.exportarExcel(criteria);
-      
+
       const url = window.URL.createObjectURL(new Blob([blob]));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `especialistas_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      link.setAttribute(
+        "download",
+        `especialistas_${new Date().toISOString().slice(0, 10)}.xlsx`,
+      );
       document.body.appendChild(link);
       link.click();
       link.parentNode?.removeChild(link);
-      
+
       toast.dismiss(toastId);
       toast.success("Reporte descargado correctamente");
     } catch (error) {
@@ -275,8 +285,8 @@ export default function EspecialistasAccionesTable() {
             filters.activo === true
               ? "true"
               : filters.activo === false
-              ? "false"
-              : "",
+                ? "false"
+                : "",
           sortField,
           sortDirection,
           sedeId: filters.sedeId?.toString(),
@@ -287,7 +297,6 @@ export default function EspecialistasAccionesTable() {
       <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-white/[0.05] dark:bg-white/[0.03]">
         <div className="max-w-full overflow-x-auto">
           <Table>
-            {/* Table Header */}
             <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
               <TableRow>
                 <TableCell isHeader>Cédula</TableCell>
@@ -298,7 +307,6 @@ export default function EspecialistasAccionesTable() {
                 <TableCell isHeader>Acciones</TableCell>
               </TableRow>
             </TableHeader>
-            {/* Table Body */}
             <TableBody>
               {loading ? (
                 <TableLoading colSpan={6} message="Cargando especialistas..." />
@@ -332,7 +340,7 @@ export default function EspecialistasAccionesTable() {
                           </Button>
                         )}
                         {permissions.includes(
-                          "PERM_ESPECIALISTAS_ELIMINAR"
+                          "PERM_ESPECIALISTAS_ELIMINAR",
                         ) && (
                           <Button
                             size="sm"

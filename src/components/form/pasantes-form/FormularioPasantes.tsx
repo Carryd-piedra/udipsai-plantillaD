@@ -235,7 +235,6 @@ export default function FormularioPasantes() {
 
   const handleSelectChange = (name: string, value: string | number) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
-    console.log(formData);
   };
 
   const handleDateChange = (name: string, dates: Date[]) => {
@@ -251,7 +250,6 @@ export default function FormularioPasantes() {
   };
 
   const handleSubmit = async () => {
-    // Validation
     const newErrors: Record<string, string> = {};
     if (!formData.nombresApellidos.trim()) {
       newErrors.nombresApellidos = "El nombre completo es obligatorio";

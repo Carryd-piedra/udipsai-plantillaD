@@ -8,22 +8,22 @@ import {
   TableRow,
   TableLoading,
   TableEmpty,
-} from "../../ui/table";
+} from "../ui/table";
 import { Pen, Trash, UserPlus, Info } from "lucide-react";
-import Badge from "../../ui/badge/Badge";
+import Badge from "../ui/badge/Badge";
 import { toast } from "react-toastify";
-import { PasanteCriteria, pasantesService } from "../../../services/pasantes";
-import Button from "../../ui/button/Button";
-import { Pagination } from "../../ui/Pagination";
+import { PasanteCriteria, pasantesService } from "../../services/pasantes";
+import Button from "../ui/button/Button";
+import { Pagination } from "../ui/Pagination";
 
-import { useModal } from "../../../hooks/useModal";
-import { DeleteModal } from "../../ui/modal/DeleteModal";
-import { TableActionHeader, FilterField } from "../../common/TableActionHeader";
-import { especialistasService, sedesService } from "../../../services";
-import { useAuth } from "../../../context/AuthContext";
-import { AsignacionesModal } from "../../modals/AsignacionesModal";
-import { especialidadesService } from "../../../services/especialidades";
-import { PasanteDetalleModal } from "../../modals/PasanteDetalleModal";
+import { useModal } from "../../hooks/useModal";
+import { DeleteModal } from "../ui/modal/DeleteModal";
+import { TableActionHeader, FilterField } from "../common/TableActionHeader";
+import { especialistasService, sedesService } from "../../services";
+import { useAuth } from "../../context/AuthContext";
+import { AsignacionesModal } from "../modals/AsignacionesModal";
+import { especialidadesService } from "../../services/especialidades";
+import { PasanteDetalleModal } from "../modals/PasanteDetalleModal";
 
 interface Pasante {
   id: number;
@@ -75,21 +75,21 @@ export default function PasantesAccionesTable() {
   const [pasanteDetail, setPasanteDetail] = useState<Pasante | null>(null);
 
   const handleOpenDetail = (pasante: Pasante) => {
-      setPasanteDetail(pasante);
-      setIsDetailModalOpen(true);
+    setPasanteDetail(pasante);
+    setIsDetailModalOpen(true);
   };
 
   const handleCloseDetail = () => {
     setIsDetailModalOpen(false);
     setPasanteDetail(null);
   };
-   
+
   const fetchPasantes = async (
     page = currentPage,
     search = searchTerm,
     currentFilters = filters,
     currentSortField = sortField,
-    currentSortDirection = sortDirection
+    currentSortDirection = sortDirection,
   ) => {
     try {
       setLoading(true);
@@ -97,7 +97,7 @@ export default function PasantesAccionesTable() {
 
       const hasFilters =
         Object.values(currentFilters).some(
-          (val) => val !== undefined && val !== ""
+          (val) => val !== undefined && val !== "",
         ) || !!search;
 
       let response;
@@ -110,7 +110,7 @@ export default function PasantesAccionesTable() {
           criteria,
           page,
           pageSize,
-          sort
+          sort,
         );
       } else {
         response = await pasantesService.listarActivos(page, pageSize, sort);
@@ -195,7 +195,6 @@ export default function PasantesAccionesTable() {
   };
 
   const handleFiltersChange = (newFilters: any) => {
-    // Separate sort parameters from filter criteria
     if (newFilters.sortField) setSortField(newFilters.sortField);
     if (newFilters.sortDirection) setSortDirection(newFilters.sortDirection);
 
@@ -226,22 +225,27 @@ export default function PasantesAccionesTable() {
   };
   const handleExport = async () => {
     try {
-      const toastId = toast.info("Generando reporte Excel...", { autoClose: false });
+      const toastId = toast.info("Generando reporte Excel...", {
+        autoClose: false,
+      });
       const criteria: PasanteCriteria = {
-          ...filters,
-          search: searchTerm || undefined,
+        ...filters,
+        search: searchTerm || undefined,
       };
-      
+
       const blob = await pasantesService.exportarExcel(criteria);
-      
+
       const url = window.URL.createObjectURL(new Blob([blob]));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `pasantes_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      link.setAttribute(
+        "download",
+        `pasantes_${new Date().toISOString().slice(0, 10)}.xlsx`,
+      );
       document.body.appendChild(link);
       link.click();
       link.parentNode?.removeChild(link);
-      
+
       toast.dismiss(toastId);
       toast.success("Reporte descargado correctamente");
     } catch (error) {
@@ -354,8 +358,8 @@ export default function PasantesAccionesTable() {
             filters.activo === true
               ? "true"
               : filters.activo === false
-              ? "false"
-              : "",
+                ? "false"
+                : "",
           sortField,
           sortDirection,
         }}
@@ -364,7 +368,6 @@ export default function PasantesAccionesTable() {
       <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-white/[0.05] dark:bg-white/[0.03]">
         <div className="max-w-full overflow-x-auto">
           <Table>
-            {/* Table Header */}
             <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
               <TableRow>
                 <TableCell isHeader>Cédula</TableCell>
@@ -376,7 +379,6 @@ export default function PasantesAccionesTable() {
                 <TableCell isHeader>Acciones</TableCell>
               </TableRow>
             </TableHeader>
-            {/* Table Body */}
             <TableBody>
               {loading ? (
                 <TableLoading colSpan={7} message="Cargando pasantes..." />
@@ -398,13 +400,13 @@ export default function PasantesAccionesTable() {
                     <TableCell>
                       <div className="flex justify-center gap-2">
                         <Button
-                            size="sm"
-                            variant="info"
-                            onClick={() => handleOpenDetail(pasante)}
-                            title="Ver Detalles"
-                          >
-                            <Info size={14} />
-                          </Button>
+                          size="sm"
+                          variant="info"
+                          onClick={() => handleOpenDetail(pasante)}
+                          title="Ver Detalles"
+                        >
+                          <Info size={14} />
+                        </Button>
                         {permissions.includes("PERM_ASIGNACIONES_CREAR") && (
                           <Button
                             size="sm"
@@ -466,9 +468,9 @@ export default function PasantesAccionesTable() {
         />
 
         <PasanteDetalleModal
-            isOpen={isDetailModalOpen}
-            onClose={handleCloseDetail}
-            pasante={pasanteDetail}
+          isOpen={isDetailModalOpen}
+          onClose={handleCloseDetail}
+          pasante={pasanteDetail}
         />
 
         <Pagination

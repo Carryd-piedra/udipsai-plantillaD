@@ -1,5 +1,5 @@
 import PageMeta from "../../components/common/PageMeta";
-import PasantesAccionesTable from "../../components/tables/AccionTables/PasantesAccionesTable";
+import PasantesAccionesTable from "../../components/tables/PasantesAccionesTable";
 
 export default function ListaPasantes() {
   return (

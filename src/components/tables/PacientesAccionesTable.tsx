@@ -8,26 +8,23 @@ import {
   TableRow,
   TableLoading,
   TableEmpty,
-} from "../../ui/table";
+} from "../ui/table";
 
 import { Pen, Trash, Info, FileText } from "lucide-react";
 
-import Badge from "../../ui/badge/Badge";
+import Badge from "../ui/badge/Badge";
 import { toast } from "react-toastify";
-import {
-  PacienteCriteria,
-  pacientesService,
-} from "../../../services/pacientes";
-import Button from "../../ui/button/Button";
-import { useModal } from "../../../hooks/useModal";
-import { DeleteModal } from "../../ui/modal/DeleteModal";
-import { PatientDetailsModal } from "../../modals/PacienteDetalleModal";
-import { PatientFichasModal } from "../../modals/PatientFichasModal";
-import { TableActionHeader, FilterField } from "../../common/TableActionHeader";
-import { Pagination } from "../../ui/Pagination";
-import { sedesService } from "../../../services/sedes";
-import { institucionesService } from "../../../services/instituciones";
-import { useAuth } from "../../../context/AuthContext";
+import { PacienteCriteria, pacientesService } from "../../services/pacientes";
+import Button from "../ui/button/Button";
+import { useModal } from "../../hooks/useModal";
+import { DeleteModal } from "../ui/modal/DeleteModal";
+import { PatientDetailsModal } from "../modals/PacienteDetalleModal";
+import { PatientFichasModal } from "../modals/PatientFichasModal";
+import { TableActionHeader, FilterField } from "../common/TableActionHeader";
+import { Pagination } from "../ui/Pagination";
+import { sedesService } from "../../services/sedes";
+import { institucionesService } from "../../services/instituciones";
+import { useAuth } from "../../context/AuthContext";
 
 interface Paciente {
   id: number;
@@ -50,7 +47,7 @@ export default function PacientesAccionesTable() {
   const [pacientes, setPacientes] = useState<Paciente[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPaciente, setSelectedPaciente] = useState<Paciente | null>(
-    null
+    null,
   );
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -91,7 +88,7 @@ export default function PacientesAccionesTable() {
     search = searchTerm,
     currentFilters = filters,
     currentSortField = sortField,
-    currentSortDirection = sortDirection
+    currentSortDirection = sortDirection,
   ) => {
     try {
       setLoading(true);
@@ -99,7 +96,7 @@ export default function PacientesAccionesTable() {
 
       const hasFilters =
         Object.values(currentFilters).some(
-          (val) => val !== undefined && val !== ""
+          (val) => val !== undefined && val !== "",
         ) || !!search;
 
       let response;
@@ -112,7 +109,7 @@ export default function PacientesAccionesTable() {
           criteria,
           page,
           pageSize,
-          sort
+          sort,
         );
       } else {
         response = await pacientesService.listarActivos(page, pageSize, sort);
@@ -207,14 +204,18 @@ export default function PacientesAccionesTable() {
     if (newFilters.sortDirection) setSortDirection(newFilters.sortDirection);
 
     const { sortField: _sf, sortDirection: _sd, ...rest } = newFilters;
-    
+
     const cleanedFilters: any = { ...rest };
     if (cleanedFilters.activo === "true") cleanedFilters.activo = true;
     else if (cleanedFilters.activo === "false") cleanedFilters.activo = false;
     else if (cleanedFilters.activo === "") delete cleanedFilters.activo;
 
-    if (cleanedFilters.sedeId) cleanedFilters.sedeId = parseInt(cleanedFilters.sedeId);
-    if (cleanedFilters.institucionEducativaId) cleanedFilters.institucionEducativaId = parseInt(cleanedFilters.institucionEducativaId);
+    if (cleanedFilters.sedeId)
+      cleanedFilters.sedeId = parseInt(cleanedFilters.sedeId);
+    if (cleanedFilters.institucionEducativaId)
+      cleanedFilters.institucionEducativaId = parseInt(
+        cleanedFilters.institucionEducativaId,
+      );
 
     setFilters(cleanedFilters);
     setCurrentPage(0);
@@ -233,7 +234,10 @@ export default function PacientesAccionesTable() {
       name: "institucionEducativaId",
       label: "Institución Educativa",
       placeholder: "Todas las instituciones",
-      options: instituciones.map((i) => ({ value: i.id.toString(), label: i.nombre })),
+      options: instituciones.map((i) => ({
+        value: i.id.toString(),
+        label: i.nombre,
+      })),
     },
     {
       type: "select",
@@ -283,12 +287,15 @@ export default function PacientesAccionesTable() {
         ...filters,
         search: searchTerm || undefined,
       };
-      
+
       const blob = await pacientesService.exportarExcel(criteria);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `pacientes_${new Date().toLocaleDateString()}.xlsx`);
+      link.setAttribute(
+        "download",
+        `pacientes_${new Date().toLocaleDateString()}.xlsx`,
+      );
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -318,8 +325,8 @@ export default function PacientesAccionesTable() {
             filters.activo === true
               ? "true"
               : filters.activo === false
-              ? "false"
-              : "",
+                ? "false"
+                : "",
           sortField,
           sortDirection,
           sedeId: filters.sedeId?.toString(),
@@ -330,7 +337,6 @@ export default function PacientesAccionesTable() {
       <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-white/[0.05] dark:bg-white/[0.03]">
         <div className="max-w-full overflow-x-auto">
           <Table>
-            {/* Table Header */}
             <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
               <TableRow>
                 <TableCell isHeader>Número de ficha</TableCell>
@@ -342,7 +348,6 @@ export default function PacientesAccionesTable() {
                 <TableCell isHeader>Acciones</TableCell>
               </TableRow>
             </TableHeader>
-            {/* Table Body */}
             <TableBody className="relative min-h-[400px]">
               {loading ? (
                 <TableLoading colSpan={7} message="Cargando pacientes..." />

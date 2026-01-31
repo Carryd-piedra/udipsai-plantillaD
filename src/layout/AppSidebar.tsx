@@ -124,9 +124,7 @@ const othersItems: NavItem[] = [
 
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  const { permissions } = useAuth(); // permissions comes from AuthContext
-  /* eslint-enable @typescript-eslint/no-unused-vars */
+  const { permissions } = useAuth();
   const location = useLocation();
 
   const [openSubmenu, setOpenSubmenu] = useState<{

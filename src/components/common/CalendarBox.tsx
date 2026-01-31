@@ -47,11 +47,9 @@ const CalendarBox = () => {
                 }
 
                 if (profesionalId) {
-                    console.log("Cargando citas para profesional ID:", profesionalId);
                     const response = await citasService.obtenerPorProfesional(profesionalId);
                     citasData = response.content || [];
                 } else if (!isProfesional) {
-                    console.log("Cargando todas las citas (Admin/Secretaria)");
                     const response = await citasService.listar();
                     citasData = response.content || [];
                 } else {
@@ -131,7 +129,7 @@ const CalendarBox = () => {
         try {
             await citasService.finalizar(id);
             toast.success("Cita finalizada");
-            setIsModalOpen(false); // Close on success to trigger refresh
+            setIsModalOpen(false);
         } catch (error) {
             console.error("Error marking as attended", error);
             toast.error("Error al finalizar cita");
@@ -161,7 +159,6 @@ const CalendarBox = () => {
     };
 
     const renderEventContent = (eventInfo: any) => {
-        // Reuse similar styling from Citas.tsx if desired, or simpler
         return (
             <div className={`p-1 overflow-hidden ${eventInfo.event.classNames.join(' ')}`}>
                 <div className="text-xs font-bold truncate">{eventInfo.timeText}</div>
@@ -186,7 +183,7 @@ const CalendarBox = () => {
                 <FullCalendar
                     ref={calendarRef}
                     plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
-                    initialView="dayGridMonth" // Default to Month view as requested
+                    initialView="dayGridMonth"
                     headerToolbar={{
                         left: 'prev,next today',
                         center: 'title',
@@ -209,34 +206,27 @@ const CalendarBox = () => {
                     locale="es"
                     locales={[esLocale]}
 
-                    // Restrictions copied from Citas.tsx
                     slotDuration="01:00:00"
                     slotLabelInterval="01:00"
                     snapDuration="01:00:00"
                     slotMinTime="08:00:00"
                     slotMaxTime="17:00:00"
                     allDaySlot={false}
-                    hiddenDays={[0, 6]} // Hide Sunday, Saturday
+                    hiddenDays={[0, 6]}
                     businessHours={[
                         { daysOfWeek: [1, 2, 3, 4, 5], startTime: "08:00", endTime: "12:00" },
                         { daysOfWeek: [1, 2, 3, 4, 5], startTime: "13:00", endTime: "17:00" },
                     ]}
                     selectAllow={(selectInfo) => {
-                        // Simplify validation compared to Citas.tsx (no specialty check)
                         const now = new Date();
-                        if (selectInfo.start < now && !selectInfo.allDay) return false; // allow past in month view select? usually no.
-
-                        // Allow month view selection (allDay)
+                        if (selectInfo.start < now && !selectInfo.allDay) return false;
                         if (selectInfo.allDay) return true;
 
                         if (selectInfo.start < now) return false;
 
-                        // Only limit: Cannot span multiple days
                         const startDay = selectInfo.start.getDate();
                         const endDay = selectInfo.end.getDate();
                         if (startDay !== endDay && !selectInfo.allDay) return false;
-
-                        // Check business hours strict (8-12, 13-17)
                         const startHour = selectInfo.start.getHours();
                         const startMin = selectInfo.start.getMinutes();
                         const endHour = selectInfo.end.getHours();

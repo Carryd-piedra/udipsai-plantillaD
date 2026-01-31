@@ -322,7 +322,6 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
       }
       return;
     }
-    console.log(`${action} - ${fileType} for patient ${paciente.id}`);
     toast.info(`${action}: Funcionalidad en desarrollo para ${fileType}`);
   };
 
@@ -455,7 +454,6 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                   </TableRow>
                 );
               })}
-              {/* Otros Documentos Adicionales */}
               {resumen?.fichas && Object.entries(resumen.fichas)
                 .filter(([name]) => !FILE_TYPES.some(ft => ft.internalName === name))
                 .map(([name, id]) => (

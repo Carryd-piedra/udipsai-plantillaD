@@ -1,9 +1,9 @@
 interface ComponentCardProps {
   title: string;
   children: React.ReactNode;
-  className?: string; // Additional custom classes for styling
-  desc?: string; // Description text
-  action?: React.ReactNode; // Extra component for the header right side
+  className?: string;
+  desc?: string;
+  action?: React.ReactNode;
   bodyDisabled?: boolean;
   onHeaderClick?: () => void;
 }
@@ -23,7 +23,6 @@ const ComponentCard: React.FC<ComponentCardProps> = ({
         bodyDisabled ? "opacity-90 shadow-none saturate-50" : "shadow-sm"
       } ${className}`}
     >
-      {/* Card Header */}
       <div
         onClick={onHeaderClick}
         className={`px-6 py-5 flex items-center justify-between transition-colors duration-300 ${
@@ -56,7 +55,6 @@ const ComponentCard: React.FC<ComponentCardProps> = ({
         )}
       </div>
 
-      {/* Card Body */}
       {!bodyDisabled && (
         <div className="p-4 sm:p-6 animate-in fade-in zoom-in-100 duration-300">
           <div className="space-y-6">{children}</div>

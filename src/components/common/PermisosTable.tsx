@@ -140,7 +140,6 @@ export const PermisosTable: React.FC<PermisosTableProps> = ({
   return (
     <div className="w-full">
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden shadow-sm transition-all duration-300">
-        {/* Toggle Header */}
         <button
           type="button"
           onClick={() => setIsExpanded(!isExpanded)}
@@ -164,7 +163,6 @@ export const PermisosTable: React.FC<PermisosTableProps> = ({
           />
         </button>
 
-        {/* Collapsible Content */}
         <div 
           className={`transition-all duration-500 ease-in-out ${
             isExpanded ? "max-h-[3000px] opacity-100" : "max-h-0 opacity-0"
@@ -189,7 +187,6 @@ export const PermisosTable: React.FC<PermisosTableProps> = ({
                         key={module.key}
                         className="flex flex-col sm:flex-row sm:items-center justify-between p-5 px-6 hover:bg-gray-50 dark:hover:bg-white/[0.01] transition-colors gap-6"
                       >
-                        {/* Left: Module & Main Access */}
                         <div className="flex items-center gap-4 min-w-[280px]">
                           <div className="scale-100">
                             <Switch
@@ -205,7 +202,6 @@ export const PermisosTable: React.FC<PermisosTableProps> = ({
                           </span>
                         </div>
 
-                        {/* Right: Sub-permissions */}
                         <div className={`flex flex-wrap items-center gap-8 transition-all duration-300 ${hasAccess ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 pointer-events-none"}`}>
                           {["Crear", "Editar", "Eliminar"].map((action) => {
                             const key = `${module.key}${action}` as keyof PermissionsState;
