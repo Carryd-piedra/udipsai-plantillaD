@@ -8,7 +8,7 @@ import { useAuth } from "../../context/AuthContext";
 import { pacientesService, especialistasService, pasantesService } from "../../services";
 import { citasService } from "../../services/citas";
 
-export default function EcommerceMetrics() {
+export default function DashboardResume() {
   const { userIdentity, userRole } = useAuth();
   const [totalPacientes, setTotalPacientes] = useState<number | string>("-");
   const [citasHoy, setCitasHoy] = useState<number | string>("-");
