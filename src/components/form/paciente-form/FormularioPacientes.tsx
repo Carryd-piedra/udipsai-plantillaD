@@ -209,9 +209,9 @@ export default function FormularioPacientes() {
       newErrors.nombresApellidos = "El nombre completo es obligatorio";
     }
 
-    if (!formData.cedula.trim()) {
+    if (!isEditing && !formData.cedula.trim()) {
       newErrors.cedula = "La cédula es obligatoria";
-    } else if (!validarCedulaEcuatoriana(formData.cedula)) {
+    } else if (!isEditing && !validarCedulaEcuatoriana(formData.cedula)) {
       newErrors.cedula = "La cédula ingresada no es válida";
     }
 
