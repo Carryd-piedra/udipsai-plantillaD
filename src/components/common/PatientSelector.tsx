@@ -19,7 +19,6 @@ export default function PatientSelector({ onSelect }: PatientSelectorProps) {
   const [loading, setLoading] = useState(false);
   const [debouncedTerm, setDebouncedTerm] = useState(searchTerm);
 
-  // Debounce search term
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedTerm(searchTerm);
@@ -27,7 +26,6 @@ export default function PatientSelector({ onSelect }: PatientSelectorProps) {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Effect to search when debounced term changes
   useEffect(() => {
     if (debouncedTerm.length >= 3) {
       searchPatients(debouncedTerm);
@@ -39,7 +37,6 @@ export default function PatientSelector({ onSelect }: PatientSelectorProps) {
   const searchPatients = async (term: string) => {
     setLoading(true);
     try {
-      // Usamos el servicio de filtrar
       const response = await pacientesService.filtrar({ search: term, activo: true });
       setResults(response.content);
     } catch (error) {

@@ -52,7 +52,6 @@ export const AsignacionesModal = ({
   const [loading, setLoading] = useState(false);
   const { hasPermission } = useAuth();
 
-  // Search state
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<Paciente[]>([]);
   const [selectedPatients, setSelectedPatients] = useState<Paciente[]>([]);

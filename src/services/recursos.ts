@@ -66,13 +66,6 @@ export const recursosService = {
       const tipo = (formData.get("tipo") as "test" | "juego") || "juego";
       const archivoFile = formData.get("archivo") as File;
 
-      console.log("Mock Upload Data:", {
-        titulo,
-        descripcion,
-        tipo,
-        archivoFile,
-      });
-
       let archivoNombre = "archivo_demo.zip";
       if (archivoFile && archivoFile.name) {
         archivoNombre = `${Date.now()}-${archivoFile.name}`;

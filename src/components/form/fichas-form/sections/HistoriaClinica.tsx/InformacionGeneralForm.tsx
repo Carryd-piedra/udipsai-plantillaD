@@ -40,6 +40,15 @@ const InformacionGeneralForm: React.FC<InformacionGeneralProps> = ({
     { value: "OTRA", label: "Otra" },
   ];
 
+  const optionsViveCon = [
+    { value: "PADRE Y MADRE", label: "Padre y Madre" },
+    { value: "MADRE", label: "Madre" },
+    { value: "PADRE", label: "Padre" },
+    { value: "ABUELOS", label: "Abuelos" },
+    { value: "TUTORES", label: "Tutores" },
+    { value: "OTRO", label: "Otro" },
+  ];
+
   const handleDateChange = (name: string, dates: Date[]) => {
     if (dates.length > 0) {
       onRootChange(name, dates[0].toISOString());
@@ -90,21 +99,24 @@ const InformacionGeneralForm: React.FC<InformacionGeneralProps> = ({
       </div>
       <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <Label>El estudiante vive con</Label>
-          <Input
+          <Label>El paciente vive con</Label>
+          <Select
+            options={optionsViveCon}
             value={data.viveCon}
-            onChange={(e) => onChange("viveCon", e.target.value)}
-            placeholder="ej: Padres, Abuelos"
+            onChange={(val: string) => onChange("viveCon", val)}
+            placeholder="Seleccione con quien vive el paciente"
           />
         </div>
-        <div>
-          <Label>Especificar otro (Si aplica)</Label>
-          <Input
-            value={data.viveConOtro}
-            onChange={(e) => onChange("viveConOtro", e.target.value)}
+        {data.viveCon === "OTRO" && (
+          <div>
+            <Label>Especificar otro (Si aplica)</Label>
+            <Input
+              value={data.viveConOtro}
+              onChange={(e) => onChange("viveConOtro", e.target.value)}
             placeholder="..."
           />
         </div>
+      )}
       </div>
 
       <div className="flex items-center gap-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700">
@@ -121,6 +133,7 @@ const InformacionGeneralForm: React.FC<InformacionGeneralProps> = ({
           options={optionsTipoFamilia}
           value={data.tipoFamilia}
           onChange={(val: string) => onChange("tipoFamilia", val)}
+          placeholder="Seleccione el tipo de familia"
         />
       </div>
 

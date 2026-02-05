@@ -57,7 +57,6 @@ const PatientSearchModal: React.FC<PatientSearchModalProps> = ({
       onClose={onClose}
       className="max-w-[700px] p-0 overflow-hidden"
     >
-      {/* Modern Header */}
       <div className="px-8 py-6 flex justify-between items-center">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 flex items-center justify-center text-brand-500">
@@ -75,7 +74,6 @@ const PatientSearchModal: React.FC<PatientSearchModalProps> = ({
       </div>
 
       <div className="p-8">
-        {/* Search Bar */}
         <div className="flex gap-3 mb-8">
           <div className="flex-1">
             <InputField
@@ -94,7 +92,6 @@ const PatientSearchModal: React.FC<PatientSearchModalProps> = ({
           />
         </div>
 
-        {/* Results Area */}
         <div className="max-h-[400px] overflow-y-auto custom-scrollbar -mx-2 px-2">
           {loading ? (
             <div className="py-20 text-center">

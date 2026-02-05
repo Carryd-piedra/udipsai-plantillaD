@@ -45,7 +45,7 @@ const HistoriaPrenatalForm: React.FC<HistoriaPrenatalProps> = ({
           />
         </div>
       </div>
-
+{data.controlEmbarazo && (
       <div className="md:col-span-2">
         <Label>Causa de Control de Embarazo (Si aplica)</Label>
         <Input
@@ -54,6 +54,7 @@ const HistoriaPrenatalForm: React.FC<HistoriaPrenatalProps> = ({
           placeholder="Describa la causa"
         />
       </div>
+)}
 
       <div>
         <Label>Enfermedades de la Madre durante el embarazo</Label>
@@ -85,22 +86,26 @@ const HistoriaPrenatalForm: React.FC<HistoriaPrenatalProps> = ({
             }
           />
         </div>
-        <div>
-          <Label>Mes de la amenaza</Label>
-          <Input
-            value={data.mesAmenazaAborto}
-            onChange={(e) => onChange("mesAmenazaAborto", e.target.value)}
-            placeholder="ej: 3er mes"
-          />
-        </div>
-        <div>
-          <Label>Causa de la amenaza</Label>
-          <Input
-            value={data.causaAmenazaAborto}
-            onChange={(e) => onChange("causaAmenazaAborto", e.target.value)}
-            placeholder="Describa la causa"
-          />
-        </div>
+        {data.presentoAmenazaAborto && (
+          <>
+            <div>
+              <Label>Mes de la amenaza</Label>
+              <Input
+                value={data.mesAmenazaAborto}
+                onChange={(e) => onChange("mesAmenazaAborto", e.target.value)}
+                placeholder="ej: 3er mes"
+              />
+            </div>
+            <div>
+              <Label>Causa de la amenaza</Label>
+              <Input
+                value={data.causaAmenazaAborto}
+                onChange={(e) => onChange("causaAmenazaAborto", e.target.value)}
+                placeholder="Describa la causa"
+              />
+            </div>
+          </>
+        )}
       </div>
 
       <div className="md:col-span-2">

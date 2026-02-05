@@ -5,7 +5,7 @@ export interface SeguimientoDTO {
   especialista: { 
     id: number; 
     nombresApellidos: string; 
-    especialidad: any; // Can be string or object { id, area, permisos }
+    especialidad: any; 
   };
   paciente: { id: number; nombresApellidos: string };
   fecha: string;

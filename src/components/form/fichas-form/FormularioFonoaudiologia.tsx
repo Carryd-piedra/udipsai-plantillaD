@@ -212,18 +212,15 @@ export default function FormularioFonoaudiologia() {
   const [verSeccionHistoriaAuditiva, setVerSeccionHistoriaAuditiva] =
     useState(false);
 
-  // Categorías principales
   const [areaAudicion, setAreaAudicion] = useState(false);
   const [areaLenguaje, setAreaLenguaje] = useState(false);
 
-  // Patient Selection State
   const [selectedPatient, setSelectedPatient] = useState<{
     nombresApellidos: string;
     cedula: string;
   } | null>(null);
   const [showSelector, setShowSelector] = useState(false);
 
-  // Create Mode state
   const isEdit = !!id;
   const [searchParams] = useSearchParams();
 
@@ -279,7 +276,6 @@ export default function FormularioFonoaudiologia() {
         };
         setFormData(loadedData);
 
-        // Auto-open sections with data
         const hasHabla = !isSectionEmpty(data.habla, initialFonoaudiologiaState.habla);
         const hasAudicion = !isSectionEmpty(data.audicion, initialFonoaudiologiaState.audicion);
         const hasFonacion = !isSectionEmpty(data.fonacion, initialFonoaudiologiaState.fonacion);
@@ -294,11 +290,8 @@ export default function FormularioFonoaudiologia() {
         if (hasVestibular) setVerSeccionVestibular(true);
         if (hasOtoscopia) setVerSeccionOtoscopia(true);
 
-        // Auto-open areas
         if (hasHabla || hasFonacion) setAreaLenguaje(true);
         if (hasAudicion || hasHistoria || hasVestibular || hasOtoscopia) setAreaAudicion(true);
-
-        console.log(data)
 
         if (data.paciente) {
           try {

@@ -148,7 +148,6 @@ export default function Tests() {
         </div>
       </div>
 
-      {/* TESTS ADICIONALES SECTION */}
       <div className="mb-10">
         <div className="flex items-center mb-6 pl-4 border-l-4 border-teal-500">
           <h2 className="text-xl font-bold text-gray-800 dark:text-white/90">

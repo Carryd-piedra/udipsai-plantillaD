@@ -27,7 +27,6 @@ export default function SubirRecursos() {
   const [loading, setLoading] = useState(true);
   const [selectedRecurso, setSelectedRecurso] = useState<Recurso | null>(null);
 
-  // Form states for upload/edit
   const [formData, setFormData] = useState({
     titulo: "",
     descripcion: "",
@@ -164,10 +163,6 @@ export default function SubirRecursos() {
         onNew={permissions.includes("PERM_RECURSOS_CREAR") ? openUploadModal : undefined}
         newButtonText="Subir Recurso"
         placeholder="Buscar recurso..."
-        onSearchClick={(term) => {
-            // Optional: filtering logic if needed
-            console.log("Search", term);
-        }}
       />
 
       <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-white/[0.05] dark:bg-white/[0.03]">
@@ -288,7 +283,6 @@ export default function SubirRecursos() {
         </div>
       </div>
 
-      {/* Upload Modal */}
       <Modal isOpen={isUploadModalOpen} onClose={closeUploadModal}>
         <div className="p-6">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
@@ -347,7 +341,6 @@ export default function SubirRecursos() {
         </div>
       </Modal>
 
-      {/* Replace Modal */}
       <Modal isOpen={isReplaceModalOpen} onClose={closeReplaceModal}>
         <div className="p-6">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
@@ -380,7 +373,6 @@ export default function SubirRecursos() {
         </div>
       </Modal>
 
-      {/* Delete Modal */}
       <DeleteModal
         isOpen={isDeleteModalOpen}
         onClose={closeDeleteModal}

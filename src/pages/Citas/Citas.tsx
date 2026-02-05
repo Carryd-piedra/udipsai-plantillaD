@@ -270,7 +270,7 @@ const Calendar: React.FC = () => {
                 onChange={(e) => setSelectedSpecialtyId(e.target.value)}
                 className="appearance-none rounded-xl border border-gray-300 bg-white px-4 py-3 pr-10 text-base font-medium text-gray-700 shadow-sm transition hover:border-gray-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
               >
-                <option value="">-- Todas las Especialidades --</option>
+                <option value="">Todas las Especialidades</option>
                 {specialties.map((spec) => (
                   <option key={spec.id} value={spec.id}>
                     {spec.area || spec.nombre}

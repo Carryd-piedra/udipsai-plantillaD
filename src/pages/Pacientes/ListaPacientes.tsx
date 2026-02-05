@@ -1,5 +1,5 @@
 import PageMeta from "../../components/common/PageMeta";
-import PacientesAccionesTable from "../../components/tables/AccionTables/PacientesAccionesTable";
+import PacientesAccionesTable from "../../components/tables/PacientesAccionesTable";
 
 export default function ListaPacientes() {
   return (

@@ -1,5 +1,5 @@
 import PageMeta from "../../components/common/PageMeta";
-import SedesAccionesTable from "../../components/tables/AccionTables/SedesAccionesTable";
+import SedesAccionesTable from "../../components/tables/SedesAccionesTable";
 
 export default function ListaSedes() {
   return (

@@ -1,5 +1,5 @@
 import PageMeta from "../../components/common/PageMeta";
-import InstitucionesAccionesTable from "../../components/tables/AccionTables/InstitucionesAccionesTable";
+import InstitucionesAccionesTable from "../../components/tables/InstitucionesAccionesTable";
 
 export default function ListaInstituciones() {
   return (

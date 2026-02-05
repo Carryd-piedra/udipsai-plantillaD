@@ -1,6 +1,7 @@
 import React from "react";
 import Input from "../../../input/InputField";
 import Label from "../../../Label";
+import Select from "../../../Select";
 
 interface DatosFamiliaresProps {
   data: {
@@ -28,6 +29,13 @@ const DatosFamiliaresForm: React.FC<DatosFamiliaresProps> = ({
   onChange,
 }) => {
   if (!data) return null;
+  const optionsEstadoCivil = [
+    { value: "SOLTERO", label: "Soltero" },
+    { value: "CASADO", label: "Casado" },
+    { value: "DIVORCIADO", label: "Divorciado" },
+    { value: "VIUDO", label: "Viudo" },
+    { value: "OTRO", label: "Otro" },
+  ];
   return (
     <div className="space-y-8">
       {/* Información del Padre */}
@@ -72,10 +80,11 @@ const DatosFamiliaresForm: React.FC<DatosFamiliaresProps> = ({
         </div>
         <div>
           <Label>Estado Civil</Label>
-          <Input
+          <Select
+            options={optionsEstadoCivil}
             value={data.estadoCivilPadre}
-            onChange={(e) => onChange("estadoCivilPadre", e.target.value)}
-            placeholder="Estado Civil"
+            onChange={(value: string) => onChange("estadoCivilPadre", value)}
+            placeholder="Seleccione el estado civil del padre"
           />
         </div>
         <div>
@@ -130,10 +139,11 @@ const DatosFamiliaresForm: React.FC<DatosFamiliaresProps> = ({
         </div>
         <div>
           <Label>Estado Civil</Label>
-          <Input
+          <Select
+            options={optionsEstadoCivil}
             value={data.estadoCivilMadre}
-            onChange={(e) => onChange("estadoCivilMadre", e.target.value)}
-            placeholder="Estado Civil"
+            onChange={(value: string) => onChange("estadoCivilMadre", value)}
+            placeholder="Seleccione el estado civil de la madre"
           />
         </div>
         <div>

@@ -36,7 +36,7 @@ const AnamnesisForm: React.FC<AnamnesisFormProps> = ({ data, onChange }) => {
         <TextArea
           value={data.momentosEvolutivosEnElDesarrollo}
           onChange={(val: string) => onChange("momentosEvolutivosEnElDesarrollo", val)}
-          placeholder="..."
+          placeholder="Describa los momentos evolutivos en el desarrollo..."
         />
       </div>
       <div>
@@ -44,7 +44,7 @@ const AnamnesisForm: React.FC<AnamnesisFormProps> = ({ data, onChange }) => {
         <TextArea
           value={data.habitosEnLaOralidad}
           onChange={(val: string) => onChange("habitosEnLaOralidad", val)}
-          placeholder="..."
+          placeholder="Describa los hábitos en la oralidad..."
         />
       </div>
     </div>

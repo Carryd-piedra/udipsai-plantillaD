@@ -19,13 +19,6 @@ export default function RoleRoute({ allowedRoles }: RoleRouteProps) {
     );
   }
 
-  // If userRole is null (not yet loaded or no role), but we are authenticated, it might be an issue. 
-  // But strictly, if userRole is not in allowedRoles, redirect.
-  // We assume userRole is "ROLE_ESPECIALISTA" or "ROLE_PASANTE" or "ROLE_SUPER_ADMIN" etc.
-
-  // Optional: Redirect to a clearer "Unauthorized" page instead of home if desired.
-  // For now, redirect to home "/" is a safe default.
-  
   if (!userRole || !allowedRoles.includes(userRole)) {
       return <Navigate to="/" replace />;
   }

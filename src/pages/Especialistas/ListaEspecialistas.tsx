@@ -1,5 +1,5 @@
 import PageMeta from "../../components/common/PageMeta";
-import EspecialistasAccionesTable from "../../components/tables/AccionTables/EspecialistasAccionesTable";
+import EspecialistasAccionesTable from "../../components/tables/EspecialistasAccionesTable";
 
 export default function ListaEspecialistas() {
   return (

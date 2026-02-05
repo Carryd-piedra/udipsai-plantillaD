@@ -27,6 +27,7 @@ export const EspecialidadModal: React.FC<EspecialidadModalProps> = ({
   const [formData, setFormData] = useState({
     area: "",
   });
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (initialData) {
@@ -38,14 +39,20 @@ export const EspecialidadModal: React.FC<EspecialidadModalProps> = ({
         area: "",
       });
     }
+    setError("");
   }, [initialData, isOpen]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
+    if (error) setError("");
   };
 
   const handleSubmit = () => {
+    if (!formData.area.trim()) {
+      setError("El nombre del área es obligatorio");
+      return;
+    }
     onSave({
       ...formData,
       ...(initialData ? { id: initialData.id } : {}),
@@ -69,6 +76,8 @@ export const EspecialidadModal: React.FC<EspecialidadModalProps> = ({
             placeholder="Ingrese el área"
             value={formData.area}
             onChange={handleChange}
+            error={!!error}
+            hint={error}
           />
         </div>
       </div>

@@ -2,7 +2,7 @@ import React from "react";
 import Switch from "../../../switch/Switch";
 
 interface EvaluacionLenguajeProps {
-  data: any; // Using any for brevity of the long list, but following the established pattern
+  data: any;
   onChange: (field: string, value: any) => void;
 }
 

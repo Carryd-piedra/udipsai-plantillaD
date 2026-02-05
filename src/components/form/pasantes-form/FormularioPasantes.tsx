@@ -12,6 +12,8 @@ import DatePicker from "../date-picker";
 
 import { PermisosTable, PermissionsState } from "../../common/PermisosTable";
 import { especialidadesService } from "../../../services/especialidades";
+import { Camera, User } from "lucide-react";
+import { validarCedulaEcuatoriana, validarEmail, validarSoloNumeros } from "../../../services/validators";
 
 export default function FormularioPasantes() {
   const { id } = useParams();
@@ -54,6 +56,7 @@ export default function FormularioPasantes() {
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [sedes, setSedes] = useState<any[]>([]);
   const [especialistas, setEspecialistas] = useState<any[]>([]);
@@ -212,12 +215,26 @@ export default function FormularioPasantes() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { id, value } = e.target;
+
+    if (["numeroTelefono", "numeroCelular", "cedula"].includes(id)) {
+      if (!validarSoloNumeros(value) || value.length > 10) {
+        return;
+      }
+    }
+
     setFormData((prev) => ({ ...prev, [id]: value }));
+
+    if (errors[id]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[id];
+        return newErrors;
+      });
+    }
   };
 
   const handleSelectChange = (name: string, value: string | number) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
-    console.log(formData);
   };
 
   const handleDateChange = (name: string, dates: Date[]) => {
@@ -233,6 +250,43 @@ export default function FormularioPasantes() {
   };
 
   const handleSubmit = async () => {
+    const newErrors: Record<string, string> = {};
+    if (!formData.nombresApellidos.trim()) {
+      newErrors.nombresApellidos = "El nombre completo es obligatorio";
+    }
+
+    if (!formData.cedula.trim()) {
+      newErrors.cedula = "La cédula es obligatoria";
+    } else if (!validarCedulaEcuatoriana(formData.cedula)) {
+      newErrors.cedula = "La cédula ingresada no es válida";
+    }
+
+    if (!formData.especialidadId.toString().trim()) {
+      newErrors.especialidadId = "La especialidad es obligatoria";
+    }
+
+    if (!formData.sedeId.toString().trim()) {
+      newErrors.sedeId = "La sede es obligatoria";
+    }
+
+    if (!formData.especialistaId.toString().trim()) {
+      newErrors.especialistaId = "El especialista es obligatorio";
+    }
+
+    if (!isEditing && !formData.contrasenia.trim()) {
+      newErrors.contrasenia = "La contraseña es obligatoria para nuevos pasantes";
+    }
+
+    if (formData.email && !validarEmail(formData.email)) {
+      newErrors.email = "El correo electrónico no es válido";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error("Por favor, complete los campos obligatorios");
+      return;
+    }
+
     try {
       setLoading(true);
       const payload = {
@@ -303,22 +357,36 @@ export default function FormularioPasantes() {
       <ComponentCard title="Datos personales del pasante">
         <div className="space-y-6">
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-            <div>
-              <Label htmlFor="foto">Foto del Pasante</Label>
-              <input
-                id="foto"
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              />
-              {previewUrl && (
-                <img
-                  src={previewUrl}
-                  alt="Vista previa"
-                  className="mt-2 h-20 w-20 object-cover rounded-full"
-                />
-              )}
+            <div className="md:col-span-2 flex justify-center mb-6">
+              <div className="flex flex-col items-center gap-4">
+                <Label className="text-center w-full">Foto del Pasante</Label>
+                <div className="relative group">
+                  <div className="w-32 h-32 rounded-full border-4 border-white dark:border-gray-800 overflow-hidden bg-white dark:bg-gray-900 flex items-center justify-center shadow-md transition-all group-hover:border-brand-300 dark:group-hover:border-brand-500">
+                    {previewUrl ? (
+                      <img
+                        src={previewUrl}
+                        alt="Vista previa"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User className="w-16 h-16 text-gray-300 dark:text-gray-700" />
+                    )}
+                    <label
+                      htmlFor="foto"
+                      className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-60 transition-opacity cursor-pointer"
+                    >
+                      <Camera className="text-white w-8 h-8" />
+                    </label>
+                  </div>
+                  <input
+                    id="foto"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </div>
+              </div>
             </div>
             <div>
               <Label htmlFor="nombresApellidos">Nombres y Apellidos</Label>
@@ -328,6 +396,8 @@ export default function FormularioPasantes() {
                 placeholder="Ingrese el nombre completo"
                 value={formData.nombresApellidos}
                 onChange={handleChange}
+                error={!!errors.nombresApellidos}
+                hint={errors.nombresApellidos}
               />
             </div>
             <div>
@@ -338,6 +408,8 @@ export default function FormularioPasantes() {
                 placeholder="Ingrese el número de cédula/ruc"
                 value={formData.cedula}
                 onChange={handleChange}
+                error={!!errors.cedula}
+                hint={errors.cedula}
               />
             </div>
             <div>
@@ -348,6 +420,8 @@ export default function FormularioPasantes() {
                 placeholder="ejemplo@correo.com"
                 value={formData.email}
                 onChange={handleChange}
+                error={!!errors.email}
+                hint={errors.email}
               />
             </div>
             <div>
@@ -433,6 +507,8 @@ export default function FormularioPasantes() {
                 placeholder="Seleccione una sede"
                 onChange={(value) => handleSelectChange("sedeId", value)}
                 value={formData.sedeId || ""}
+                error={!!errors.sedeId}
+                hint={errors.sedeId}
               />
             </div>
             <div>
@@ -444,6 +520,8 @@ export default function FormularioPasantes() {
                   handleSelectChange("especialistaId", value)
                 }
                 value={formData.especialistaId || ""}
+                error={!!errors.especialistaId}
+                hint={errors.especialistaId}
               />
             </div>
             <div>
@@ -455,6 +533,8 @@ export default function FormularioPasantes() {
                   handleSelectChange("especialidadId", value)
                 }
                 value={formData.especialidadId || ""}
+                error={!!errors.especialidadId}
+                hint={errors.especialidadId}
               />
             </div>
           </div>
@@ -483,6 +563,8 @@ export default function FormularioPasantes() {
                 }
                 value={formData.contrasenia}
                 onChange={handleChange}
+                error={!!errors.contrasenia}
+                hint={errors.contrasenia}
               />
             </div>
           </div>

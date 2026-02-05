@@ -24,9 +24,7 @@ const NuevosPasantes = lazy(() => import("../pages/Pasantes/NuevosPasantes"));
 const EditarPasantes = lazy(() => import("../pages/Pasantes/EditarPasantes"));
 const ListaEspecialidades = lazy(() => import("../pages/Especialidades/ListaEspecialidades"));
 const ReporteCitas = lazy(() => import("../pages/Reportes/ReporteCitas"));
-// Fichas
 const ListaFichasUnificadas = lazy(() => import("../pages/Fichas/ListaFichasUnificadas"));
-
 const NuevaFonoaudiologia = lazy(() => import("../pages/Fichas/Fonoaudiologia/NuevaFonoaudiologia"));
 const EditarFonoaudiologia = lazy(() => import("../pages/Fichas/Fonoaudiologia/EditarFonoaudiologia"));
 const NuevaPsicologiaClinica = lazy(() => import("../pages/Fichas/PsicologiaClinica/NuevaPsicologiaClinica"));
@@ -57,7 +55,7 @@ export const privateRouteObjects: RouteObject[] = [
       { path: "editar/:id", ...protectedRoute("PERM_PACIENTES_EDITAR", <EditarPacientes />) },
     ]
   },
-  { path: "citas", ...protectedRoute("PERM_PACIENTES", <Citas />) },
+  { path: "citas", ...protectedRoute("PERM_CITAS", <Citas />) },
 
   // Especialistas
   {

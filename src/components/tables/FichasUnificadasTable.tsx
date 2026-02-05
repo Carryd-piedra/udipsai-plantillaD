@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
-import { Pencil, Trash, FileText, Activity, Brain, Ear } from "lucide-react";
+import {
+  Pencil,
+  Trash,
+  FileText,
+  Activity,
+  Brain,
+  Ear,
+  Eye,
+} from "lucide-react";
 
 import {
   Table,
@@ -16,6 +24,11 @@ import Button from "../ui/button/Button";
 import Badge from "../ui/badge/Badge";
 import { DeleteModal } from "../ui/modal/DeleteModal";
 import { TableActionHeader } from "../common/TableActionHeader";
+
+import { HistoriaClinicaViewModal } from "../modals/HistoriaClinicaViewModal";
+import { PsicologiaEducativaViewModal } from "../modals/PsicologiaEducativaViewModal";
+import { PsicologiaClinicaViewModal } from "../modals/PsicologiaClinicaViewModal";
+import { FonoaudiologiaViewModal } from "../modals/FonoaudiologiaViewModal";
 
 import { useAuth } from "../../context/AuthContext";
 import { fichasService } from "../../services/fichas";
@@ -79,7 +92,7 @@ export default function FichasUnificadasTable() {
       delete: fichasService.eliminarPsicologiaEducativa,
       editPath: "/fichas/psicologia-educativa/editar",
       createPath: "/fichas/psicologia-educativa/nuevo",
-      permEdit: "PERM_PSICOLOGIA_EDUCATIVA_EDITAR", 
+      permEdit: "PERM_PSICOLOGIA_EDUCATIVA_EDITAR",
       permCreate: "PERM_PSICOLOGIA_EDUCATIVA_CREAR",
       permDelete: "PERM_PSICOLOGIA_EDUCATIVA_ELIMINAR",
       permRead: "PERM_PSICOLOGIA_EDUCATIVA",
@@ -119,7 +132,7 @@ export default function FichasUnificadasTable() {
   const initialTab = (searchParams.get("tab") as TabKey) || "historia_clinica";
 
   const [activeTabKey, setActiveTabKey] = useState<TabKey>(
-    tabs.some((t) => t.key === initialTab) ? initialTab : "historia_clinica"
+    tabs.some((t) => t.key === initialTab) ? initialTab : "historia_clinica",
   );
 
   const [fichas, setFichas] = useState<FichaListDTO[]>([]);
@@ -127,6 +140,14 @@ export default function FichasUnificadasTable() {
   const [searchTerm, setSearchTerm] = useState("");
   const [fichaToDelete, setFichaToDelete] = useState<number | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const [selectedPacienteId, setSelectedPacienteId] = useState<number | null>(
+    null,
+  );
+  const [viewHistoriaModalOpen, setViewHistoriaModalOpen] = useState(false);
+  const [viewEduModalOpen, setViewEduModalOpen] = useState(false);
+  const [viewClinicaModalOpen, setViewClinicaModalOpen] = useState(false);
+  const [viewFonoModalOpen, setViewFonoModalOpen] = useState(false);
 
   const activeTab = tabs.find((t) => t.key === activeTabKey) || tabs[0];
 
@@ -182,14 +203,32 @@ export default function FichasUnificadasTable() {
     return activo ? "success" : "error";
   };
 
+  const handleViewClick = (pacienteId: number) => {
+    setSelectedPacienteId(pacienteId);
+    switch (activeTabKey) {
+      case "historia_clinica":
+        setViewHistoriaModalOpen(true);
+        break;
+      case "psicologia_educativa":
+        setViewEduModalOpen(true);
+        break;
+      case "psicologia_clinica":
+        setViewClinicaModalOpen(true);
+        break;
+      case "fonoaudiologia":
+        setViewFonoModalOpen(true);
+        break;
+    }
+  };
+
   const filteredFichas = fichas.filter((ficha) => {
     const searchLower = searchTerm.toLowerCase();
-    
-    const nombreCompleto = ficha.paciente?.nombresApellidos 
-      ? ficha.paciente.nombresApellidos.toLowerCase() 
+
+    const nombreCompleto = ficha.paciente?.nombresApellidos
+      ? ficha.paciente.nombresApellidos.toLowerCase()
       : "";
-    const cedula = ficha.paciente?.cedula 
-      ? ficha.paciente.cedula.toLowerCase() 
+    const cedula = ficha.paciente?.cedula
+      ? ficha.paciente.cedula.toLowerCase()
       : "";
 
     return nombreCompleto.includes(searchLower) || cedula.includes(searchLower);
@@ -233,7 +272,6 @@ export default function FichasUnificadasTable() {
       />
 
       <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-white/[0.05] dark:bg-white/[0.03]">
-        
         <div className="mb-6 flex flex-wrap gap-2 border-b border-gray-200 dark:border-gray-700 pb-2">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -270,16 +308,17 @@ export default function FichasUnificadasTable() {
             </TableHeader>
             <TableBody className="relative min-h-[400px]">
               {loading ? (
-                <TableLoading colSpan={4} message={`Cargando ${activeTab.label}...`} />
+                <TableLoading
+                  colSpan={4}
+                  message={`Cargando ${activeTab.label}...`}
+                />
               ) : filteredFichas.length > 0 ? (
                 filteredFichas.map((ficha) => (
                   <TableRow key={ficha.id}>
                     <TableCell>
                       {ficha.paciente?.nombresApellidos || "Sin Nombre"}
                     </TableCell>
-                    <TableCell>
-                      {ficha.paciente?.cedula || "S/N"}
-                    </TableCell>
+                    <TableCell>{ficha.paciente?.cedula || "S/N"}</TableCell>
                     <TableCell>
                       <Badge size="sm" color={getEstadoBadge(ficha.activo)}>
                         {ficha.activo ? "Activo" : "Inactivo"}
@@ -287,6 +326,16 @@ export default function FichasUnificadasTable() {
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-center gap-2">
+                        {hasPermission(activeTab.permRead) && (
+                          <Button
+                            size="sm"
+                            variant="info"
+                            onClick={() => handleViewClick(ficha.paciente.id)}
+                            title="Ver"
+                          >
+                            <Eye size={14} />
+                          </Button>
+                        )}
                         {hasPermission(activeTab.permEdit) && (
                           <Button
                             size="sm"
@@ -328,6 +377,31 @@ export default function FichasUnificadasTable() {
           title="Confirmar Eliminación"
           description={`¿Está seguro que desea eliminar esta ficha de ${activeTab.label}? Esta acción no se puede deshacer.`}
         />
+
+        {selectedPacienteId && (
+          <>
+            <HistoriaClinicaViewModal
+              isOpen={viewHistoriaModalOpen}
+              onClose={() => setViewHistoriaModalOpen(false)}
+              pacienteId={selectedPacienteId}
+            />
+            <PsicologiaEducativaViewModal
+              isOpen={viewEduModalOpen}
+              onClose={() => setViewEduModalOpen(false)}
+              pacienteId={selectedPacienteId}
+            />
+            <PsicologiaClinicaViewModal
+              isOpen={viewClinicaModalOpen}
+              onClose={() => setViewClinicaModalOpen(false)}
+              pacienteId={selectedPacienteId}
+            />
+            <FonoaudiologiaViewModal
+              isOpen={viewFonoModalOpen}
+              onClose={() => setViewFonoModalOpen(false)}
+              pacienteId={selectedPacienteId}
+            />
+          </>
+        )}
       </div>
     </div>
   );

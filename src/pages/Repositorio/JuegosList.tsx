@@ -40,7 +40,6 @@ export default function JuegosList() {
         onNew={() => (window.location.href = "/subir-recursos")}
       />
 
-      {/* JUEGOS OFICIALES SECTION */}
       <div className="mb-10">
         <div className="flex items-center mb-6 pl-4 border-l-4 border-brand-500">
           <h2 className="text-xl font-bold text-gray-800 dark:text-white/90">
@@ -49,7 +48,6 @@ export default function JuegosList() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Card 1: Entrenamiento Cognitivo (Online) */}
           <div className="bg-white dark:bg-white/[0.03] rounded-2xl border border-gray-200 dark:border-white/[0.05] p-6 flex flex-col items-center text-center hover:shadow-lg transition-all duration-300 group">
             <div className="mb-5 p-4 bg-gray-50 dark:bg-gray-500/10 rounded-2xl text-gray-500 group-hover:scale-110 transition-transform duration-300">
               <Monitor size={40} strokeWidth={1.5} />
@@ -73,7 +71,6 @@ export default function JuegosList() {
             </div>
           </div>
 
-          {/* Card 2: Juego de Palabras */}
           <div className="bg-white dark:bg-white/[0.03] rounded-2xl border border-gray-200 dark:border-white/[0.05] p-6 flex flex-col items-center text-center hover:shadow-lg transition-all duration-300 group">
             <div className="mb-5 p-4 bg-gray-50 dark:bg-gray-500/10 rounded-2xl text-gray-500 group-hover:scale-110 transition-transform duration-300">
               <Gamepad size={40} strokeWidth={1.5} />
@@ -97,7 +94,6 @@ export default function JuegosList() {
             </div>
           </div>
 
-          {/* Card 3: Entrenamiento Cognitivo (Descargar) */}
           <div className="bg-white dark:bg-white/[0.03] rounded-2xl border border-gray-200 dark:border-white/[0.05] p-6 flex flex-col items-center text-center hover:shadow-lg transition-all duration-300 group">
             <div className="mb-5 p-4 bg-gray-50 dark:bg-gray-500/10 rounded-2xl text-gray-600 dark:text-gray-400 group-hover:scale-110 transition-transform duration-300">
               <Download size={40} strokeWidth={1.5} />
@@ -130,7 +126,6 @@ export default function JuegosList() {
         </div>
       </div>
 
-      {/* JUEGOS ADICIONALES SECTION */}
       <div className="mb-10">
         <div className="flex items-center mb-6 pl-4 border-l-4 border-teal-500">
           <h2 className="text-xl font-bold text-gray-800 dark:text-white/90">

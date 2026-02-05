@@ -15,6 +15,11 @@ import { toast } from "react-toastify";
 import Badge from "../ui/badge/Badge";
 import { useAuth } from "../../context/AuthContext";
 import { fichasService } from "../../services/fichas";
+import { DeleteModal } from "../ui/modal/DeleteModal";
+import { HistoriaClinicaViewModal } from "./HistoriaClinicaViewModal";
+import { PsicologiaEducativaViewModal } from "./PsicologiaEducativaViewModal";
+import { PsicologiaClinicaViewModal } from "./PsicologiaClinicaViewModal";
+import { FonoaudiologiaViewModal } from "./FonoaudiologiaViewModal";
 
 interface Paciente {
   id: number;
@@ -87,9 +92,9 @@ const FILE_TYPES = [
     internalName: "Ficha Compromiso",
     type: "documento",
     permissions: {
-      create: "PERM_PACIENTES_EDITAR", // Upload is part of edit
-      edit: "PERM_PACIENTES_EDITAR", // Re-upload
-      delete: "PERM_PACIENTES_ELIMINAR", // Delete doc
+      create: "PERM_PACIENTES_EDITAR",
+      edit: "PERM_PACIENTES_EDITAR",
+      delete: "PERM_PACIENTES_ELIMINAR",
       view: "PERM_PACIENTES",
     },
   },
@@ -116,6 +121,19 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
   const [resumen, setResumen] = useState<FichaResumen | null>(null);
   const [loading, setLoading] = useState(true);
   const { hasPermission } = useAuth();
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<{
+    id: number;
+    type: string;
+    fileType: string;
+    label: string;
+  } | null>(null);
+
+  const [viewHistoriaModalOpen, setViewHistoriaModalOpen] = useState(false);
+  const [viewEduModalOpen, setViewEduModalOpen] = useState(false);
+  const [viewClinicaModalOpen, setViewClinicaModalOpen] = useState(false);
+  const [viewFonoModalOpen, setViewFonoModalOpen] = useState(false);
 
   const fetchResumen = async () => {
     if (!paciente) return;
@@ -146,7 +164,43 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
     );
   };
 
-  const handleAction = async (action: string, fileType: string, internalName: string, type: string) => {
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+
+    try {
+      if (itemToDelete.type === "documento") {
+        await pacientesService.eliminarDocumento(itemToDelete.id);
+        toast.success(`${itemToDelete.label} eliminada`);
+      } else {
+        switch (itemToDelete.fileType) {
+          case "historia-clinica":
+            await fichasService.eliminarHistoriaClinica(itemToDelete.id);
+            break;
+          case "psicologia-educativa":
+            await fichasService.eliminarPsicologiaEducativa(itemToDelete.id);
+            break;
+          case "psicologia-clinica":
+            await fichasService.eliminarPsicologiaClinica(itemToDelete.id);
+            break;
+          case "fonoaudiologia":
+            await fichasService.eliminarFonoaudiologia(itemToDelete.id);
+            break;
+          default:
+            throw new Error("Tipo de ficha no reconocido");
+        }
+        toast.success(`Ficha de ${itemToDelete.label} eliminada`);
+      }
+      fetchResumen();
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      toast.error("Error al eliminar el elemento");
+    } finally {
+      setDeleteModalOpen(false);
+      setItemToDelete(null);
+    }
+  };
+
+  const handleAction = async (action: string, fileType: string, internalName: string, type: string, label: string) => {
     const fichaId = resumen?.fichas?.[internalName];
 
     if (action === "Crear") {
@@ -166,9 +220,25 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
     }
     
     if (action === "Ver") {
-        if (type === "documento") {
-             return;
-        }
+      if (fileType === "historia-clinica") {
+        setViewHistoriaModalOpen(true);
+        return;
+      }
+      if (fileType === "psicologia-educativa") {
+        setViewEduModalOpen(true);
+        return;
+      }
+      if (fileType === "psicologia-clinica") {
+        setViewClinicaModalOpen(true);
+        return;
+      }
+      if (fileType === "fonoaudiologia") {
+        setViewFonoModalOpen(true);
+        return;
+      }
+      if (type === "documento") {
+        return;
+      }
     }
     
     if (action === "Exportar") {
@@ -231,20 +301,11 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
     }
 
     if (action === "Eliminar") {
-        if (type === "documento" && fichaId) {
-             try {
-                await pacientesService.eliminarDocumento(fichaId);
-                toast.success("Documento eliminado");
-                fetchResumen(); // Refresh list
-            } catch (error) {
-                console.error("Error deleting document", error);
-                toast.error("Error al eliminar el documento");
-            }
-            return;
+        if (fichaId) {
+            setItemToDelete({ id: fichaId, type, fileType, label });
+            setDeleteModalOpen(true);
         }
-       if (type !== "documento" && fichaId) {
-            console.log("Delete ficha logic needed");
-       }
+        return;
     }
 
     if (action === "Editar") {
@@ -261,7 +322,6 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
       }
       return;
     }
-    console.log(`${action} - ${fileType} for patient ${paciente.id}`);
     toast.info(`${action}: Funcionalidad en desarrollo para ${fileType}`);
   };
 
@@ -333,7 +393,7 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => handleAction("Ver", file.id, file.internalName, file.type)}
+                                onClick={() => handleAction("Ver", file.id, file.internalName, file.type, file.label)}
                                 className="hover:bg-white hover:text-blue-600 p-2 text-dark dark:text-white-400 dark:hover:text-blue-600"
                                 title="Ver"
                               >
@@ -344,7 +404,7 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => handleAction("Editar", file.id, file.internalName, file.type)}
+                                onClick={() => handleAction("Editar", file.id, file.internalName, file.type, file.label)}
                                 className="hover:bg-white hover:text-yellow-600 p-2 text-dark dark:text-white-400 dark:hover:text-yellow-600"
                                 title="Editar"
                               >
@@ -356,7 +416,7 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => handleAction("Exportar", file.id, file.internalName, file.type)}
+                                onClick={() => handleAction("Exportar", file.id, file.internalName, file.type, file.label)}
                                 className="hover:bg-white hover:text-green-600 p-2 text-dark dark:text-white-400 dark:hover:text-green-600"
                                 title="Exportar"
                               >
@@ -368,7 +428,7 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => handleAction("Eliminar", file.id, file.internalName, file.type)}
+                                onClick={() => handleAction("Eliminar", file.id, file.internalName, file.type, file.label)}
                                 className="hover:bg-red-500 hover:text-white p-2 text-red-600 dark:text-red-400 dark:hover:text-red-400"
                                 title="Eliminar"
                               >
@@ -381,7 +441,7 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleAction("Crear", file.id, file.internalName, file.type)}
+                              onClick={() => handleAction("Crear", file.id, file.internalName, file.type, file.label)}
                               className="hover:bg-white hover:text-green-600 p-2 text-dark dark:text-white-400 dark:hover:text-green-600"
                             >
                               <Plus size={14} />
@@ -394,9 +454,84 @@ export const PatientFichasModal: React.FC<PatientFichasModalProps> = ({
                   </TableRow>
                 );
               })}
+              {resumen?.fichas && Object.entries(resumen.fichas)
+                .filter(([name]) => !FILE_TYPES.some(ft => ft.internalName === name))
+                .map(([name, id]) => (
+                  <TableRow key={`extra-${id}`}>
+                    <TableCell className="px-4 py-4 text-sm text-gray-700 dark:text-gray-300">
+                      <div className="flex items-center gap-2">
+                        <FileText size={18} className="text-gray-400" />
+                        {name}
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-4 py-4">
+                      <Badge color="success">Subido</Badge>
+                    </TableCell> 
+                    <TableCell className="px-4 py-4">
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleAction("Exportar", "extra", name, "documento", name)}
+                          className="hover:bg-white hover:text-green-600 p-2 text-dark dark:text-white-400 dark:hover:text-green-600"
+                          title="Descargar"
+                        >
+                          <Download size={14} />
+                        </Button>
+                        {hasPermission("PERM_PACIENTES_ELIMINAR") && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleAction("Eliminar", "extra", name, "documento", name)}
+                            className="hover:bg-red-500 hover:text-white p-2 text-red-600 dark:text-red-400 dark:hover:text-red-400"
+                            title="Eliminar"
+                          >
+                            <Trash size={14} />
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </div>
+      )}
+      <DeleteModal
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        title={`Eliminar ${itemToDelete?.label}`}
+        description={`¿Estás seguro de que deseas eliminar ${itemToDelete?.label.toLowerCase()}? Esta acción no se puede deshacer.`}
+      />
+
+      {viewHistoriaModalOpen && (
+        <HistoriaClinicaViewModal
+          isOpen={viewHistoriaModalOpen}
+          onClose={() => setViewHistoriaModalOpen(false)}
+          pacienteId={paciente.id}
+        />
+      )}
+      {viewEduModalOpen && (
+        <PsicologiaEducativaViewModal
+          isOpen={viewEduModalOpen}
+          onClose={() => setViewEduModalOpen(false)}
+          pacienteId={paciente.id}
+        />
+      )}
+      {viewClinicaModalOpen && (
+        <PsicologiaClinicaViewModal
+          isOpen={viewClinicaModalOpen}
+          onClose={() => setViewClinicaModalOpen(false)}
+          pacienteId={paciente.id}
+        />
+      )}
+      {viewFonoModalOpen && (
+        <FonoaudiologiaViewModal
+          isOpen={viewFonoModalOpen}
+          onClose={() => setViewFonoModalOpen(false)}
+          pacienteId={paciente.id}
+        />
       )}
     </Modal>
   );

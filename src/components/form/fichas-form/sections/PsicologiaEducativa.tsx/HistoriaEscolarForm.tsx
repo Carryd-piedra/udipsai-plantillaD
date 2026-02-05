@@ -2,6 +2,7 @@ import React from "react";
 import Input from "../../../input/InputField";
 import Label from "../../../Label";
 import Switch from "../../../switch/Switch";
+import Select from "../../../Select";
 
 interface HistoriaEscolarProps {
   data: {
@@ -21,86 +22,91 @@ const DatosHistoriaEscolarForm: React.FC<HistoriaEscolarProps> = ({
   data,
   onChange,
 }) => {
+  const optionsRelacion = [
+    { value: "BUENA", label: "Buena" },
+    { value: "MALA", label: "Mala" },
+    { value: "REGULAR", label: "Regular" },
+    { value: "NEUTRA", label: "Neutra" },
+  ];
   return (
     <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
       <div>
-        <Label>Asignaturas que gusta</Label>
+        <Label>Asignaturas que le gusta</Label>
         <Input
           value={data.asignaturasGustan}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             onChange("asignaturasGustan", e.target.value)
           }
-          placeholder="Ingrese asignaturas"
+          placeholder="Ingrese las asignaturas que le gusta"
         />
       </div>
       <div>
-        <Label>Asignaturas que no gusta</Label>
+        <Label>Asignaturas que no le gusta</Label>
         <Input
           value={data.asignaturasDisgustan}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             onChange("asignaturasDisgustan", e.target.value)
           }
-          placeholder="Ingrese asignaturas"
+          placeholder="Ingrese las asignaturas que no le gusta"
         />
       </div>
       <div>
-        <Label>Relacion con docentes</Label>
-        <Input
+        <Label>Relación con docentes</Label>
+        <Select
+          options={optionsRelacion}
           value={data.relacionDocentes}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            onChange("relacionDocentes", e.target.value)
-          }
-          placeholder="Ingrese relacion"
+          onChange={(val: string) => onChange("relacionDocentes", val)}
+          placeholder="Seleccione la relación con docentes"
         />
       </div>
       <div>
-        <Label>Causa relacion con docentes</Label>
+        <Label>Causa de la relación con docentes</Label>
         <Input
           value={data.causaRelacionDocentes}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             onChange("causaRelacionDocentes", e.target.value)
           }
-          placeholder="Ingrese causa"
+          placeholder="Ingrese la causa de la relación con docentes"
         />
       </div>
-      <div>
-        <Label>Gusta ir a institucion</Label>
+      <div className="flex items-center">
         <Switch
-          label="Gusta ir a institucion"
+          label="¿Le gusta ir a la institución?"
           checked={data.gustaIrInstitucion}
           onChange={(checked: boolean) =>
             onChange("gustaIrInstitucion", checked)
           }
         />
       </div>
+      {!data.gustaIrInstitucion && (
+        <div>
+          <Label>Causa del porqué no le gusta ir a la institución</Label>
+          <Input
+            value={data.causaGustaIrInstitucion}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              onChange("causaGustaIrInstitucion", e.target.value)
+            }
+            placeholder="Ingrese la causa del porqué no le gusta ir a la institución"
+          />
+        </div>
+      )}
       <div>
-        <Label>Causa gusta ir a institucion</Label>
-        <Input
-          value={data.causaGustaIrInstitucion}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            onChange("causaGustaIrInstitucion", e.target.value)
-          }
-          placeholder="Ingrese causa"
-        />
-      </div>
-      <div>
-        <Label>Relacion con grupo</Label>
-        <Input
+        <Label>Relación con el grupo</Label>
+        <Select
+          options={optionsRelacion}
           value={data.relacionConGrupo}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            onChange("relacionConGrupo", e.target.value)
-          }
-          placeholder="Ingrese relacion"
+          onChange={(val: string) => onChange("relacionConGrupo", val)}
+          placeholder="Seleccione la relación con el grupo"
         />
       </div>
       <div>
-        <Label>Causa relacion con grupo</Label>
+        <Label>Causa de la relación con el grupo</Label>
         <Input
           value={data.causaRelacionConGrupo}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             onChange("causaRelacionConGrupo", e.target.value)
           }
-          placeholder="Ingrese causa"
+          placeholder="Ingrese la causa de la relación con el grupo"
         />
       </div>
     </div>

@@ -450,7 +450,7 @@ const CitaModal: React.FC<CitaModalProps> = ({
                         </span>
                       </div>
                     ) : (
-                      <span className="text-gray-400 italic">
+                      <span className="text-gray-400">
                         Seleccione Especialista primero
                       </span>
                     )}
@@ -504,7 +504,7 @@ const CitaModal: React.FC<CitaModalProps> = ({
                     </span>
                   </div>
                 ) : (
-                  <span className="text-gray-400 italic">
+                  <span className="text-gray-400">
                     {profType === "PASANTE" && !selectedSpecialistForPasante
                       ? "Seleccione Especialista primero"
                       : "No seleccionado"}

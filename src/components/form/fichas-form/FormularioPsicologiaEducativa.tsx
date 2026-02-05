@@ -123,24 +123,20 @@ export default function FormularioPsicologiaEducativa() {
   );
   const [loading, setLoading] = useState(false);
 
-  // Section Visibility State
   const [verHistoriaEscolar, setVerHistoriaEscolar] = useState(false);
   const [verDesarrollo, setVerDesarrollo] = useState(false);
   const [verAdaptacion, setVerAdaptacion] = useState(false);
   const [verEstadoGeneral, setVerEstadoGeneral] = useState(false);
 
-  // Group Visibility State
   const [areaAcademica, setAreaAcademica] = useState(false);
   const [areaApoyo, setAreaApoyo] = useState(false);
 
-  // Patient Selection State
   const [selectedPatient, setSelectedPatient] = useState<{
     nombresApellidos: string;
     cedula: string;
   } | null>(null);
   const [showSelector, setShowSelector] = useState(false);
 
-  // Create Mode state
   const isEdit = !!id;
   const [searchParams] = useSearchParams();
 
@@ -179,7 +175,6 @@ export default function FormularioPsicologiaEducativa() {
       const v1 = sectionData[key];
       const v2 = initialSectionData[key];
 
-      // Normalizar null/undefined a "" para comparar con los valores iniciales
       const normalize = (v: any) => (v === null || v === undefined ? "" : v);
 
       return normalize(v1) === normalize(v2);
@@ -197,7 +192,6 @@ export default function FormularioPsicologiaEducativa() {
         };
         setFormData(loadedData);
 
-        // Auto-open sections with data
         const hasHistoria = !isSectionEmpty(data.historiaEscolar, initialPsicologiaEducativaState.historiaEscolar);
         const hasDesarrollo = !isSectionEmpty(data.desarrollo, initialPsicologiaEducativaState.desarrollo);
         const hasAdaptacion = !isSectionEmpty(data.adaptacion, initialPsicologiaEducativaState.adaptacion);
@@ -208,7 +202,6 @@ export default function FormularioPsicologiaEducativa() {
         if (hasAdaptacion) setVerAdaptacion(true);
         if (hasEstado) setVerEstadoGeneral(true);
 
-        // Auto-open areas
         if (hasHistoria || hasDesarrollo) setAreaAcademica(true);
         if (hasAdaptacion || hasEstado) setAreaApoyo(true);
 
@@ -248,7 +241,6 @@ export default function FormularioPsicologiaEducativa() {
   };
 
   const handleSubmit = async () => {
-    console.log(formData);
     if (!formData.pacienteId) {
         toast.error("Debe seleccionar un paciente");
         return;
