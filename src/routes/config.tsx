@@ -93,7 +93,7 @@ export const privateRouteObjects: RouteObject[] = [
     element: <PermissionRoute requiredPermission="PERM_PACIENTES" />,
     children: [
       { index: true, element: <ListaFichasUnificadas /> },
-      
+
       // Sub-rutas específicas para Crear/Editar
       { path: "historia-clinica/nuevo", ...protectedRoute("PERM_HISTORIA_CLINICA_CREAR", <NuevaHistoriaClinica />) },
       { path: "historia-clinica/editar/:id", ...protectedRoute("PERM_HISTORIA_CLINICA_EDITAR", <EditarHistoriaClinica />) },
@@ -122,5 +122,5 @@ export const privateRouteObjects: RouteObject[] = [
   },
 
   // Reportes
-  { path: "reportes", ...protectedRoute("PERM_REPORTES", <ReporteCitas />) },
+  { path: "reportes-citas", ...protectedRoute("PERM_CITAS", <ReporteCitas />) },
 ];

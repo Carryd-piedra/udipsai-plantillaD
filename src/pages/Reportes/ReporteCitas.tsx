@@ -54,7 +54,8 @@ const ReporteCitas = () => {
     const handleDownloadPDF = async () => {
         if (!reporte) return;
 
-        const doc = new jsPDF();
+        // Formato Media Carta (Half-Letter): 140mm x 216mm (approx 5.5 x 8.5 inches)
+        const doc = new jsPDF({ format: [140, 216], unit: 'mm' });
 
         // Helper to load image
         const loadImage = (src: string): Promise<HTMLImageElement> => {
@@ -68,69 +69,85 @@ const ReporteCitas = () => {
 
         try {
             // Load Logo
-            const logo = await loadImage("/images/UDIPSAI-Logo.jpeg");
+            const logo = await loadImage("/images/logo/auth-logo.png");
 
-            // Add Logo (Centered)
-            const logoWidth = 50;
+            // Add Univ Logo (Left side)
+            const logoWidth = 35;
             const logoHeight = (logo.height * logoWidth) / logo.width;
-            doc.addImage(logo, "JPEG", (210 - logoWidth) / 2, 10, logoWidth, logoHeight); // A4 width is 210mm
+            doc.addImage(logo, "PNG", 10, 8, logoWidth, logoHeight);
 
-            let yPos = 10 + logoHeight + 5;
-
-            // Institution Name
+            // Add 'UDIPSAI' text next to it
             doc.setFont("helvetica", "bold");
-            doc.setFontSize(10);
+            doc.setFontSize(22);
+            doc.setTextColor(0, 0, 0); // Black
+            // Logo ends at 10+35 = 45. Text starts at 50
+            doc.text("UDIPSAI", 50, 20);
+
+            let yPos = 8 + logoHeight + 4;
+
+            // Just move down a bit to separate header from title
+            yPos = Math.max(yPos, 28);
+
+            // Institution Name (Restored)
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(5); // Reduced from 7
             doc.setTextColor(50, 50, 50); // Dark Gray
-            doc.text("UNIDAD DE DIAGNOSTICO, INVESTIGACION PSICOPEDAGOGICA Y", 105, yPos, { align: "center" });
-            yPos += 5;
-            doc.text("APOYO A LA INCLUSION \"UDIPSAI\"", 105, yPos, { align: "center" });
-
-            yPos += 10;
-
-            // Title
-            doc.setFontSize(14);
-            doc.setTextColor(180, 0, 0); // Red
-            doc.text("REPORTE DE HISTORIAL DE CITAS", 105, yPos, { align: "center" });
-            // Underline title
-            doc.setDrawColor(220, 220, 220); // Light gray
-            doc.line(70, yPos + 2, 140, yPos + 2);
-
-            yPos += 10;
-
-            // Patient Info Card (Gray Background Rect)
-            doc.setFillColor(249, 250, 251); // Gray-50
-            doc.setDrawColor(229, 231, 235); // Gray-200
-            doc.roundedRect(14, yPos, 182, 35, 3, 3, 'FD'); // Filled and Stroked
-
-            yPos += 8;
-
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(8);
-            doc.setTextColor(107, 114, 128); // Gray-500
-            doc.text("PACIENTE", 20, yPos);
-
-            doc.text("CÉDULA", 140, yPos);
+            doc.text("UNIDAD DE DIAGNOSTICO, INVESTIGACION", 70, yPos, { align: "center" });
+            yPos += 2.5;
+            doc.text("PSICOPEDAGOGICA Y APOYO A LA", 70, yPos, { align: "center" });
+            yPos += 2.5;
+            doc.text("INCLUSION \"UDIPSAI\"", 70, yPos, { align: "center" });
 
             yPos += 6;
 
+            // Title
+            doc.setFontSize(10); // Reduced font
+            doc.setTextColor(180, 0, 0); // Red
+            doc.text("REPORTE DE HISTORIAL DE CITAS", 70, yPos, { align: "center" });
+            // Underline title
+            doc.setDrawColor(220, 220, 220); // Light gray
+            doc.line(40, yPos + 1.5, 100, yPos + 1.5); // Centered on 70 (width 60)
+
+            yPos += 6;
+
+            // Patient Info Card
+            doc.setFillColor(249, 250, 251); // Gray-50
+            doc.setDrawColor(229, 231, 235); // Gray-200
+            // Centered card: width 120mm (10mm margin each side)
+            // x = 10
+            doc.roundedRect(10, yPos, 120, 28, 2, 2, 'FD');
+
+            yPos += 4;
+
+            // Patient info labels
             doc.setFont("helvetica", "bold");
-            doc.setFontSize(11);
+            doc.setFontSize(6); // Reduced from 7
+            doc.setTextColor(107, 114, 128); // Gray-500
+            doc.text("PACIENTE", 15, yPos);
+            doc.text("CÉDULA", 95, yPos);
+
+            yPos += 4;
+
+            // Patient info values
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(8); // Reduced from 9
             doc.setTextColor(17, 24, 39); // Gray-900
-            doc.text(reporte.pacienteNombreCompleto.toUpperCase(), 20, yPos);
-            doc.text(cedula, 140, yPos);
+            doc.text(reporte.pacienteNombreCompleto.toUpperCase(), 15, yPos, { maxWidth: 75 });
+            doc.text(cedula, 95, yPos);
 
             yPos += 12;
 
-            // Separator in card
+            // Divider line
             doc.setDrawColor(229, 231, 235);
-            doc.line(20, yPos, 190, yPos);
+            doc.line(15, yPos, 125, yPos);
 
-            yPos += 6;
+            yPos += 4;
 
+            // Emission Date
             doc.setFont("helvetica", "normal");
-            doc.setFontSize(8);
+            doc.setFontSize(5); // Reduced from 6
             doc.setTextColor(156, 163, 175); // Gray-400
-            doc.text(`FECHA DE EMISIÓN: ${new Date().toLocaleString()}`, 190, yPos, { align: "right" });
+            doc.text(`FECHA DE EMISIÓN: ${new Date().toLocaleString()}`, 125, yPos, { align: "right" });
 
             // Table
             let tableColumn = ["FECHA", "HORA", "PROFESIONAL", "ÁREA"];
@@ -156,7 +173,7 @@ const ReporteCitas = () => {
             autoTable(doc, {
                 head: [tableColumn],
                 body: tableRows,
-                startY: yPos + 15,
+                startY: yPos + 8,
                 theme: 'grid',
                 headStyles: {
                     fillColor: [180, 0, 0], // Red header
@@ -177,12 +194,14 @@ const ReporteCitas = () => {
                     1: { halign: 'center' }, // Hora
                     4: { halign: 'center' }  // Estado
                 },
+                margin: { left: 10, right: 10 }, // 10mm margins
                 didDrawPage: (data) => {
                     // Footer
-                    doc.setFontSize(8);
+                    doc.setFontSize(5); // Reduced from 6
                     doc.setTextColor(150, 150, 150);
-                    doc.text(`Generado por Sistema UDIPSAI - ${new Date().getFullYear()}`, 105, 290, { align: "center" });
-                    doc.text(`Página ${data.pageNumber}`, 195, 290, { align: "right" });
+                    // Half letter height 216mm.
+                    doc.text(`Generado por Sistema UDIPSAI - ${new Date().getFullYear()}`, 70, 210, { align: "center" });
+                    doc.text(`Página ${data.pageNumber}`, 130, 210, { align: "right" });
                 }
             });
 
@@ -322,29 +341,39 @@ const ReporteCitas = () => {
                                 top: 0;
                                 width: 100%;
                                 margin: 0;
-                                padding: 40px;
+                                padding: 0;
                                 background: white;
                                 z-index: 9999;
-                                border: 2px solid #e5e7eb;
-                                min-height: 100vh;
+                                border: none;
                             }
+                            /* Tamaño de letra reducido para impresión Media Carta */
+                            #printable-section h3 { font-size: 12px !important; }
+                            #printable-section h4 { font-size: 14px !important; }
+                            #printable-section .text-lg { font-size: 11px !important; } /* Nombre paciente */
+                            #printable-section .text-xs { font-size: 9px !important; } /* Etiquetas */
+                            #printable-section table th { font-size: 10px !important; padding: 8px 5px !important; }
+                            #printable-section table td { font-size: 10px !important; padding: 8px 5px !important; }
+                            #printable-section table span { font-size: 6px !important; } /* Estado badge */
+                            #printable-section .p-6 { padding: 0.5rem !important; } /* Reduce padding */
+                            
                             @page {
-                                size: auto;
-                                margin: 0mm;
+                                size: 140mm 216mm; /* Media Carta */
+                                margin: 10mm;
                             }
                         }
                     `}</style>
                     {reporte ? (
                         <div id="printable-section" className="bg-white shadow-lg rounded-xl p-10 print:shadow-none print:p-0 print:w-full font-sans min-h-[600px] flex flex-col">
                             {/* Header Logos */}
-                            <div className="flex justify-center mb-6">
-                                <img src="/images/UDIPSAI-Logo.jpeg" alt="Universidad Católica de Cuenca - UDIPSAI" className="h-24 object-contain" />
+                            <div className="flex items-center justify-center gap-4 mb-4">
+                                <img src="/images/logo/auth-logo.png" alt="Universidad Católica de Cuenca" className="h-12 object-contain" />
+                                <h1 className="text-2xl font-bold text-gray-900 tracking-wider">UDIPSAI</h1>
                             </div>
 
                             <div className="text-center mb-8">
-                                <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wide">UNIDAD DE DIAGNOSTICO, INVESTIGACION PSICOPEDAGOGICA Y</h3>
-                                <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wide">APOYO A LA INCLUSION "UDIPSAI"</h3>
-                                <h4 className="text-red-700 font-bold uppercase mt-4 text-xl tracking-widest border-b border-red-200 inline-block pb-1">Reporte de Historial de Citas</h4>
+                                <h3 className="text-[10px] font-bold text-gray-800 uppercase tracking-wide">UNIDAD DE DIAGNOSTICO, INVESTIGACION PSICOPEDAGOGICA Y</h3>
+                                <h3 className="text-[10px] font-bold text-gray-800 uppercase tracking-wide">APOYO A LA INCLUSION "UDIPSAI"</h3>
+                                <h4 className="text-red-700 font-bold uppercase mt-4 text-lg tracking-widest border-b border-red-200 inline-block pb-1">Reporte de Historial de Citas</h4>
                             </div>
 
                             {/* Patient Info Card */}
